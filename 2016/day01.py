@@ -23,9 +23,6 @@ def get_distance(path):
     for s in steps:
         (c, dist) = (s[0], int(s[1:]))
 
-        if c == ' ' or c == ',':
-            continue
-
         if c == 'L':
             facing -= 1
         elif c == 'R':
