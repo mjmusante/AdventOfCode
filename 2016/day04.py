@@ -7,9 +7,9 @@ import re
 import string
 import sys
 
-def get_code(string):
+def get_code(codestr):
     count = collections.defaultdict(int)
-    for s in string:
+    for s in "".join(sorted(codestr)):
         count[s] += 1
 
     def cmp(a, b):
@@ -23,6 +23,7 @@ def get_code(string):
 
     return "".join(sorted(count, cmp=cmp)[:5])
 
+ALPHABET = "abcdefghijklmnopqrstuvwxyz"
 EXT = re.compile("(\d+)\[(.*)\]")
 
 lines = [line.strip() for line in open("day04.txt")]
@@ -30,10 +31,20 @@ lines = [line.strip() for line in open("day04.txt")]
 total = 0
 for l in lines:
     g = l.split("-")
-    string = "".join(sorted("".join(g[:-1])))
+    codestr = "-".join(g[:-1])
     m = EXT.match(g[-1])
     (code, chars) = (int(m.group(1)), m.group(2))
-    if chars == get_code(string):
+    if chars == get_code("".join(g[:-1])):
         total += code
 
-print(total)
+        rot = code % 26
+        if rot == 0:
+            print(codestr)
+        else:
+            xlate = string.maketrans(ALPHABET + "-",
+                    ALPHABET[rot:] + ALPHABET[:rot] + " ")
+            if string.translate(codestr, xlate) == "northpole object storage":
+                print("Object storage sector id: %s" % code)
+
+
+print("sector ID sum: %s" % total)
