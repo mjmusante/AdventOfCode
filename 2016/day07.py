@@ -21,17 +21,13 @@ def supports_tls(seq):
         if m:
             if contains_pair(m.group(2)):
                 return False
-            if possible or contains_pair(m.group(1)):
+            if not possible and contains_pair(m.group(1)):
                 possible = True
             seq = seq[len(m.group(0)):]
             if seq == "":
                 return possible
         else:
             return possible or contains_pair(seq)
-
-
-    
-
 
 testdata = {
         "abba[mnop]qrst": True,
