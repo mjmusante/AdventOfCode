@@ -84,3 +84,4 @@ for i in inst:
         else:
             g.rotate_col(int(m.group(2)), int(m.group(3)))
 print(g.pixel_count())
+g.output()
