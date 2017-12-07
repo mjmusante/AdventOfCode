@@ -135,4 +135,3 @@ if __name__ == "__main__":
     bot = find_bottom_of(lines)
     print("Part 1: %s" % bot)
     print("Part 2: %s" % bad_weight(lines, bot))
-    
