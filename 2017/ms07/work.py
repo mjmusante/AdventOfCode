@@ -72,11 +72,10 @@ def bad_weight(ary, bottom):
         for c in t.tree[pos].children:
             w = t.tree[c].weight_carried
             if w in practice:
-                # we've already eliminated this weight from being wrong
+                # we've already eliminated this weight
                 if len(theory) == 1:
                     # but we've got one other different weight - it wins
                     break
-                continue
             elif w in theory:
                 # we've seen this weight before - eliminate it from contention
                 theory.pop(w)
@@ -96,14 +95,14 @@ def bad_weight(ary, bottom):
             # the value it should have been
             return t.tree[pos].weight - t.tree[pos].weight_carried + prev_valid
 
-        # we've found an unbalanced node; move closer to the culprit
-        if len(theory) == 1:
-            prev_valid = practice.keys()[0]
-            pos = theory.values()[0]
-            continue
+        # we should only have found one out of balance
+        if len(theory) != 1:
+            print('length of theory dict is invalid')
+            return t
 
-        print('length of theory dict is invalid')
-        return t
+        # follow the inbalance up the tree
+        prev_valid = practice.keys()[0]
+        pos = theory.values()[0]
 
 
 TESTDATA = [
