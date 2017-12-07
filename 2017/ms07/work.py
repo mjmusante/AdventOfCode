@@ -1,18 +1,15 @@
 import re
 
-ARROWD = re.compile(r'([a-z]*) \((\d*)\) -> ([a-z, ]*)$')
-CLEAN = re.compile(r'([a-z]*) \((\d*)\)$')
+ARROWD = re.compile(r'^([a-z]*) \((\d*)\) -> ([a-z, ]*)$')
+CLEAN = re.compile(r'^([a-z]*) \((\d*)\)$')
 
 class Node:
     def __init__(self, base, weight, children):
         self.base = base
         self.weight = weight
         self.weight_carried = -1
-        self.parent = None
         self.children = children
 
-    def add_parent(self, parent):
-        self.parent = parent
 
 class Tree:
     def __init__(self):
@@ -21,11 +18,6 @@ class Tree:
     def add_entry(self, base, weight, children=[]):
         node = Node(base, weight, children)
         self.tree[base] = node
-
-    def link_children(self):
-        for k in self.tree.keys():
-            for c in self.tree[k].children:
-                self.tree[c].add_parent(k)
 
     def sum_weights(self, start):
         weight = self.tree[start].weight
@@ -57,7 +49,7 @@ def find_bottom_of(ary):
             return k
     return "*FAIL*"
 
-def weights(ary, bottom):
+def bad_weight(ary, bottom):
     t = Tree()
     for i in ary:
         m = CLEAN.match(i)
@@ -69,48 +61,42 @@ def weights(ary, bottom):
             weight = int(m.group(2))
             children = m.group(3).split(", ")
             t.add_entry(base, weight, children)
-    t.link_children()
+    # t.link_children()
     t.sum_weights(bottom)
 
-    trial = 0
     pos = bottom
     prev_valid = 0
     while True:
-        print("scanning %s" % pos)
-        trial += 1
-        if trial > 10: return t
         theory = dict()
         practice = dict()
         for c in t.tree[pos].children:
             w = t.tree[c].weight_carried
             if w in practice:
-                print("already eliminated %s (%s)" % (w, c))
+                # we've already eliminated this weight from being wrong
                 if len(theory) == 1:
-                    print("that makes %s the winner" % theory.values()[0])
+                    # but we've got one other different weight - it wins
                     break
                 continue
             elif w in theory:
+                # we've seen this weight before - eliminate it from contention
                 theory.pop(w)
                 practice[w] = c
                 if len(theory) == 1:
-                    print("unique weight %s found (%s)" %
-                          (theory.keys()[0], theory.values()[0]))
+                    # if pulling this weight out of theory means there's one
+                    # left, then it's automatically the winner
                     break
-                print("duplicate weight %s found (%s)" % (w, c))
             else:
                 theory[w] = c
                 if len(practice) > 0:
-                    print("found unique weight %s (%s)" % (w, c))
+                    # if we've found other entries with a weight that's
+                    # different to this one, then this one wins
                     break
-                print("potential winner %s (%s)" % (w, c))
         if len(theory) == 0:
-            # all children are balanced, so we're the odd one out
-            print("node %s is unbalanced: should be %s but is %s" %
-                (pos, prev_valid, t.tree[pos].weight_carried))
-            print("\toriginal weight: %s" % t.tree[pos].weight)
-            diff = t.tree[pos].weight_carried - prev_valid
-            print("\tshould be: %s" % (t.tree[pos].weight - diff))
-            return t
+            # all children are balanced, so we're the odd one out; calculate
+            # the value it should have been
+            return t.tree[pos].weight - t.tree[pos].weight_carried + prev_valid
+
+        # we've found an unbalanced node; move closer to the culprit
         if len(theory) == 1:
             prev_valid = practice.keys()[0]
             pos = theory.values()[0]
@@ -139,10 +125,14 @@ TESTDATA = [
 if __name__ == "__main__":
     lines = TESTDATA
     bot = find_bottom_of(lines)
-    print("Test: %s" % bot)
-    weights(lines, bot)
+    print("Test: bottom of tree is %s" % bot)
+    assert(bot == 'tknk')
+    correct_weight = bad_weight(lines, bot)
+    assert(correct_weight == 60)
+    print("Test: incorrect weight should be %s" % correct_weight)
+
     lines = [line.strip() for line in open("puzzle_data.txt")]
     bot = find_bottom_of(lines)
     print("Part 1: %s" % bot)
-    print("Part 2:")
-    weights(lines, bot)
+    print("Part 2: %s" % bad_weight(lines, bot))
+    
