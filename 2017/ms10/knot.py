@@ -17,18 +17,11 @@ def crypt(ary, pos=0, skip=0, size=256, data=None):
     return (pos, skip, data)
 
 
-def do_xor(ary):
-    m = ary[0]
-    i = 1
-    while i < len(ary):
-        m ^= ary[i]
-        i += 1
-    return m
-
 def densify(ary):
-    rslt = []
-    for r in range(16):
-        rslt.append(do_xor(ary[r * 16:(r + 1) * 16]))
+    rslt = [0] * 16
+    for i in range(16):
+        for j in range(16):
+            rslt[i] ^= ary[i * 16 + j]
     return rslt
 
 def calc_hash(ary):
