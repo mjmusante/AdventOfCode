@@ -4,7 +4,7 @@ SCAN = re.compile("^(\d+) <-> (.*)$")
 
 def visitcount(link, start):
     visited = dict()
-    visited[start] = 1
+    assert(start in link)
 
     def visitlink(link, start):
         count = 1
@@ -28,7 +28,7 @@ def groups(link):
     # while there are remaining ids, start with the first of those
     while len(remain) > 0:
         gcount += 1
-        (_, foo) = visitcount(link, remain[0])
+        foo = visitcount(link, remain[0])[1]
         remain = [x for x in remain if (x not in foo)]
 
     return (pcount, gcount)
@@ -39,16 +39,13 @@ def connect(ary):
     for l in ary:
         m = SCAN.match(l)
         if not m:
-            print("fail at '%s'" % l)
+            print("parse fail at '%s'" % l)
             return 0
         prg = int(m.group(1))
         if prg not in link:
             link[prg] = []
         for p in m.group(2).split(", "):
-            p2 = int(p)
-            if p2 not in link:
-                link[p2] = []
-            link[prg].append(p2)
+            link[prg].append(int(p))
     return link
 
 
@@ -81,11 +78,19 @@ TESTDATA3 = [
     "314159 <-> 314159",
 ]
 
-tests = { (6, 2): TESTDATA1, (5, 1): TESTDATA2, (1, 7): TESTDATA3 }
+TESTDATA4 = [
+    "0 <-> 0",
+]
+
+tests = {
+    (6, 2): TESTDATA1,
+    (5, 1): TESTDATA2,
+    (1, 7): TESTDATA3,
+    (1, 1): TESTDATA4,
+}
 
 for t in tests:
     link = connect(tests[t])
-
     rslt = groups(link)
     if rslt != t:
         print("Test fail: expecting %s, got %s" % (t, rslt))
@@ -93,5 +98,4 @@ for t in tests:
 
 lines = [line.strip() for line in open("puzzle_data.txt")]
 link = connect(lines)
-
 print("Part 1: %s\nPart 2: %s" % groups(link))
