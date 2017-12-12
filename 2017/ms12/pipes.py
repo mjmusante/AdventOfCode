@@ -16,6 +16,24 @@ def visitcount(link, start):
 
     return (visitlink(link, start), visited.keys())
 
+def groups(link):
+    gcount = 1
+    
+    # first group starts with id 0
+    (pcount, linked) = visitcount(link, 0)
+
+    # find the list of ids that have not been visited
+    remain = [x for x in link.keys() if (x not in linked)]
+
+    # while there are remaining ids, start with the first of those
+    while len(remain) > 0:
+        gcount += 1
+        (_, foo) = visitcount(link, remain[0])
+        remain = [x for x in remain if (x not in foo)]
+
+    return (pcount, gcount)
+
+
 def connect(ary):
     link = dict()
     for l in ary:
@@ -35,7 +53,7 @@ def connect(ary):
 
 
 
-TESTDATA = [
+TESTDATA1 = [
     "0 <-> 2",
     "1 <-> 1",
     "2 <-> 0, 3, 4",
@@ -53,34 +71,27 @@ TESTDATA2 = [
     "1676 <-> 314",
 ]
 
-tests = { 6: TESTDATA, 5: TESTDATA2 }
+TESTDATA3 = [
+    "0 <-> 0",
+    "3 <-> 3",
+    "31 <-> 31",
+    "314 <-> 314",
+    "3141 <-> 3141",
+    "31415 <-> 31415",
+    "314159 <-> 314159",
+]
+
+tests = { (6, 2): TESTDATA1, (5, 1): TESTDATA2, (1, 7): TESTDATA3 }
 
 for t in tests:
     link = connect(tests[t])
-    orig = link.keys()
 
-    (answer, lst) = visitcount(link, 0)
-    left = [x for x in orig if (x not in lst)]
-    print(left)
-    if answer != t:
-        print("Test %d, got %s instead" % (t, answer))
-    else:
-        print("Validated %s" % t)
+    rslt = groups(link)
+    if rslt != t:
+        print("Test fail: expecting %s, got %s" % (t, rslt))
 
 
 lines = [line.strip() for line in open("puzzle_data.txt")]
 link = connect(lines)
-orig = link.keys()
 
-(part1, lst) = visitcount(link, 0)
-print("Part 1: %s" % part1)
-
-left = [x for x in orig if (x not in lst)]
-groups = 1
-
-while len(left) > 0:
-    orig = left
-    (_, newlst) = visitcount(link, left[0])
-    groups += 1
-    left = [x for x in orig if (x not in newlst)]
-print("Part 2: %s" % groups)
+print("Part 1: %s\nPart 2: %s" % groups(link))
