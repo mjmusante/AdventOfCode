@@ -53,6 +53,5 @@ l = decode_layers(TESTDATA)
 print("Test: severity = %s; delay = %s" % (sev(l)[0], get_delay(l)))
 
 puzzle = decode_layers([line.strip() for line in open("puzzle_data.txt")])
-sev0 = sev(puzzle)
 print("Part 1: %s" % sev(puzzle)[0])
 print("Part 2: %s" % get_delay(puzzle))
