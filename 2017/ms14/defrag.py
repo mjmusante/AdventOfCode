@@ -12,8 +12,6 @@ def hex_to_bin(hexstr):
     return ans
 
 
-groups = 0
-
 def is_group(grid, x, y):
     if grid[x][y] != '1':
         return 0
@@ -32,16 +30,17 @@ def is_group(grid, x, y):
     visit_group(x, y)
     return 1
 
+
 if __name__ == "__main__":
     count = 0
     grid = []
     for i in range(128):
-        h = calc_hash("jzgqcdpd-%s" % i)
-        b = hex_to_bin(h)
+        b = hex_to_bin(calc_hash("jzgqcdpd-%s" % i))
         grid.append(list(b))
-        count  += b.count('1')
+        count += b.count('1')
     print("Part 1: %s" % count)
 
+    groups = 0
     for x in range(128):
         for y in range(128):
             groups += is_group(grid, x, y)
