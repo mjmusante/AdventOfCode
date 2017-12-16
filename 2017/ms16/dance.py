@@ -41,7 +41,7 @@ def dance(positions, moves):
     return positions
 
 
-def find_cycle(start, moves):
+def find_loop(start, moves):
     count = 1
     newpos = dance(start, moves)
     while newpos != start:
@@ -49,11 +49,8 @@ def find_cycle(start, moves):
         newpos = dance(newpos, moves)
     return count
 
-def get_position_at_move(start, moves, num_moves):
-    c = find_cycle(start, moves)
-    cycles = num_moves % c
-
-    for i in range(cycles):
+def get_position_at_cycle(start, moves, num_cycles):
+    for i in range(num_cycles % find_loop(start, moves)):
         start = dance(start, moves)
 
     return start
@@ -70,5 +67,5 @@ print("Test 1: pass")
 moves = [line.strip() for line in open("puzzle_data.txt")][0].split(",")
 print("Part 1: %s" % dance(FULLSTRING, moves))
 
-print("Cycle count %s" % find_cycle(FULLSTRING, moves))
-print("After 1000000000 moves: %s" % get_position_at_move(FULLSTRING, moves, 1000000000))
+print("Cycle count %s" % find_loop(FULLSTRING, moves))
+print("After a billion cycles: %s" % get_position_at_cycle(FULLSTRING, moves, 1000000000))
