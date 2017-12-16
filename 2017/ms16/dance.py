@@ -6,10 +6,10 @@ EXCHANGE = re.compile(r'x(\d+)/(\d+)')
 PARTNER = re.compile(r'p(.)/(.)')
 
 TESTDATA = "s1,x3/4,pe/b"
+FULLSTRING = "abcdefghijklmnop"
 
 def dance(positions, moves):
-    movelist = moves.split(",")
-    for move in movelist:
+    for move in moves:
         m = SPIN.match(move)
         if m:
             s = int(m.group(1))
@@ -40,7 +40,38 @@ def dance(positions, moves):
 
     return positions
 
-print("Test 1: %s" % dance("abcde", TESTDATA))
 
-line = [line.strip() for line in open("puzzle_data.txt")][0]
-print("Part 1: %s" % dance("abcdefghijklmnop", line))
+def find_cycle(start, moves):
+    count = 1
+    newpos = dance(start, moves)
+    while newpos != start:
+        count += 1
+        newpos = dance(newpos, moves)
+    return count
+
+def get_position_at_move(start, moves, num_moves):
+    c = find_cycle(start, moves)
+    if c > num_moves:
+        cycles = c
+    else:
+        cycles = num_moves % c
+
+    for i in range(cycles):
+        start = dance(start, moves)
+
+    return start
+
+
+moves = TESTDATA.split(",")
+d = dance("abcde", moves)
+
+if d != "baedc":
+    print("Test 1 fail: expecting 'baedc' got '%s'" % d)
+    sys.exit(1)
+print("Test 1: pass")
+
+moves = [line.strip() for line in open("puzzle_data.txt")][0].split(",")
+print("Part 1: %s" % dance(FULLSTRING, moves))
+
+print("Cycle count %s" % find_cycle(FULLSTRING, moves))
+print("After 1000000000 moves: %s" % get_position_at_move(FULLSTRING, moves, 1000000000))
