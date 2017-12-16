@@ -51,10 +51,7 @@ def find_cycle(start, moves):
 
 def get_position_at_move(start, moves, num_moves):
     c = find_cycle(start, moves)
-    if c > num_moves:
-        cycles = c
-    else:
-        cycles = num_moves % c
+    cycles = num_moves % c
 
     for i in range(cycles):
         start = dance(start, moves)
