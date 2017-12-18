@@ -246,7 +246,15 @@ class DustTest(unittest.TestCase):
 
 
     def test_blockage(self):
-        prg = ["snd 1", "snd 2", "snd p", "rcv a", "rcv b", "rcv c", "rcv d"]
+        prg = [
+            "snd 1",
+            "snd 2",
+            "snd p",
+            "rcv a",
+            "rcv b",
+            "rcv c",
+            "rcv d"
+        ]
         (p0, p1) = self.dual_run_prg(prg)
 
         self.assertEqual(p0.reg['a'], 1)
@@ -259,6 +267,7 @@ class DustTest(unittest.TestCase):
 
         self.assertEqual(p0.sent_count, 3)
         self.assertEqual(p1.sent_count, 3)
+
 
     def test_can_pass_part_2(self):
         prg = [line.strip() for line in open("puzzle_data.txt")]
