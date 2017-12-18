@@ -1,6 +1,6 @@
 import unittest
 
-from dust import Chip, IllegalInstructionException
+from dust import Chip, dual_run_prg, IllegalInstructionException
 
 class DustTest(unittest.TestCase):
 
@@ -218,31 +218,6 @@ class DustTest(unittest.TestCase):
         c = Chip(42)
         self.assertEqual(c.reg['p'], 42)
 
-    def dual_run_prg(self, prg):
-        c1 = Chip(0)
-        c2 = Chip(1)
-
-        c1.run(prg)
-        c2.run(prg)
-
-        # at this point, they're both blocked on rcv
-        while True:
-            while c1.has_values() and c2.is_blocked():
-                val = c1.qpop()
-                c2.cont(prg, val)
-
-            while c2.has_values() and c1.is_blocked():
-                val = c2.qpop()
-                c1.cont(prg, val)
-
-            if (c1.is_blocked() and not c2.has_values()) \
-                and (c2.is_blocked() and not c1.has_values()):
-                    break
-
-            if not c1.is_blocked() and not c2.is_blocked():
-                break
-
-        return (c1, c2)
 
 
     def test_blockage(self):
@@ -255,7 +230,7 @@ class DustTest(unittest.TestCase):
             "rcv c",
             "rcv d"
         ]
-        (p0, p1) = self.dual_run_prg(prg)
+        (p0, p1) = dual_run_prg(prg)
 
         self.assertEqual(p0.reg['a'], 1)
         self.assertEqual(p0.reg['b'], 2)
@@ -271,5 +246,5 @@ class DustTest(unittest.TestCase):
 
     def test_can_pass_part_2(self):
         prg = [line.strip() for line in open("puzzle_data.txt")]
-        (p0, p1) = self.dual_run_prg(prg)
+        (p0, p1) = dual_run_prg(prg)
         self.assertEqual(p1.sent_count, 7239)

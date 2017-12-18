@@ -127,3 +127,39 @@ class Chip:
 
     def is_blocked(self):
         return self.waiting_reg != None
+
+def dual_run_prg(prg):
+    c1 = Chip(0)
+    c2 = Chip(1)
+
+    c1.run(prg)
+    c2.run(prg)
+
+    # at this point, they're both blocked on rcv
+    while True:
+        while c1.has_values() and c2.is_blocked():
+            val = c1.qpop()
+            c2.cont(prg, val)
+
+        while c2.has_values() and c1.is_blocked():
+            val = c2.qpop()
+            c1.cont(prg, val)
+
+        if (c1.is_blocked() and not c2.has_values()) \
+            and (c2.is_blocked() and not c1.has_values()):
+                break
+
+        if not c1.is_blocked() and not c2.is_blocked():
+            break
+
+    return (c1, c2)
+
+
+if __name__ == "__main__":
+        prg = [line.strip() for line in open("puzzle_data.txt")]
+        c = Chip()
+        c.run_loopback(prg)
+        print("Part 1: %s" % c.snd)
+
+        (p0, p1) = dual_run_prg(prg)
+        print("Part 2: %s" % p1.sent_count)
