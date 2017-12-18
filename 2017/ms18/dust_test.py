@@ -2,6 +2,7 @@ import unittest
 
 from dust import Chip, dual_run_prg, IllegalInstructionException
 
+
 class DustTest(unittest.TestCase):
 
     def test_can_create_chip(self):
@@ -48,7 +49,6 @@ class DustTest(unittest.TestCase):
         c.ex("snd 46")
         c.ex("rcv e")
         self.assertEqual(c.reg['e'], 0)
-
 
     def test_can_add_immediate_value(self):
         c = Chip()
@@ -196,7 +196,6 @@ class DustTest(unittest.TestCase):
         c = Chip()
         self.assertEqual(c.sent_count, 0)
 
-
     def test_can_count_values_sent(self):
         c = Chip()
         for i in range(10):
@@ -217,8 +216,6 @@ class DustTest(unittest.TestCase):
     def test_can_start_chip_with_another_id(self):
         c = Chip(42)
         self.assertEqual(c.reg['p'], 42)
-
-
 
     def test_blockage(self):
         prg = [
@@ -242,7 +239,6 @@ class DustTest(unittest.TestCase):
 
         self.assertEqual(p0.sent_count, 3)
         self.assertEqual(p1.sent_count, 3)
-
 
     def test_can_pass_part_2(self):
         prg = [line.strip() for line in open("puzzle_data.txt")]

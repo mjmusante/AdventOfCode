@@ -1,10 +1,13 @@
 import re
 import sys
 
+
 class IllegalInstructionException(Exception):
+
     def __init__(self, message, cmd):
         self.cmd = cmd
         super(IllegalInstructionException, self).__init__(message)
+
 
 class Chip:
     REGLIST = "abcdefghijklmnopqrstuvwxyz"
@@ -38,7 +41,6 @@ class Chip:
             print("'%s' is not a valid register in '%s'" % (r, cmd))
             sys.exit(1)
         return r
-        
 
     def ex(self, cmd):
         self.pc += 1
@@ -98,7 +100,6 @@ class Chip:
 
         raise IllegalInstructionException(cmd, "cannot parse")
 
-
     def run_loopback(self, prg):
         while self.pc < len(prg):
             (inst, success) = self.ex(prg[self.pc])
@@ -116,7 +117,6 @@ class Chip:
         self.waiting_reg = None
         self.run(prg)
 
-
     def qpop(self):
         ans = self.queue[0]
         self.queue = self.queue[1:]
@@ -127,6 +127,7 @@ class Chip:
 
     def is_blocked(self):
         return self.waiting_reg != None
+
 
 def dual_run_prg(prg):
     c1 = Chip(0)
@@ -145,9 +146,9 @@ def dual_run_prg(prg):
             val = c2.qpop()
             c1.cont(prg, val)
 
-        if (c1.is_blocked() and not c2.has_values()) \
-            and (c2.is_blocked() and not c1.has_values()):
-                break
+        if (c1.is_blocked() and not c2.has_values()) and \
+                (c2.is_blocked() and not c1.has_values()):
+            break
 
         if not c1.is_blocked() and not c2.is_blocked():
             break
@@ -156,10 +157,10 @@ def dual_run_prg(prg):
 
 
 if __name__ == "__main__":
-        prg = [line.strip() for line in open("puzzle_data.txt")]
-        c = Chip()
-        c.run_loopback(prg)
-        print("Part 1: %s" % c.snd)
+    prg = [line.strip() for line in open("puzzle_data.txt")]
+    c = Chip()
+    c.run_loopback(prg)
+    print("Part 1: %s" % c.snd)
 
-        (p0, p1) = dual_run_prg(prg)
-        print("Part 2: %s" % p1.sent_count)
+    (p0, p1) = dual_run_prg(prg)
+    print("Part 2: %s" % p1.sent_count)
