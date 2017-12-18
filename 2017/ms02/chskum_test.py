@@ -2,10 +2,11 @@ import unittest
 
 from cksum import Cksum
 
+
 class TestCksum(unittest.TestCase):
 
     def test_example(self):
-        ck = Cksum([ "5 1 9 5", "7 5 3", "2 4 6 8" ])
+        ck = Cksum(["5 1 9 5", "7 5 3", "2 4 6 8"])
         self.assertEquals(ck.cksum(), 18)
 
     def test_part2(self):
