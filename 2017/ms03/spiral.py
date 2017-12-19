@@ -10,6 +10,8 @@ import math
 #   19  6  1  2 11
 #   20  7  8  9 10
 #
+
+
 def coords_of(pos):
     k = math.ceil((math.sqrt(pos) - 1) / 2)
     t = 2 * k + 1
@@ -33,7 +35,7 @@ def coords_of(pos):
 # larger than the input value
 def sum_larger_than(val):
     datap = 1
-    grid = dict();
+    grid = dict()
     grid[(0, 0)] = 1
     while True:
         x, y = coords_of(datap)
@@ -46,6 +48,7 @@ def sum_larger_than(val):
         if cursum > val:
             return cursum
         datap += 1
+
 
 if __name__ == "__main__":
     x, y = coords_of(277678)
