@@ -13,7 +13,7 @@ def decode_layers(lines):
         if idx in layer:
             print("duplicate def: '%s'" % l)
             return 0
-        layer[idx] = int(m.group(2))
+        layer[idx] = 2 * (int(m.group(2)) - 1)
     return layer
 
 def sev(layer, delay=0):
@@ -24,9 +24,8 @@ def sev(layer, delay=0):
     while stage <= last:
         if stage in layer:
             psec = (delay + stage)
-            mod = 2 * (layer[stage] - 1)
-            if (stage + delay) % mod == 0:
-                severity += stage * layer[stage]
+            if (stage + delay) % layer[stage] == 0:
+                severity += stage * ((layer[stage] / 2) + 1)
                 # short-circuit when searching for delay
                 if delay > 0:
                     return (0, True)
