@@ -2,180 +2,173 @@
 
 import sys
 
-# boss:
-# Hit Points: 51
-# Damage: 9
+from copy import copy
 
 
-def valid_spells(mana, shield, poison, recharge):
-    splist = []
-    if mana >= 53:
-        splist.append("mm")
-    if mana >= 73:
-        splist.append("drain")
-    if mana >= 113 and shield == 0:
-        splist.append("shield")
-    if mana >= 173 and poison == 0:
-        splist.append("poison")
-    if mana >= 229 and recharge == 0:
-        splist.append("recharge")
-    return splist
+class Spell:
+    SHIELD = 7
+    MANA = 101
+    POISON = 3
 
-def do_magic_missile(enemy_hp, mana):
-    assert mana >= 53
-    return (enemy_hp - 4, mana - 53)
-
-def do_drain(enemy_hp, hp, mana):
-    assert mana >= 73, "mana=%s" % mana
-    return (enemy_hp - 2, hp + 2, mana - 73)
-
-def do_shield(mana):
-    assert mana >= 113
-    return (6, mana - 113)
-
-def do_poison(mana):
-    assert mana >= 173
-    return (6, mana - 173)
-
-def do_recharge(mana):
-    assert mana >= 229
-    return (5, mana - 229)
+    def __init__(self, name, cost, damage=0, armour=0,
+                 poison=0, recharge=0, heal=0):
+        self.armour = armour
+        self.cost = cost
+        self.damage = damage
+        self.heal = heal
+        self.name = name
+        self.poison = poison
+        self.recharge = recharge
 
 
-player_hp = 50
-player_mana = 500
-boss_hp = 51
-boss_dam = 9
+class Tome:
+    MAGIC_MISSILE = Spell("Magic Missile", 53, damage=4)
+    DRAIN = Spell("Drain", 73, damage=2, heal=2)
+    SHIELD = Spell("Shield", 113, armour=5)
+    POISON = Spell("Poison", 173, poison=6)
+    RECHARGE = Spell("Recharge", 229, recharge=5)
 
-MAX_MANA = 500
-
-def play_turn(level, mana, hp, shield, poison, recharge, enemy_hp, dam):
-    global MAX_MANA
-
-    level += 1
-    assert mana >= 0
-
-    if enemy_hp < 1:
-        if MAX_MANA > mana:
-            mana = MAX_MANA
-        print("Enemy died with %s mana left" % mana)
-        return True
-
-    vs = valid_spells(mana, shield, poison, recharge)
+    book = [MAGIC_MISSILE, DRAIN, SHIELD, POISON, RECHARGE]
 
 
-    if len(vs) == 0:
-        print("%s no valid spells" % ('>' * level))
-        return False
+class GameMaster:
 
-    print("%s (%s,%s,%s,%s,%s,%s,%s)" % ('>' * level, mana, hp, shield, poison, recharge, enemy_hp, dam))
-    print("%s (%s) %s" % ('>' * level, mana, vs))
-
-    for i in vs:
-        # apply effects
-        if shield > 0:
-            shield -= 1
-        if poison > 0:
-            if enemy_hp < 4:
-                if MAX_MANA > mana:
-                    mana = MAX_MANA
-                print("Enemy poisoned with %s mana left" % mana)
-                return True
-            enemy_hp -= 3
-            poison -= 1
-        if recharge > 0:
-            mana += 101
-            recharge -= 1
-        print("%s [%s/%s]" % ('>' * level, enemy_hp, mana))
-        print("%s casting %s" % ('>' * level, i))
-
-        # cast spells
-        do_dam = 0
-        do_hp = 0
-        do_regen = 0
-        mana_cost = 0
-
-        if i == "mm":
-            do_dam = 4
-            mana_cost = 53
-        elif i == "drain":
-            do_dam = 2
-            do_hp = 2
-            mana_cost = 73
-        elif i == "shield":
-            add_shield = 6
-            mana_cost = 113
-        elif i == "poison":
-            add_poison = 6
-            mana_cost = 173
-        elif i == "recharge":
-            add_recharge = 5
-            mana_cost = 229
-        else:
-            print("Unknown spell %s" % i)
-            sys.exit(1)
-        if enemy_hp <= 0:
-            if MAX_MANA > mana:
-                MAX_MANA = mana
-            print("enemy dead with %s mana left" % mana)
-            return True
-        hp -= dam
-        if shield > 0:
-            hp += 7
-        if hp < 1:
-            return False
-
-        play_turn(level, mana, hp, shield, poison, recharge, enemy_hp, dam)
-    print("%s no more spells" % ('>' * level))
-
-play_turn(0, 500, 50, 0, 0, 0, 51, 9)
-        
-
-sys.exit(0)
-
-
-
-
-class Player:
-    def __init__(self, hp, mana):
+    def __init__(self, hp=10, mana=250, bosshp=13, bosshit=8, quiet=False):
         self.hp = hp
         self.mana = mana
-
+        self.bosshp = bosshp
+        self.bosshit = bosshit
         self.shield = 0
-        self.poison = 0
-        self.recharge = 0
+        self.quiet = quiet
 
-        self.boss_hp = 51
-        self.boss_dam = 9
+        self.effects = []
 
-    def valid_spells(self):
-        splist = []
-        if self.mana >= 53:
-            splist.append("mm")
-        if self.mana >= 73:
-            splist.append("drain")
-        if self.mana >= 113 and self.shield == 0:
-            splist.append("shield")
-        if self.mana >= 173 and self.poison == 0:
-            splist.append("poison")
-        if self.mana >= 229 and self.recharge == 0:
-            splist.append("recharge")
-        return splist
+    def player_hp(self):
+        return self.hp
+
+    def player_mana(self):
+        return self.mana
+
+    def boss_hp(self):
+        return self.bosshp
+
+    def generate_moves(self):
+        rslt = []
+        for s in Tome.book:
+            if s.cost < self.mana:
+                rslt.append(s)
+        return rslt
+
+    def player_heal(self, amt):
+        self.hp += amt
+
+    def spend_mana(self, amt):
+        self.mana -= amt
+
+    def hit_boss(self, amt):
+        self.bosshp -= amt
+
+    def start_of_turn(self):
+        rslt = GameMaster(self.hp, self.mana, self.bosshp, self.bosshit,
+                          self.quiet)
+        for e in self.effects:
+            s = copy(e)
+
+            if s.armour > 0:
+                s.armour -= 1
+                rslt.effects.append(s)
+                rslt.shield += Spell.SHIELD
+
+            if s.recharge > 0:
+                rslt.mana += Spell.MANA
+                s.recharge -= 1
+                rslt.effects.append(s)
+
+            if s.poison > 0:
+                rslt.bosshp -= Spell.POISON
+                s.poison -= 1
+                rslt.effects.append(s)
+
+        return rslt
+
+    def turn_desc(self, who):
+        if self.quiet:
+            return
+
+        spellinfo = []
+        armour = 0
+        for s in self.effects:
+            if s.recharge > 0:
+                spellinfo.append("Recharge provides %s mana; "
+                                 "its timer is now %s." %
+                                 (Spell.MANA, s.recharge - 1))
+            if s.poison > 0:
+                spellinfo.append("Poison deals %s damage, "
+                                 "its timer is now %s." %
+                                 (Spell.POISON, s.poison - 1))
+            if s.armour > 0:
+                spellinfo.append("Sheild's timer is now %s" % s.armour)
+                armour += Spell.SHIELD
+
+        print("-- %s turn --" % who)
+        print("- Player has %s hit points, %s armour, %s mana" %
+              (self.hp, armour, self.mana))
+        print("- Boss has %s hit points" % self.bosshp)
+        for i in spellinfo:
+            print(i)
+
+    def cast(self, spell, desc=False):
+
+        if desc and not self.quiet:
+            msg = "Player casts %s" % spell.name
+            if spell.damage > 0:
+                msg += ", dealing %s damage" % spell.damage
+            if spell.armour > 0:
+                msg += ", increasing armour by %s" % Spell.SHIELD
+            if spell.heal > 0:
+                msg += ", healing %s hit points" % spell.heal
+            print("%s." % msg)
+
+        rslt = self.start_of_turn()
+        rslt.player_heal(spell.heal)
+        rslt.spend_mana(spell.cost)
+        rslt.hit_boss(spell.damage)
+
+        if spell.armour > 0 or spell.recharge > 0 or spell.poison > 0:
+            rslt.effects.append(spell)
+
+        return rslt
+
+    def boss_move(self, desc=False):
+        rslt = self.start_of_turn()
+        if rslt.boss_hp() <= 0:
+            if not self.quiet:
+                print("This kills the boss, and the player wins.")
+            return rslt
+
+        hit_for = max(1, rslt.bosshit - rslt.shield)
+        if desc and not self.quiet:
+            print("Boss attacks for %s damage\n" % hit_for)
+
+        rslt.hp -= hit_for
+        return rslt
+
+    def play(self, moves):
+        self.total_cost = 0
+        gm = self
+        for m in moves:
+            gm.turn_desc("Player")
+            self.total_cost += m.cost
+            gm = gm.cast(m, True)
+            if gm.player_hp() <= 0 or gm.boss_hp() <= 0:
+                break
+            if not self.quiet:
+                print("")
+            gm.turn_desc("Boss")
+            gm = gm.boss_move(True)
+            if gm.player_hp() <= 0 or gm.boss_hp() <= 0:
+                break
 
 
-
-def player_wins(player):
-    l = player.valid_spells()
-    for i in l:
-        player.apply_effects()
-        if player.boss_hp <= 0:
-            return True
-        player.cast(l)
-        if player.boss_hp <= 0:
-            return True
-        player.boss_move()
-        if player.hp <= 0:
-            return False
-
-p = Player(50, 500)
-
+if __name__ == "__main__":
+    pass
