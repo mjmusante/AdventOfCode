@@ -48,16 +48,18 @@ class TestMagicCode(unittest.TestCase):
         newgm = newgm.boss_move()
         self.assertEqual(newgm.player_mana(), 9 + Spell.MANA)
 
-    def test_can_stack_sheilds(self):
+    def test_cannot_stack_sheilds(self):
         s = Spell("Dual Armour", 2, armour=5)
         gm = GameMaster(hp=10)
 
         newgm = gm.cast(s)
-        newgm = newgm.cast(s)
-        self.assertEqual(newgm.shield, 7)
+        bossgm = newgm.boss_move()
+        self.assertEqual(bossgm.shield, 7)
 
-        newgm = newgm.boss_move()
-        self.assertEqual(newgm.shield, 14)
+        with self.assertRaises(Exception):
+            newgm = bossgm.cast(s)
+
+        self.assertEqual(bossgm.shield, 7)
 
     def test_can_shield_from_boss(self):
         s = Spell("Armour", 0, armour=6)
@@ -65,6 +67,7 @@ class TestMagicCode(unittest.TestCase):
         newgm = gm.cast(s)
         bossgm = newgm.boss_move()
         self.assertEqual(bossgm.player_hp(), 5)
+        self.assertEqual(bossgm.shield, 7)
 
     def test_boss_hits_for_at_least_one_point(self):
         s = Spell("Armour", 0, armour=3)
@@ -150,8 +153,8 @@ class TestMagicCode(unittest.TestCase):
         self.assertEqual(hp, 51)
         self.assertEqual(dam, 9)
 
-    # def test_can_solve_part_1(self):
-    #     (bosshp, bosshit) = read_boss_stats()
-    #     gm = GameMaster(hp=50, mana=500, bosshp=bosshp,
-    #                     bosshit=bosshit, quiet=True)
-    #     self.assertEqual(gm.find_lowest_mana(), 0)
+    def test_can_solve_part_1(self):
+        (bosshp, bosshit) = read_boss_stats()
+        gm = GameMaster(hp=50, mana=500, bosshp=bosshp,
+                        bosshit=bosshit, quiet=True)
+        self.assertEqual(gm.find_lowest_mana(), 900)

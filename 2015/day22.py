@@ -95,7 +95,7 @@ class GameMaster:
             if s.armour > 0:
                 s.armour -= 1
                 rslt.effects.append(s)
-                rslt.shield += Spell.SHIELD
+                rslt.shield = Spell.SHIELD
 
             if s.recharge > 0:
                 rslt.mana += Spell.MANA
@@ -153,6 +153,14 @@ class GameMaster:
         rslt.hit_boss(spell.damage)
 
         if spell.armour > 0 or spell.recharge > 0 or spell.poison > 0:
+            for e in rslt.effects:
+                if spell.armour > 0 and e.armour > 1:
+                    raise Exception
+                if spell.recharge > 0 and e.recharge > 1:
+                    raise Exception
+                if spell.poison > 0 and e.poison > 1:
+                    raise Exception
+
             rslt.effects.append(spell)
 
         return rslt
@@ -195,7 +203,7 @@ class GameMaster:
 
         return newgm.boss_move(True)
 
-    def find_lowest_mana(self):
+    def find_lowest_mana(self, lim=None):
         moves = self.generate_moves()
         if len(moves) == 0:
             return None
@@ -203,8 +211,8 @@ class GameMaster:
         for m in moves:
             if best and (best < m.cost):
                 continue
-            # print("%3s %sExploring %s, best=%s, tospend=%s" %
-            #       (self.level, " " * self.level, m.name, best, m.cost))
+            if lim and lim < m.cost:
+                continue
             gm = self.one_move(m)
             if gm.player_dead():
                 continue
@@ -212,7 +220,11 @@ class GameMaster:
                 if not best or best > m.cost:
                     best = m.cost
             else:
-                cost = gm.find_lowest_mana()
+                if not lim:
+                    newlim = best
+                else:
+                    newlim = lim - m.cost
+                cost = gm.find_lowest_mana(newlim)
                 if cost and (not best or best > cost):
                     best = cost + m.cost
         return best
