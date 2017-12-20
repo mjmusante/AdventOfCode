@@ -1,6 +1,8 @@
 import unittest
 
-from day22 import GameMaster, Spell, Tome
+from copy import copy
+
+from day22 import GameMaster, Spell, Tome, read_boss_stats
 
 
 class TestMagicCode(unittest.TestCase):
@@ -80,16 +82,76 @@ class TestMagicCode(unittest.TestCase):
         self.assertEqual(bossgm.bosshp, 10 - Spell.POISON)
 
     def test_can_play_first_example(self):
-        gm = GameMaster(hp=10, mana=250, bosshp=13, bosshit=8, quiet=True)
+        gm = GameMaster(hp=10, mana=250, bosshp=13, bosshit=8)
         gm.play([Tome.POISON, Tome.MAGIC_MISSILE])
         self.assertEqual(gm.total_cost,
                          Tome.POISON.cost + Tome.MAGIC_MISSILE.cost)
 
     def test_can_play_second_example(self):
-        gm = GameMaster(hp=10, mana=250, bosshp=14, bosshit=8, quiet=True)
+        gm = GameMaster(hp=10, mana=250, bosshp=14, bosshit=8)
         gm.play([Tome.RECHARGE, Tome.SHIELD, Tome.DRAIN, Tome.POISON,
                  Tome.MAGIC_MISSILE])
         self.assertEqual(gm.total_cost,
                          Tome.RECHARGE.cost + Tome.SHIELD.cost +
                          Tome.DRAIN.cost + Tome.POISON.cost +
                          Tome.MAGIC_MISSILE.cost)
+
+    def test_can_detect_player_death(self):
+        gm = GameMaster(hp=2)
+        newgm = gm.one_move(Tome.MAGIC_MISSILE)
+        self.assertTrue(newgm.player_dead())
+
+    def test_can_detect_boss_death(self):
+        gm = GameMaster(bosshp=2)
+        newgm = gm.one_move(Tome.MAGIC_MISSILE)
+        self.assertTrue(newgm.boss_dead())
+
+    def test_can_run_first_scenario(self):
+        gm = GameMaster(hp=10, mana=250, bosshp=13, bosshit=8)
+        self.assertEqual(gm.find_lowest_mana(),
+                         Tome.POISON.cost + Tome.MAGIC_MISSILE.cost)
+
+    def test_can_run_second_scenario(self):
+        gm = GameMaster(hp=10, mana=250, bosshp=14, bosshit=8)
+        self.assertEqual(gm.find_lowest_mana(),
+                         Tome.RECHARGE.cost + Tome.SHIELD.cost +
+                         Tome.DRAIN.cost + Tome.POISON.cost +
+                         Tome.MAGIC_MISSILE.cost)
+
+    def test_will_not_generate_sheild_if_already_active(self):
+        gm = GameMaster()
+        moves = gm.generate_moves()
+        self.assertIn(Tome.SHIELD, moves)
+        newgm = gm.cast(Tome.SHIELD)
+        newmoves = newgm.generate_moves()
+        self.assertNotIn(Tome.SHIELD, newmoves)
+
+    def test_will_not_generate_recharge_if_already_active(self):
+        gm = GameMaster()
+        moves = gm.generate_moves()
+        self.assertIn(Tome.RECHARGE, moves)
+        newgm = gm.cast(Tome.RECHARGE)
+        newmoves = newgm.generate_moves()
+        self.assertNotIn(Tome.RECHARGE, newmoves)
+
+    def test_can_start_new_effect_at_end_of_old_effect(self):
+        gm = GameMaster()
+        moves = gm.generate_moves()
+        self.assertIn(Tome.SHIELD, moves)
+        newgm = gm.cast(Tome.SHIELD)
+        e = copy(newgm.effects[0])
+        e.armour = 1
+        newgm.effects[0] = e
+        newmoves = newgm.generate_moves()
+        self.assertIn(Tome.SHIELD, newmoves)
+
+    def test_can_read_boss_settings(self):
+        (hp, dam) = read_boss_stats()
+        self.assertEqual(hp, 51)
+        self.assertEqual(dam, 9)
+
+    # def test_can_solve_part_1(self):
+    #     (bosshp, bosshit) = read_boss_stats()
+    #     gm = GameMaster(hp=50, mana=500, bosshp=bosshp,
+    #                     bosshit=bosshit, quiet=True)
+    #     self.assertEqual(gm.find_lowest_mana(), 0)
