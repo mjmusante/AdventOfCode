@@ -35,13 +35,12 @@ class Rotor:
         s = ""
         if len(self.pos) == 9:
             r = self.ROTATE3
-        else:
+        elif len(self.pos) == 4:
             r = self.ROTATE2
+        else:
+            raise Exception
 
-        for i in r:
-            s += self.pos[i]
-
-        return Rotor(s)
+        return Rotor("".join([self.pos[i] for i in r]))
 
     def flip(self):
         s = ""
@@ -66,10 +65,12 @@ class Rotor:
 
         ans = []
         a = re.findall(pattern, self.pos)
+        offset = 0
         for row in range(sz / multiple):
             rdata = [""] * (sz / multiple)
             for col in range(sz):
-                rdata[col % (sz / multiple)] += a.pop(0)
+                rdata[col % (sz / multiple)] += a[offset]
+                offset += 1
             ans.append([Rotor(r) for r in rdata])
         return ans
 
@@ -146,10 +147,12 @@ class Grid:
         for row in range(len(self.grid)):
             for col in range(len(self.grid[row])):
                 a = re.findall(pattern, self.grid[row][col].state())
+                offset = 0
                 if trace:
                     print(a)
                 for i in range(len(a)):
-                    newrows[multiple * row + i] += a.pop(0)
+                    newrows[multiple * row + i] += a[offset]
+                    offset += 1
         self.grid = [[Rotor("".join(newrows))]]
 
     def do_patterns(self):
@@ -197,13 +200,11 @@ if __name__ == "__main__":
     g = Grid(".#...####", p)
 
     for i in range(5):
-        t = timeit.timeit(g.one_move, number=1)
-        print("Iteration %s: %s" % (i, cvt_secs(t)))
+        g.one_move()
 
     print("Part 1: %s" % g.count_pixels())
 
     for i in range(13):
-        t = timeit.timeit(g.one_move, number=1)
-        print("Iteration %s: %s" % (i + 5, cvt_secs(t)))
+        g.one_move()
 
     print("Part 2: %s" % g.count_pixels())

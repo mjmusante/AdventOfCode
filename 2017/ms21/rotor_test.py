@@ -175,8 +175,6 @@ class TestRotor(unittest.TestCase):
         self.assertEquals(g.count_pixels(), 147)
 
         for i in range(13):
-            g.rejoin()
-            g.fracture()
-            g.do_patterns()
+            g.one_move()
 
         self.assertEquals(g.count_pixels(), 1936582)
