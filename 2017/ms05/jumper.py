@@ -7,6 +7,7 @@ def count_jumps(memory):
         jumps += 1
     return jumps
 
+
 def count_wacky_jumps(memory):
     ip = 0
     jumps = 0
@@ -19,6 +20,7 @@ def count_wacky_jumps(memory):
             ip += memory[ip] - 1
         jumps += 1
     return jumps
+
 
 if __name__ == "__main__":
     print("Test: %s" % count_jumps([0, 3, 0, 1, -3]))
