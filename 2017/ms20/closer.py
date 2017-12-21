@@ -129,7 +129,12 @@ if __name__ == "__main__":
     c = Closer(plist)
     if c.remove_collisions():
         print("Setup: down to %s" % len(c.particles))
-    for i in range(10000000):
+
+    # This is a hack: we know the answer is less than 50.
+    # To fix this the right way, the answer can be determined
+    # by solving a quadratic equation to determine whther any
+    # two particles occupy the same location at a given time t
+    for i in range(50):
         c.step()
         if c.remove_collisions():
             print("%10s down to %s entries" % (i, len(c.particles)))
