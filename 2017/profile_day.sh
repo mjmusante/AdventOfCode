@@ -17,5 +17,5 @@ if [ "$py_script" == "" ]; then
     exit 1
 fi
 
-python -m cProfile -o "/tmp/ms$1.cprof" $py_script
+time python -O -m cProfile -o "/tmp/ms$1.cprof" $py_script
 pyprof2calltree -k -i "/tmp/ms$1.cprof"

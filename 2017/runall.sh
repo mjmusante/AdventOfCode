@@ -12,7 +12,7 @@ do
     echo "================= ==== ================="
     echo "======            $dir            ======"
     echo "================= ==== ================="
-    time python $pyprg
+    time python -O $pyprg
     echo
     echo
 done
