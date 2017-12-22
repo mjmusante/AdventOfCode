@@ -21,11 +21,14 @@ class Spell:
         self.poison = poison
         self.recharge = recharge
 
+    def __repr__(self):
+        return self.name
+
 
 class Tome:
     MAGIC_MISSILE = Spell("Magic Missile", 53, damage=4)
     DRAIN = Spell("Drain", 73, damage=2, heal=2)
-    SHIELD = Spell("Shield", 113, armour=5)
+    SHIELD = Spell("Shield", 113, armour=6)
     POISON = Spell("Poison", 173, poison=6)
     RECHARGE = Spell("Recharge", 229, recharge=5)
 
@@ -42,8 +45,10 @@ class GameMaster:
         self.shield = 0
         self.quiet = quiet
         self.level = 0
+        self.boss_poisoned = False
 
         self.effects = []
+        self.spell_seq = []
 
     def player_hp(self):
         return self.hp
@@ -85,27 +90,39 @@ class GameMaster:
     def hit_boss(self, amt):
         self.bosshp -= amt
 
-    def start_of_turn(self):
-        rslt = GameMaster(self.hp, self.mana, self.bosshp, self.bosshit,
+    def start_of_turn(self, hardmode=False):
+        newhp = self.hp
+        if hardmode:
+            newhp -= 1
+
+        rslt = GameMaster(newhp, self.mana, self.bosshp, self.bosshit,
                           self.quiet)
         rslt.level = self.level + 1
+        if rslt.hp < 1:
+            if not self.quiet:
+                print("*** hardmode: player dies ***\n")
+            return rslt
+
         for e in self.effects:
             s = copy(e)
 
             if s.armour > 0:
                 s.armour -= 1
-                rslt.effects.append(s)
+                if s.armour > 0:
+                    rslt.effects.append(s)
                 rslt.shield = Spell.SHIELD
 
             if s.recharge > 0:
                 rslt.mana += Spell.MANA
                 s.recharge -= 1
-                rslt.effects.append(s)
+                if s.recharge > 0:
+                    rslt.effects.append(s)
 
             if s.poison > 0:
                 rslt.bosshp -= Spell.POISON
                 s.poison -= 1
-                rslt.effects.append(s)
+                if s.poison > 0:
+                    rslt.effects.append(s)
 
         return rslt
 
@@ -135,7 +152,17 @@ class GameMaster:
         for i in spellinfo:
             print(i)
 
-    def cast(self, spell, desc=False):
+    def cast(self, spell, desc=False, hardmode=False):
+
+        rslt = self.start_of_turn(hardmode)
+        if rslt.player_dead():
+            return rslt
+
+        if rslt.boss_dead():
+            rslt.boss_poisoned = True
+            if not self.quiet:
+                print("Boss succumbs to poisoning.")
+            return rslt
 
         if desc and not self.quiet:
             msg = "Player casts %s" % spell.name
@@ -147,9 +174,8 @@ class GameMaster:
                 msg += ", healing %s hit points" % spell.heal
             print("%s." % msg)
 
-        rslt = self.start_of_turn()
-        rslt.player_heal(spell.heal)
         rslt.spend_mana(spell.cost)
+        rslt.player_heal(spell.heal)
         rslt.hit_boss(spell.damage)
 
         if spell.armour > 0 or spell.recharge > 0 or spell.poison > 0:
@@ -174,7 +200,10 @@ class GameMaster:
 
         hit_for = max(1, rslt.bosshit - rslt.shield)
         if desc and not self.quiet:
-            print("Boss attacks for %s damage\n" % hit_for)
+            print("Boss attacks for %s damage" % hit_for)
+            if hit_for >= rslt.hp:
+                print("*** Boss Slays Player ***")
+            print("\n")
 
         rslt.hp -= hit_for
         return rslt
@@ -194,39 +223,49 @@ class GameMaster:
             gm = gm.boss_move(True)
             if gm.player_hp() <= 0 or gm.boss_hp() <= 0:
                 break
+        return gm
 
-    def one_move(self, spell):
-        gm = self
-        newgm = gm.cast(spell, True)
-        if newgm.hp <= 0:
+    def one_move(self, spell, hardmode=False):
+        self.turn_desc("Player depth %s" % self.level)
+        newgm = self.cast(spell, desc=True, hardmode=hardmode)
+        if newgm.player_dead() or newgm.boss_dead():
             return newgm
 
+        newgm.turn_desc("Boss depth %s" % newgm.level)
         return newgm.boss_move(True)
 
-    def find_lowest_mana(self, lim=None):
+    def find_lowest_mana(self, lim=None, hardmode=False):
         moves = self.generate_moves()
         if len(moves) == 0:
             return None
         best = None
         for m in moves:
-            if best and (best < m.cost):
+            if best is not None and (best < m.cost):
                 continue
-            if lim and lim < m.cost:
+            if lim is not None and lim < m.cost:
                 continue
-            gm = self.one_move(m)
+            gm = self.one_move(m, hardmode)
             if gm.player_dead():
                 continue
             if gm.boss_dead():
-                if not best or best > m.cost:
-                    best = m.cost
+                if gm.boss_poisoned:
+                    actual_cost = 0
+                else:
+                    actual_cost = m.cost
+                    self.spell_seq = [m]
+                if best is None or best > actual_cost:
+                    best = actual_cost
             else:
-                if not lim:
+                if lim is None:
                     newlim = best
                 else:
                     newlim = lim - m.cost
-                cost = gm.find_lowest_mana(newlim)
-                if cost and (not best or best > cost):
-                    best = cost + m.cost
+                cost = gm.find_lowest_mana(newlim, hardmode)
+                if cost is not None:
+                    cost += m.cost
+                    if best is None or best > cost:
+                        best = cost
+                        self.spell_seq = [m] + gm.spell_seq
         return best
 
 
@@ -242,3 +281,4 @@ if __name__ == "__main__":
     gm = GameMaster(hp=50, mana=500, bosshp=bosshp,
                     bosshit=bosshit, quiet=True)
     print("Part 1: %s" % gm.find_lowest_mana())
+    print("Part 2: %s" % gm.find_lowest_mana(hardmode=True))

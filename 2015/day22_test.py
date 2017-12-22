@@ -114,12 +114,29 @@ class TestMagicCode(unittest.TestCase):
         self.assertEqual(gm.find_lowest_mana(),
                          Tome.POISON.cost + Tome.MAGIC_MISSILE.cost)
 
+    def test_can_remember_sequence_of_spells(self):
+        gm = GameMaster(hp=10, mana=250, bosshp=13, bosshit=8)
+        gm.find_lowest_mana()
+        self.assertEqual(gm.spell_seq, [Tome.POISON, Tome.MAGIC_MISSILE])
+
     def test_can_run_second_scenario(self):
         gm = GameMaster(hp=10, mana=250, bosshp=14, bosshit=8)
         self.assertEqual(gm.find_lowest_mana(),
                          Tome.RECHARGE.cost + Tome.SHIELD.cost +
                          Tome.DRAIN.cost + Tome.POISON.cost +
                          Tome.MAGIC_MISSILE.cost)
+
+    def test_boss_can_succumb_to_poisoning_on_player_turn(self):
+        gm = GameMaster(hp=17, mana=250, bosshp=14, bosshit=8)
+        self.assertEqual(gm.find_lowest_mana(), 568)
+
+    def test_can_run_first_scenario_in_hard_mode(self):
+        gm = GameMaster(hp=10, mana=250, bosshp=13, bosshit=8)
+        self.assertIsNone(gm.find_lowest_mana(hardmode=True))
+
+    def test_can_run_second_scenario_in_hard_mode(self):
+        gm = GameMaster(hp=10, mana=250, bosshp=13, bosshit=8)
+        self.assertIsNone(gm.find_lowest_mana(hardmode=True))
 
     def test_will_not_generate_sheild_if_already_active(self):
         gm = GameMaster()
@@ -153,8 +170,63 @@ class TestMagicCode(unittest.TestCase):
         self.assertEqual(hp, 51)
         self.assertEqual(dam, 9)
 
+    def test_hardmode_kills_player_on_move(self):
+        gm = GameMaster(hp=1)
+        ml = gm.generate_moves()
+        newgm = gm.one_move(ml[0], hardmode=True)
+        self.assertTrue(newgm.player_dead())
+
+    def test_poison_death_means_no_final_spell_needed(self):
+        gm = GameMaster(hp=100, mana=500, bosshp=4, bosshit=1)
+        newgm = gm.one_move(Tome.POISON)
+        self.assertEqual(newgm.boss_hp(), 1)
+        newgm = newgm.one_move(Tome.MAGIC_MISSILE)
+        self.assertTrue(newgm.boss_poisoned)
+
+    def test_shield_lasts_long_enough(self):
+        gm = GameMaster(hp=6, mana=1000, bosshp=20, bosshit=8)
+        self.assertEquals(gm.find_lowest_mana(), 392)
+
+    def test_boss_should_die_with_these_inputs_and_spells(self):
+        gm = GameMaster(50, 500, 51, 9, quiet=True)
+        spells_to_cast = [
+            Tome.POISON,
+            Tome.RECHARGE,
+            Tome.SHIELD,
+            Tome.POISON,
+            Tome.RECHARGE,
+            Tome.DRAIN,
+            Tome.POISON,
+            Tome.MAGIC_MISSILE
+        ]
+        for s in spells_to_cast:
+            self.assertFalse(gm.boss_dead())
+            gm = gm.one_move(s)
+        self.assertTrue(gm.boss_dead())
+
+    def test_crappy_code(self):
+        gm = GameMaster(50, 500, 51, 9, quiet=True)
+        spells_to_cast = [
+            Tome.POISON,
+            Tome.RECHARGE,
+            Tome.SHIELD,
+            Tome.POISON,
+            Tome.RECHARGE
+        ]
+        for s in spells_to_cast:
+            gm = gm.one_move(s)
+
+        self.assertEquals(gm.find_lowest_mana(), 279)
+
     def test_can_solve_part_1(self):
         (bosshp, bosshit) = read_boss_stats()
         gm = GameMaster(hp=50, mana=500, bosshp=bosshp,
                         bosshit=bosshit, quiet=True)
         self.assertEqual(gm.find_lowest_mana(), 900)
+
+    def test_can_solve_part_2(self):
+        (bosshp, bosshit) = read_boss_stats()
+        gm = GameMaster(hp=50, mana=500, bosshp=bosshp,
+                        bosshit=bosshit, quiet=True)
+        total = gm.find_lowest_mana(hardmode=True)
+        self.assertEqual(total, 1216)
