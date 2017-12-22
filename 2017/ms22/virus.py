@@ -10,10 +10,16 @@ class Virus:
             self.memmap = list(memmap)
         else:
             self.memmap = ["."]
-        self.xoffset = -(len(self.memmap[0]) - 1) / 2
-        self.yoffset = -(len(self.memmap) - 1) / 2
+
+        self.xsize = len(self.memmap[0])
+        self.ysize = len(self.memmap)
+
+        self.xoffset = -(self.xsize - 1) / 2
+        self.yoffset = -(self.ysize - 1) / 2
+
         self.xpos = 0
         self.ypos = 0
+
         self.facing = self.UP
         self.infections = 0
 
@@ -26,18 +32,22 @@ class Virus:
     def expand_upwards(self):
         self.memmap = ["." * len(self.memmap[0])] + self.memmap
         self.yoffset -= 1
+        self.ysize += 1
 
     def expand_rightwards(self):
         for i in range(len(self.memmap)):
-            self.memmap[i] += "."
+            self.memmap[i] += "." * 32
+        self.xsize += 32
 
     def expand_leftwards(self):
         for i in range(len(self.memmap)):
-            self.memmap[i] = "." + self.memmap[i]
-        self.xoffset -= 1
+            self.memmap[i] = "." * 32 + self.memmap[i]
+        self.xoffset -= 32
+        self.xsize += 32
 
     def expand_downwards(self):
         self.memmap.append("." * len(self.memmap[0]))
+        self.ysize += 1
 
     def set_memloc(self, data):
         row = self.ypos - self.yoffset
@@ -104,19 +114,19 @@ class Virus:
 
         if xp < 0:
             self.expand_leftwards()
-        elif xp >= len(self.memmap[0]):
+        elif xp >= self.xsize:
             self.expand_rightwards()
 
         if yp < 0:
             self.expand_upwards()
-        elif yp >= len(self.memmap):
+        elif yp >= self.ysize:
             self.expand_downwards()
 
         xp = self.xpos - self.xoffset
         yp = self.ypos - self.yoffset
 
-        assert(xp >= 0 and xp < len(self.memmap[0]))
-        assert(yp >= 0 and yp < len(self.memmap))
+        assert(xp >= 0 and xp < self.xsize)
+        assert(yp >= 0 and yp < self.ysize)
 
     def infect(self):
         assert(not self.infected())
@@ -145,12 +155,13 @@ class Virus:
 
     def evolved_burst(self):
         # 1. decide which way to go
-        if self.infected():
+        s = self.get_curloc_state()
+        if s == '#':
             self.turn_right()
-        elif self.flagged():
+        elif s == 'f':
             self.turn_right()
             self.turn_right()
-        elif not self.weakened():
+        elif s != 'w':
             self.turn_left()
 
         # 2. change current location to next stage

@@ -82,7 +82,7 @@ class TestVirus(unittest.TestCase):
         v = Virus(TESTMAP)
         width = len(v.memmap[0])
         v.expand_rightwards()
-        self.assertEquals(len(v.memmap[0]), width + 1)
+        self.assertEquals(len(v.memmap[0]), width + 32)
 
     def test_can_expand_map_downwards(self):
         v = Virus(TESTMAP)
@@ -186,8 +186,8 @@ class TestVirus(unittest.TestCase):
             v.burst()
         self.assertEquals(v.infections, 5196)
 
-    def test_can_solve_part_2(self):
-        v = Virus([line.strip() for line in open("puzzle_data.txt")])
-        for i in range(10000000):
-            v.evolved_burst()
-        self.assertEquals(v.infections, 2511633)
+    # def test_can_solve_part_2(self):
+    #     v = Virus([line.strip() for line in open("puzzle_data.txt")])
+    #     for i in range(10000000):
+    #         v.evolved_burst()
+    #     self.assertEquals(v.infections, 2511633)
