@@ -23,7 +23,6 @@ def count_wacky_jumps(memory):
 
 
 if __name__ == "__main__":
-    # print("Test: %s" % count_jumps([0, 3, 0, 1, -3]))
     puzzle = [int(line.strip()) for line in open("puzzle_data.txt")]
     print("Part 1: %s" % count_jumps(puzzle))
 
