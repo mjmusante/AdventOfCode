@@ -91,37 +91,14 @@ class Closer:
         return which
 
     def remove_collisions(self):
-        newlist = []
-        for i in range(len(self.particles)):
-            p = self.particles[i]
-            hit = False
-            for j in range(len(self.particles)):
-                if i != j and p.collides_with(self.particles[j]):
-                    hit = True
-                    break
-            if not hit:
-                newlist.append(p)
-        if len(self.particles) != len(newlist):
-            self.particles = newlist
-            return True
-        return False
-
-    def remove_collisions2(self):
-        x = len(self.particles)
-        new_p = []
+        foo = dict()
         for p in self.particles:
-            safe = True
-            for np in new_p:
-                if p.collides_with(np):
-                    new_p.remove(np)
-                    safe = False
-                    break
-            if safe:
-                new_p.append(p)
-        if x != len(new_p):
-            self.particles = new_p
-            return True
-        return False
+            s = str(p.pos)
+            if s in foo:
+                foo[s] = 0
+            else:
+                foo[s] = p
+        self.particles = [foo[p] for p in foo if foo[p] != 0]
 
 
 if __name__ == "__main__":
