@@ -46,11 +46,33 @@ class Virus:
         d = self.memmap[row]
         self.memmap[row] = d[:col] + data + d[col + 1:]
 
-    def infected(self):
+    def get_curloc_state(self):
         row = self.ypos - self.yoffset
         col = self.xpos - self.xoffset
+        return self.memmap[row][col]
 
-        return self.memmap[row][col] == '#'
+    def infected(self):
+        return self.get_curloc_state() == '#'
+
+    def weakened(self):
+        return self.get_curloc_state() == 'w'
+
+    def flagged(self):
+        return self.get_curloc_state() == 'f'
+
+    def next_infection_stage(self):
+        s = self.get_curloc_state()
+        if s == '.':
+            self.set_memloc('w')
+        elif s == 'w':
+            self.set_memloc('#')
+            self.infections += 1
+        elif s == '#':
+            self.set_memloc('f')
+        elif s == 'f':
+            self.set_memloc('.')
+        else:
+            raise Exception
 
     def loc(self):
         return (self.xpos, self.ypos)
@@ -120,3 +142,33 @@ class Virus:
 
         # 3. move forward
         self.move_forward()
+
+    def evolved_burst(self):
+        # 1. decide which way to go
+        if self.infected():
+            self.turn_right()
+        elif self.flagged():
+            self.turn_right()
+            self.turn_right()
+        elif not self.weakened():
+            self.turn_left()
+
+        # 2. change current location to next stage
+        self.next_infection_stage()
+
+        # 3. move forward
+        self.move_forward()
+
+
+if __name__ == "__main__":
+    puzzle = [line.strip() for line in open("puzzle_data.txt")]
+
+    part1 = Virus(puzzle)
+    for i in range(10000):
+        part1.burst()
+    print("Part 1: %s" % part1.infections)
+
+    part2 = Virus(puzzle)
+    for i in range(10000000):
+        part2.evolved_burst()
+    print("Part 2: %s" % part2.infections)

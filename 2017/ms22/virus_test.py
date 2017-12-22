@@ -154,8 +154,40 @@ class TestVirus(unittest.TestCase):
             v.burst()
         self.assertEquals(v.infections, 41)
 
+    def test_can_work_multiple_infection_stages(self):
+        v = Virus(TESTMAP)
+        self.assertFalse(v.infected())
+        v.next_infection_stage()
+        self.assertTrue(v.weakened())
+
+        self.assertEquals(v.infections, 0)
+        v.next_infection_stage()
+        self.assertTrue(v.infected())
+        self.assertEquals(v.infections, 1)
+
+        v.next_infection_stage()
+        self.assertTrue(v.flagged())
+
+    def test_can_solve_evolved_example(self):
+        v = Virus(TESTMAP)
+        for i in range(100):
+            v.evolved_burst()
+        self.assertEquals(v.infections, 26)
+
+    def test_can_solve_extended_evolved_example(self):
+        v = Virus(TESTMAP)
+        for i in range(10000000):
+            v.evolved_burst()
+        self.assertEquals(v.infections, 2511944)
+
     def test_can_solve_part_1(self):
         v = Virus([line.strip() for line in open("puzzle_data.txt")])
         for i in range(10000):
             v.burst()
         self.assertEquals(v.infections, 5196)
+
+    def test_can_solve_part_2(self):
+        v = Virus([line.strip() for line in open("puzzle_data.txt")])
+        for i in range(10000000):
+            v.evolved_burst()
+        self.assertEquals(v.infections, 2511633)
