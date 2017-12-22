@@ -18,7 +18,8 @@ def distribute(memory):
     return (iterations, dist)
 
 
-print("Test data: cycles=%s, distance=%s" % distribute([0, 2, 7, 0]))
-puzzle_data = [line.strip() for line in open("puzzle_data.txt")]
-puzzle = [int(val) for val in puzzle_data[0].split()]
-print("Part 1 & 2: cycles=%s, distance=%s" % distribute(puzzle))
+if __name__ == "__main__":
+    # print("Test data: cycles=%s, distance=%s" % distribute([0, 2, 7, 0]))
+    puzzle_data = [line.strip() for line in open("puzzle_data.txt")]
+    puzzle = [int(val) for val in puzzle_data[0].split()]
+    print("Part 1: %s\nPart 2: %s" % distribute(puzzle))
