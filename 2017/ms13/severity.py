@@ -2,6 +2,7 @@ import re
 
 SCAN = re.compile(r'(\d+): (\d+)$')
 
+
 def decode_layers(lines):
     layer = dict()
     for l in lines:
@@ -15,6 +16,7 @@ def decode_layers(lines):
             return 0
         layer[idx] = 2 * (int(m.group(2)) - 1)
     return layer
+
 
 def sev(layer, delay=0):
     hit = False
@@ -33,6 +35,7 @@ def sev(layer, delay=0):
         stage += 1
     return (severity, hit)
 
+
 def get_delay(layer):
     delay = 0
     (_, hit) = sev(layer, delay)
@@ -41,6 +44,7 @@ def get_delay(layer):
         (_, hit) = sev(layer, delay)
     return delay
 
+
 TESTDATA = [
     "0: 3",
     "1: 2",
@@ -48,9 +52,13 @@ TESTDATA = [
     "6: 4",
 ]
 
-l = decode_layers(TESTDATA)
-print("Test: severity = %s; delay = %s" % (sev(l)[0], get_delay(l)))
+if __name__ == "__main__":
+    layers = decode_layers(TESTDATA)
+    assert(sev(layers)[0] == 24)
+    assert(get_delay(layers) == 10)
+    # print("Test: severity = %s; delay = %s" %
+    # (sev(layers)[0], get_delay(layers)))
 
-puzzle = decode_layers([line.strip() for line in open("puzzle_data.txt")])
-print("Part 1: %s" % sev(puzzle)[0])
-print("Part 2: %s" % get_delay(puzzle))
+    puzzle = decode_layers([line.strip() for line in open("puzzle_data.txt")])
+    print("Part 1: %s" % sev(puzzle)[0])
+    print("Part 2: %s" % get_delay(puzzle))

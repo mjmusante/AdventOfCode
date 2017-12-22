@@ -62,3 +62,13 @@ class Diagram:
             newdir = direc
 
         return (cx, cy, newdir)
+
+
+if __name__ == "__main__":
+    puzzle = [line for line in open("puzzle_data.txt")]
+    d = Diagram(puzzle)
+    pos = d.start()
+    while pos[2] != Diagram.HALT:
+        pos = d.moveFrom(pos)
+    print("Part 1: %s" % "".join(d.seq))
+    print("Part 2: %s" % d.steps)

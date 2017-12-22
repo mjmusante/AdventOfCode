@@ -1,7 +1,9 @@
 import operator
 import re
 
-DECODE = re.compile(r'^([a-z]*) (inc|dec) (-?\d*) if ([a-z]*) ([^ ]*) (-?[\d]*)$')
+DECODE = re.compile(
+    r'^([a-z]*) (inc|dec) (-?\d*) if ([a-z]*) ([^ ]*) (-?[\d]*)$')
+
 
 def largest(ary):
     reg = dict()
@@ -51,7 +53,7 @@ def largest(ary):
                 return (None, None)
             if not highest or highest < reg[prime]:
                 highest = reg[prime]
-    print("%s instructions processed, %s unique registers" % (icount, rcount))
+    # print("%s instructions, %s unique registers" % (icount, rcount))
     return (max(reg.iteritems(), key=operator.itemgetter(1))[1], highest)
 
 
@@ -62,11 +64,12 @@ TESTDATA = [
     "c inc -20 if c == 10",
 ]
 
-lines = TESTDATA
-(l, h) = largest(lines)
-print("Test: largest=%s, highest=%s" % (l, h))
-assert(l == 1)
-assert(h == 10)
+if __name__ == "__main__":
+    lines = TESTDATA
+    (lg, hg) = largest(lines)
+    # print("Test: largest=%s, highest=%s" % (l, h))
+    assert(lg == 1)
+    assert(hg == 10)
 
-lines = [line.strip() for line in open("puzzle_data.txt")]
-print("Answers: largest=%s, highest=%s" % largest(lines))
+    lines = [line.strip() for line in open("puzzle_data.txt")]
+    print("Part 1: %s\nPart 2: %s" % largest(lines))

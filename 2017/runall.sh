@@ -10,8 +10,9 @@ do
     pyprg=$(basename $loc)
     cd $top/$dir
     echo "================= ==== ================="
-    echo "=                 $dir                 ="
+    echo "======            $dir            ======"
     echo "================= ==== ================="
     time python $pyprg
-    echo "\n\n"
+    echo
+    echo
 done

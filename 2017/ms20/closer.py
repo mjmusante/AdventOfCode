@@ -127,8 +127,7 @@ class Closer:
 if __name__ == "__main__":
     plist = [line.strip() for line in open("puzzle_data.txt")]
     c = Closer(plist)
-    if c.remove_collisions():
-        print("Setup: down to %s" % len(c.particles))
+    print("Part 1: %s" % c.smallest_acc())
 
     # This is a hack: we know the answer is less than 50.
     # To fix this the right way, the answer can be determined
@@ -136,5 +135,6 @@ if __name__ == "__main__":
     # two particles occupy the same location at a given time t
     for i in range(50):
         c.step()
-        if c.remove_collisions():
-            print("%10s down to %s entries" % (i, len(c.particles)))
+        c.remove_collisions()
+
+    print("Part 2: %s" % len(c.particles))

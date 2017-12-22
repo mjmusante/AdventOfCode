@@ -28,8 +28,9 @@ def score(str):
                 level -= 1
     return (rslt, chars)
 
+
 testdata = {
-    "{}" : (1, 0),
+    "{}": (1, 0),
     "{{{}}}": (6, 0),
     "{{},{}}": (5, 0),
     "{{{},{},{{}}}}": (16, 0),
@@ -41,15 +42,16 @@ testdata = {
     "{<!!!>{}>}": (1, 2)
 }
 
-tc = 0
-for t in testdata:
-    tc += 1
-    answer = score(t)
-    if (answer[0] != testdata[t][0]):
-        print("'%s' expecting %s, got %s" % (t, testdata[t][0], answer[0]))
-    if (answer[1] != testdata[t][1]):
-        print("'%s' expecting %s garbage, got %s" % (t, testdata[t][1],
-              answer[1]))
+if __name__ == "__main__":
+    tc = 0
+    for t in testdata:
+        tc += 1
+        answer = score(t)
+        if (answer[0] != testdata[t][0]):
+            print("'%s' expecting %s, got %s" % (t, testdata[t][0], answer[0]))
+        if (answer[1] != testdata[t][1]):
+            print("'%s' expecting %s garbage, got %s" % (t, testdata[t][1],
+                                                         answer[1]))
 
-foo = [line.strip() for line in open("puzzle_data.txt")]
-print("Part 1: %s\nPart 2: %s" % score(foo[0]))
+    foo = [line.strip() for line in open("puzzle_data.txt")]
+    print("Part 1: %s\nPart 2: %s" % score(foo[0]))

@@ -74,7 +74,6 @@ class TestNetwork(unittest.TestCase):
         d = Diagram(puzzle)
         pos = d.start()
         while pos[2] != Diagram.HALT:
-            # print("(%s, %s, %s)" % pos)
             pos = d.moveFrom(pos)
         self.assertEqual("".join(d.seq), "RYLONKEWB")
         self.assertEqual(d.steps, 16016)

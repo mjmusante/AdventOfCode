@@ -2,6 +2,7 @@ import re
 
 SCAN = re.compile("^(\d+) <-> (.*)$")
 
+
 def visitcount(link, start):
     visited = dict()
     assert(start in link)
@@ -16,9 +17,10 @@ def visitcount(link, start):
 
     return (visitlink(link, start), visited.keys())
 
+
 def groups(link):
     gcount = 1
-    
+
     # first group starts with id 0
     (pcount, linked) = visitcount(link, 0)
 
@@ -47,7 +49,6 @@ def connect(ary):
         for p in m.group(2).split(", "):
             link[prg].append(int(p))
     return link
-
 
 
 TESTDATA1 = [
@@ -89,13 +90,14 @@ tests = {
     (1, 1): TESTDATA4,
 }
 
-for t in tests:
-    link = connect(tests[t])
-    rslt = groups(link)
-    if rslt != t:
-        print("Test fail: expecting %s, got %s" % (t, rslt))
 
+if __name__ == "__main__":
+    for t in tests:
+        link = connect(tests[t])
+        rslt = groups(link)
+        if rslt != t:
+            print("Test fail: expecting %s, got %s" % (t, rslt))
 
-lines = [line.strip() for line in open("puzzle_data.txt")]
-link = connect(lines)
-print("Part 1: %s\nPart 2: %s" % groups(link))
+    lines = [line.strip() for line in open("puzzle_data.txt")]
+    link = connect(lines)
+    print("Part 1: %s\nPart 2: %s" % groups(link))

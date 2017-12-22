@@ -6,6 +6,7 @@ def do_spin(lim, stop):
     n = mem.index(0)
     return mem[n:] + mem[:n]
 
+
 def do_search(lim, stop):
     loc = 0
     ans = 0
@@ -15,10 +16,12 @@ def do_search(lim, stop):
             ans = i + 1
     return ans
 
-rslt = do_spin(3, 2017)
-print("Test: %s" % rslt[rslt.index(2017)+1])
 
-rslt = do_spin(370, 2017)
-print("Part 1: %s" % rslt[rslt.index(2017)+1])
+if __name__ == "__main__":
+    rslt = do_spin(3, 2017)
+    assert(rslt[rslt.index(2017) + 1] == 638)
 
-print("Part 2: %s" % do_search(370, 50000000))
+    rslt = do_spin(370, 2017)
+    print("Part 1: %s" % rslt[rslt.index(2017) + 1])
+
+    print("Part 2: %s" % do_search(370, 50000000))

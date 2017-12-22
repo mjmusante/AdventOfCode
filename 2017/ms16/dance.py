@@ -8,6 +8,7 @@ PARTNER = re.compile(r'p(.)/(.)')
 TESTDATA = "s1,x3/4,pe/b"
 FULLSTRING = "abcdefghijklmnop"
 
+
 def dance(positions, moves):
     for move in moves:
         m = SPIN.match(move)
@@ -16,7 +17,6 @@ def dance(positions, moves):
             positions = positions[-s:] + positions[:-s]
             continue
 
-
         m = EXCHANGE.match(move)
         if m:
             p1 = int(m.group(1))
@@ -24,8 +24,8 @@ def dance(positions, moves):
             c1 = positions[p1]
             c2 = positions[p2]
 
-            newpos = positions[:p1] + c2 + positions[p1+1:]
-            positions = newpos[:p2] + c1 + newpos[p2+1:]
+            newpos = positions[:p1] + c2 + positions[p1 + 1:]
+            positions = newpos[:p2] + c1 + newpos[p2 + 1:]
             continue
 
         m = PARTNER.match(move)
@@ -49,6 +49,7 @@ def find_loop(start, moves):
         newpos = dance(newpos, moves)
     return count
 
+
 def get_position_at_cycle(start, moves, num_cycles):
     for i in range(num_cycles % find_loop(start, moves)):
         start = dance(start, moves)
@@ -56,16 +57,17 @@ def get_position_at_cycle(start, moves, num_cycles):
     return start
 
 
-moves = TESTDATA.split(",")
-d = dance("abcde", moves)
+if __name__ == "__main__":
+    moves = TESTDATA.split(",")
+    d = dance("abcde", moves)
 
-if d != "baedc":
-    print("Test 1 fail: expecting 'baedc' got '%s'" % d)
-    sys.exit(1)
-print("Test 1: pass")
+    if d != "baedc":
+        print("Test 1 fail: expecting 'baedc' got '%s'" % d)
+        sys.exit(1)
 
-moves = [line.strip() for line in open("puzzle_data.txt")][0].split(",")
-print("Part 1: %s" % dance(FULLSTRING, moves))
+    moves = [line.strip() for line in open("puzzle_data.txt")][0].split(",")
+    print("Part 1: %s" % dance(FULLSTRING, moves))
 
-print("Cycle count %s" % find_loop(FULLSTRING, moves))
-print("After a billion cycles: %s" % get_position_at_cycle(FULLSTRING, moves, 1000000000))
+    # print("Cycle count %s" % find_loop(FULLSTRING, moves))
+    print("Part 2: %s" %
+          get_position_at_cycle(FULLSTRING, moves, 1000000000))
