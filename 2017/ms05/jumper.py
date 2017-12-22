@@ -1,7 +1,8 @@
 def count_jumps(memory):
     ip = 0
     jumps = 0
-    while ip >= 0 and ip < len(memory):
+    memlen = len(memory)
+    while ip >= 0 and ip < memlen:
         memory[ip] += 1
         ip += memory[ip] - 1
         jumps += 1
@@ -11,7 +12,8 @@ def count_jumps(memory):
 def count_wacky_jumps(memory):
     ip = 0
     jumps = 0
-    while ip >= 0 and ip < len(memory):
+    memlen = len(memory)
+    while ip >= 0 and ip < memlen:
         if memory[ip] >= 3:
             memory[ip] -= 1
             ip += memory[ip] + 1
@@ -26,6 +28,5 @@ if __name__ == "__main__":
     puzzle = [int(line.strip()) for line in open("puzzle_data.txt")]
     print("Part 1: %s" % count_jumps(puzzle))
 
-    # print("Test Wacky: %s" % count_wacky_jumps([0, 3, 0, 1, -3]))
     puzzle = [int(line.strip()) for line in open("puzzle_data.txt")]
     print("Part 2: %s" % count_wacky_jumps(puzzle))
