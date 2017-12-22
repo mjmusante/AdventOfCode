@@ -124,11 +124,11 @@ TESTDATA = [
 if __name__ == "__main__":
     lines = TESTDATA
     bot = find_bottom_of(lines)
-    print("Test: bottom of tree is %s" % bot)
+    # print("Test: bottom of tree is %s" % bot)
     assert(bot == 'tknk')
     correct_weight = bad_weight(lines, bot)
     assert(correct_weight == 60)
-    print("Test: incorrect weight should be %s" % correct_weight)
+    # print("Test: incorrect weight should be %s" % correct_weight)
 
     lines = [line.strip() for line in open("puzzle_data.txt")]
     bot = find_bottom_of(lines)
