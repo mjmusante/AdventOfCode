@@ -15,9 +15,8 @@ def rotate(ary):
     print("%s: %s" % (orig, ary))
 
 
-
 for lim in range(1, 20):
-    l = []
+    l_array = []
     for i in range(lim):
-        l.append((i + 1, 1),)
-    rotate(l)
+        l_array.append((i + 1, 1),)
+    rotate(l_array)
