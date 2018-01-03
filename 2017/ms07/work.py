@@ -3,7 +3,9 @@ import re
 ARROWD = re.compile(r'^([a-z]*) \((\d*)\) -> ([a-z, ]*)$')
 CLEAN = re.compile(r'^([a-z]*) \((\d*)\)$')
 
+
 class Node:
+
     def __init__(self, base, weight, children):
         self.base = base
         self.weight = weight
@@ -12,6 +14,7 @@ class Node:
 
 
 class Tree:
+
     def __init__(self):
         self.tree = dict()
 
@@ -48,6 +51,7 @@ def find_bottom_of(ary):
         if found[k] == 1:
             return k
     return "*FAIL*"
+
 
 def bad_weight(ary, bottom):
     t = Tree()
@@ -106,20 +110,20 @@ def bad_weight(ary, bottom):
 
 
 TESTDATA = [
-        "pbga (66)",
-        "xhth (57)",
-        "ebii (61)",
-        "havc (66)",
-        "ktlj (57)",
-        "fwft (72) -> ktlj, cntj, xhth",
-        "qoyq (66)",
-        "padx (45) -> pbga, havc, qoyq",
-        "tknk (41) -> ugml, padx, fwft",
-        "jptl (61)",
-        "ugml (68) -> gyxo, ebii, jptl",
-        "gyxo (61)",
-        "cntj (57)",
-    ]
+    "pbga (66)",
+    "xhth (57)",
+    "ebii (61)",
+    "havc (66)",
+    "ktlj (57)",
+    "fwft (72) -> ktlj, cntj, xhth",
+    "qoyq (66)",
+    "padx (45) -> pbga, havc, qoyq",
+    "tknk (41) -> ugml, padx, fwft",
+    "jptl (61)",
+    "ugml (68) -> gyxo, ebii, jptl",
+    "gyxo (61)",
+    "cntj (57)",
+]
 
 if __name__ == "__main__":
     lines = TESTDATA
