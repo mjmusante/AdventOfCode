@@ -1,7 +1,12 @@
 import sys
-sys.path.append("..")
 
-from ms10.knot import calc_hash
+
+sys.path.append("..")
+try:
+    from ms10.knot import calc_hash
+except e:
+    raise e
+
 
 def hex_to_bin(hexstr):
     ans = ""
