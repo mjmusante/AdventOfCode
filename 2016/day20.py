@@ -1,7 +1,10 @@
 
+import re
 import sys
 
+
 class SpaceMap:
+
     def __init__(self, minval=0, maxval=sys.maxint):
         self.minval = minval
         self.maxval = maxval
@@ -10,11 +13,24 @@ class SpaceMap:
     def in_map(self, val):
         return val >= self.minval and val <= self.maxval
 
-    def remove_range(self, low, high):
-        for v in self.valid:
-            if v[0] == low:
-                if v[1] >= high:
-                    return
-                
-            if v[0] > low:
-                if v[0] > high:
+
+if __name__ == "__main__":
+    lines = [l.strip().split("-") for l in open("day20.txt")]
+    print("lines = %s" % len(lines))
+    lines.sort(key=lambda x: int(x[0]))
+    print("%s" % lines[0])
+    lowest = 0
+    count = 0
+    for l in lines:
+        (low, high) = (int(l[0]), int(l[1]))
+        if lowest >= low and lowest <= high:
+            lowest = high + 1
+        elif lowest < low:
+            count += low - lowest
+            lowest = high + 1
+        # if lowest >= low and lowest <= high:
+        #     lowest = high + 1
+        # elif lowest < low:
+        #     break
+    # print("lowest = %s" % lowest)
+    print("count = %s" % count)
