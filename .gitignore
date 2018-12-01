@@ -4,3 +4,6 @@
 *.pyc
 *.pyo
 *.sublime-workspace
+**/target/
+Cargo.lock
+**/*.rs.bk
