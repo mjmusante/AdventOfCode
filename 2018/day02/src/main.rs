@@ -25,7 +25,7 @@ fn part1(lines: &Vec<String>) -> i64 {
             match v {
                 2 => has_two = true,
                 3 => has_three = true,
-                _ => ()
+                _ => (),
             }
         }
         if has_two {
@@ -87,15 +87,14 @@ mod tests {
 
     #[test]
     fn test1() {
-        let v = vec_of_strings!["abcdef", "bababc", "abbcde", "abcccd",
-            "aabcdd", "abcdee", "ababab"];
+        let v =
+            vec_of_strings!["abcdef", "bababc", "abbcde", "abcccd", "aabcdd", "abcdee", "ababab"];
         assert_eq!(part1(&v), 12);
     }
 
     #[test]
     fn test2() {
-        let v = vec_of_strings!["abcde", "fghij", "klmno", "pqrst", "fguij",
-            "axcye", "wvxyz"];
+        let v = vec_of_strings!["abcde", "fghij", "klmno", "pqrst", "fguij", "axcye", "wvxyz"];
         assert_eq!(part2(&v), "fgij".to_string());
     }
 }
