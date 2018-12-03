@@ -1,9 +1,11 @@
+extern crate itertools;
 extern crate lines;
 extern crate regex;
 
 use regex::Regex;
 use std::cmp::{min, max};
 use std::collections::HashMap;
+use itertools::Itertools;
 
 #[derive(PartialEq, Eq, Hash)]
 struct Region {
@@ -22,37 +24,33 @@ fn part1(lines: &Vec<Region>) -> (u64, u64) {
         noverlap.insert(l, 0);
     }
 
-    for l1 in 0..(lines.len() - 1) {
-        for l2 in (l1 + 1)..lines.len() {
-            let r1 = &lines[l1];
-            let r2 = &lines[l2];
-            let r1x = r1.xpos + r1.width - 1;
-            let r1y = r1.ypos + r1.height - 1;
-            let r2x = r2.xpos + r2.width - 1;
-            let r2y = r2.ypos + r2.height - 1;
+    for (r1, r2) in lines.iter().tuple_combinations() {
+        let r1x = r1.xpos + r1.width - 1;
+        let r1y = r1.ypos + r1.height - 1;
+        let r2x = r2.xpos + r2.width - 1;
+        let r2y = r2.ypos + r2.height - 1;
 
-            if (r1.xpos < r2.xpos && r1x < r2.xpos) ||
-                (r2.xpos < r1.xpos && r2x < r1.xpos) {
-                    continue;
-                }
-            if (r1.ypos < r2.ypos && r1y < r2.ypos) ||
-                (r2.ypos < r1.ypos && r2y < r1.ypos) {
-                    continue;
-                }
+        if (r1.xpos < r2.xpos && r1x < r2.xpos) ||
+            (r2.xpos < r1.xpos && r2x < r1.xpos) {
+                continue;
+            }
+        if (r1.ypos < r2.ypos && r1y < r2.ypos) ||
+            (r2.ypos < r1.ypos && r2y < r1.ypos) {
+                continue;
+            }
 
-            // they overlap
-            noverlap.remove(r1);
-            noverlap.remove(r2);
+        // they overlap
+        noverlap.remove(r1);
+        noverlap.remove(r2);
 
-            let ox = max(r1.xpos, r2.xpos);
-            let oy = max(r1.ypos, r2.ypos);
-            let px = min(r1x, r2x) + 1;
-            let py = min(r1y, r2y) + 1;
+        let ox = max(r1.xpos, r2.xpos);
+        let oy = max(r1.ypos, r2.ypos);
+        let px = min(r1x, r2x) + 1;
+        let py = min(r1y, r2y) + 1;
 
-            for x in ox..px {
-                for y in oy..py {
-                    *hm.entry((x, y)).or_insert(0) += 1;
-                }
+        for x in ox..px {
+            for y in oy..py {
+                *hm.entry((x, y)).or_insert(0) += 1;
             }
         }
     }

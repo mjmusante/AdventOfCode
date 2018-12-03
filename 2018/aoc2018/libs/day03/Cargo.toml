@@ -6,3 +6,4 @@ authors = ["Mark Musante <mark.musante@gmail.com>"]
 [dependencies]
 lines = { path = "../lines" }
 regex = "1"
+itertools = "0.7.7"
