@@ -31,8 +31,8 @@ fn part2(lines: &Vec<String>) -> i64 {
     }
 }
 
-fn main() {
-    let lines = lineread(String::from("puzzle_data.txt"));
+pub fn run() {
+    let lines = lineread(String::from("puzzle_data/day01.txt"));
     println!("Part 1: {}", part1(&lines));
     println!("Part 2: {}", part2(&lines));
 }

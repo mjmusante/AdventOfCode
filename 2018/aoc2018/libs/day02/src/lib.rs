@@ -71,8 +71,8 @@ fn part2(lines: &Vec<String>) -> String {
     "none!".to_string()
 }
 
-fn main() {
-    let lines = lineread("puzzle_data.txt".to_string());
+pub fn run() {
+    let lines = lineread("puzzle_data/day02.txt".to_string());
     println!("Part 1: {}", part1(&lines));
     println!("Part 2: {}", part2(&lines));
 }
