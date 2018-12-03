@@ -1,15 +1,6 @@
 use std::collections::HashMap;
-use std::fs::File;
-use std::io::BufRead;
-use std::io::BufReader;
 
-fn lineread(pathname: String) -> Vec<String> {
-    let f = File::open(pathname).unwrap();
-    return BufReader::new(&f)
-        .lines()
-        .map(|line| line.unwrap())
-        .collect::<Vec<String>>();
-}
+extern crate lines;
 
 fn part1(lines: &Vec<String>) -> i64 {
     lines.iter().map(|line| line.parse::<i64>().unwrap()).sum()
@@ -32,7 +23,7 @@ fn part2(lines: &Vec<String>) -> i64 {
 }
 
 pub fn run() {
-    let lines = lineread(String::from("puzzle_data/day01.txt"));
+    let lines = lines::lineread(String::from("puzzle_data/day01.txt"));
     println!("Part 1: {}", part1(&lines));
     println!("Part 2: {}", part2(&lines));
 }

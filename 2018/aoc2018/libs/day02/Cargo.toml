@@ -4,3 +4,4 @@ version = "0.1.0"
 authors = ["Mark Musante <mark.musante@gmail.com>"]
 
 [dependencies]
+lines = { path = "../lines" }

@@ -1,15 +1,6 @@
 use std::collections::HashMap;
-use std::fs::File;
-use std::io::BufRead;
-use std::io::BufReader;
 
-fn lineread(pathname: String) -> Vec<String> {
-    let f = File::open(pathname).unwrap();
-    return BufReader::new(&f)
-        .lines()
-        .map(|line| line.unwrap())
-        .collect::<Vec<String>>();
-}
+extern crate lines;
 
 fn part1(lines: &Vec<String>) -> i64 {
     let mut twocount = 0;
@@ -72,7 +63,7 @@ fn part2(lines: &Vec<String>) -> String {
 }
 
 pub fn run() {
-    let lines = lineread("puzzle_data/day02.txt".to_string());
+    let lines = lines::lineread("puzzle_data/day02.txt".to_string());
     println!("Part 1: {}", part1(&lines));
     println!("Part 2: {}", part2(&lines));
 }
