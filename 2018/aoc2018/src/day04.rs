@@ -6,7 +6,7 @@ use lines;
 #[derive(PartialEq, Debug)]
 enum Stage {
     TimeStart,
-    TimeEnd
+    TimeEnd,
 }
 
 fn parts1and2(lines: &Vec<String>) -> (u64, u64) {

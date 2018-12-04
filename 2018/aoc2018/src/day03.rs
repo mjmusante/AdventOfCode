@@ -1,9 +1,9 @@
 use lines;
 
-use regex::Regex;
-use std::cmp::{min, max};
-use std::collections::HashMap;
 use itertools::Itertools;
+use regex::Regex;
+use std::cmp::{max, min};
+use std::collections::HashMap;
 
 #[derive(PartialEq, Eq, Hash)]
 struct Region {
@@ -11,7 +11,7 @@ struct Region {
     xpos: u64,
     ypos: u64,
     width: u64,
-    height: u64
+    height: u64,
 }
 
 fn part1(lines: &Vec<Region>) -> (u64, u64) {
@@ -28,14 +28,12 @@ fn part1(lines: &Vec<Region>) -> (u64, u64) {
         let r2x = r2.xpos + r2.width - 1;
         let r2y = r2.ypos + r2.height - 1;
 
-        if (r1.xpos < r2.xpos && r1x < r2.xpos) ||
-            (r2.xpos < r1.xpos && r2x < r1.xpos) {
-                continue;
-            }
-        if (r1.ypos < r2.ypos && r1y < r2.ypos) ||
-            (r2.ypos < r1.ypos && r2y < r1.ypos) {
-                continue;
-            }
+        if (r1.xpos < r2.xpos && r1x < r2.xpos) || (r2.xpos < r1.xpos && r2x < r1.xpos) {
+            continue;
+        }
+        if (r1.ypos < r2.ypos && r1y < r2.ypos) || (r2.ypos < r1.ypos && r2y < r1.ypos) {
+            continue;
+        }
 
         // they overlap
         noverlap.remove(r1);
@@ -66,7 +64,7 @@ fn convert(lines: &Vec<String>) -> Vec<Region> {
             xpos: cap[2].parse::<u64>().unwrap(),
             ypos: cap[3].parse::<u64>().unwrap(),
             width: cap[4].parse::<u64>().unwrap(),
-            height: cap[5].parse::<u64>().unwrap()
+            height: cap[5].parse::<u64>().unwrap(),
         });
     }
 
@@ -77,7 +75,6 @@ pub fn run() {
     let lines = lines::lineread("puzzle_data/day03.txt".to_string());
     let c = convert(&lines);
     let (area, safeid) = part1(&c);
-
 
     println!("Part 1: {}", area);
     println!("Part 2: {}", safeid);
@@ -93,7 +90,7 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let v = vec_of_strings!["#1 @ 1,3: 4x4", "#2 @ 3,1: 4x4", "#3 @ 5,5: 2x2" ];
+        let v = vec_of_strings!["#1 @ 1,3: 4x4", "#2 @ 3,1: 4x4", "#3 @ 5,5: 2x2"];
         let c = convert(&v);
         let (area, safeid) = part1(&c);
 
