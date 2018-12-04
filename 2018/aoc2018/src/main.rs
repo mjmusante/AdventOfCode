@@ -1,6 +1,7 @@
 extern crate day01;
 extern crate day02;
 extern crate day03;
+extern crate day04;
 
 fn main() {
     println!("----- day 01 -----");
@@ -9,4 +10,6 @@ fn main() {
     day02::run();
     println!("----- day 03 -----");
     day03::run();
+    println!("----- day 04 -----");
+    day04::run();
 }
