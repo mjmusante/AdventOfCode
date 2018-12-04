@@ -4,7 +4,5 @@ version = "0.1.0"
 authors = ["Mark Musante <mark.musante@gmail.com>"]
 
 [dependencies]
-day01 = { path = "libs/day01" }
-day02 = { path = "libs/day02" }
-day03 = { path = "libs/day03" }
-day04 = { path = "libs/day04" }
+regex = "1"
+itertools = "0.7.7"

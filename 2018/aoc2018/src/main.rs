@@ -1,7 +1,12 @@
-extern crate day01;
-extern crate day02;
-extern crate day03;
-extern crate day04;
+extern crate itertools;
+extern crate regex;
+
+mod lines;
+
+mod day01;
+mod day02;
+mod day03;
+mod day04;
 
 fn main() {
     println!("----- day 01 -----");

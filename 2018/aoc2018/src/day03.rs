@@ -1,6 +1,4 @@
-extern crate itertools;
-extern crate lines;
-extern crate regex;
+use lines;
 
 use regex::Regex;
 use std::cmp::{min, max};

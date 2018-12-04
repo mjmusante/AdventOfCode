@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-extern crate lines;
+use lines;
 
 fn part1(lines: &Vec<String>) -> i64 {
     lines.iter().map(|line| line.parse::<i64>().unwrap()).sum()

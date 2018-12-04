@@ -1,9 +1,7 @@
-extern crate itertools;
-extern crate lines;
-extern crate regex;
-
 use regex::Regex;
 use std::collections::HashMap;
+
+use lines;
 
 #[derive(PartialEq, Debug)]
 enum Stage {

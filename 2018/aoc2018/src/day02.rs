@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-extern crate lines;
+use lines;
 
 fn part1(lines: &Vec<String>) -> i64 {
     let mut twocount = 0;
