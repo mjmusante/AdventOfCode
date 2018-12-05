@@ -1,46 +1,40 @@
 use lines;
 
 fn part1(line: &String) -> usize {
-    let mut result = String::new();
+    let mut prev_c = '0';
+    let mut prev_lower = false;
+    let mut newstr: Vec<char> = vec![];
 
-    result.push_str(&line);
-    loop {
-        let mut prev_c = '0';
-        let mut prev_lower = false;
-        let mut mutated = false;
-        let mut newstr = String::new();
-
-        for c in result.chars() {
-            let c_lower = c.is_ascii_lowercase();
-            if c.to_ascii_uppercase() == prev_c.to_ascii_uppercase() {
-                if prev_lower == c_lower {
-                    newstr.push(prev_c);
-                    prev_c = c;
-                    prev_lower = c_lower;
-                } else {
-                    prev_c = '0';
-                    mutated = true;
-                }
-            } else {
-                if prev_c != '0' {
-                    newstr.push(prev_c);
-                }
+    for c in line.chars() {
+        let c_lower = c.is_ascii_lowercase();
+        if c.to_ascii_uppercase() == prev_c.to_ascii_uppercase() {
+            if prev_lower == c_lower {
+                newstr.push(prev_c);
                 prev_c = c;
                 prev_lower = c_lower;
+            } else {
+                if newstr.len() > 0 {
+                    prev_c = newstr.last().cloned().unwrap();
+                    prev_lower = prev_c.is_ascii_lowercase();
+                    let l = newstr.len();
+                    newstr.truncate(l - 1);
+                } else {
+                    prev_c = '0';
+                }
             }
-        }
-        if prev_c != '0' {
-            newstr.push(prev_c);
-        }
-        result.clear();
-        result.push_str(&newstr);
-
-        if !mutated {
-            break;
+        } else {
+            if prev_c != '0' {
+                newstr.push(prev_c);
+            }
+            prev_c = c;
+            prev_lower = c_lower;
         }
     }
+    if prev_c != '0' {
+        newstr.push(prev_c);
+    }
 
-    result.len()
+    newstr.len()
 }
 
 fn part2(line: &String) -> usize {
