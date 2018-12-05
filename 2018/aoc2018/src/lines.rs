@@ -16,6 +16,6 @@ mod tests {
 
     #[test]
     fn it_works() {
-        assert_eq!(lineread("Cargo.toml".to_string()).len(), 6);
+        assert_eq!(lineread("Cargo.toml".to_string()).len(), 8);
     }
 }

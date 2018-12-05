@@ -37,55 +37,55 @@ mod tests {
     }
 
     #[test]
-    fn test1() {
+    fn day01_test1() {
         let v = vec_of_strings!["+1", "-2", "+3", "+1"];
         assert_eq!(part1(&v), 3);
     }
 
     #[test]
-    fn test2() {
+    fn day01_test2() {
         let v = vec_of_strings!["+1", "+1", "+1"];
         assert_eq!(part1(&v), 3);
     }
 
     #[test]
-    fn test3() {
+    fn day01_test3() {
         let v = vec_of_strings!["+1", "+1", "-2"];
         assert_eq!(part1(&v), 0);
     }
 
     #[test]
-    fn test4() {
+    fn day01_test4() {
         let v = vec_of_strings!["-1", "-2", "-3"];
         assert_eq!(part1(&v), -6);
     }
 
     #[test]
-    fn test5() {
+    fn day01_test5() {
         let v = vec_of_strings!["+1", "-2", "+3", "+1"];
         assert_eq!(part2(&v), 2);
     }
 
     #[test]
-    fn test6() {
+    fn day01_test6() {
         let v = vec_of_strings!["-1", "+1"];
         assert_eq!(part2(&v), 0);
     }
 
     #[test]
-    fn test7() {
+    fn day01_test7() {
         let v = vec_of_strings!["+3", "+3", "+4", "-2", "-4"];
         assert_eq!(part2(&v), 10);
     }
 
     #[test]
-    fn test8() {
+    fn day01_test8() {
         let v = vec_of_strings!["-6", "+3", "+8", "+5", "-6"];
         assert_eq!(part2(&v), 5);
     }
 
     #[test]
-    fn test9() {
+    fn day01_test9() {
         let v = vec_of_strings!["+7", "+7", "-2", "-7", "-4"];
         assert_eq!(part2(&v), 14);
     }

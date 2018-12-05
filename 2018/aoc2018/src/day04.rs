@@ -96,7 +96,7 @@ mod tests {
     }
 
     #[test]
-    fn it_works() {
+    fn day04_test1() {
         let v = vec_of_strings![
             "[1518-11-01 00:00] Guard #10 begins shift",
             "[1518-11-01 00:05] falls asleep",

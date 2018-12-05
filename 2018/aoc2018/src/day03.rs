@@ -89,7 +89,7 @@ mod tests {
     }
 
     #[test]
-    fn it_works() {
+    fn day03_test1() {
         let v = vec_of_strings!["#1 @ 1,3: 4x4", "#2 @ 3,1: 4x4", "#3 @ 5,5: 2x2"];
         let c = convert(&v);
         let (area, safeid) = part1(&c);

@@ -77,14 +77,14 @@ mod tests {
     }
 
     #[test]
-    fn test1() {
+    fn day02_test1() {
         let v =
             vec_of_strings!["abcdef", "bababc", "abbcde", "abcccd", "aabcdd", "abcdee", "ababab"];
         assert_eq!(part1(&v), 12);
     }
 
     #[test]
-    fn test2() {
+    fn day02_test2() {
         let v = vec_of_strings!["abcde", "fghij", "klmno", "pqrst", "fguij", "axcye", "wvxyz"];
         assert_eq!(part2(&v), "fgij".to_string());
     }
