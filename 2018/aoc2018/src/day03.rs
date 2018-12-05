@@ -14,7 +14,7 @@ struct Region {
     height: u64,
 }
 
-fn part1(lines: &Vec<Region>) -> (u64, u64) {
+fn solve(lines: &Vec<Region>) -> (u64, u64) {
     let mut hm = HashMap::new();
     let mut noverlap = HashMap::new();
 
@@ -71,13 +71,11 @@ fn convert(lines: &Vec<String>) -> Vec<Region> {
     claims
 }
 
-pub fn run() {
+pub fn run() -> (String, String) {
     let lines = lines::lineread("puzzle_data/day03.txt".to_string());
     let c = convert(&lines);
-    let (area, safeid) = part1(&c);
-
-    println!("Part 1: {}", area);
-    println!("Part 2: {}", safeid);
+    let (a, b) = solve(&c);
+    (a.to_string(), b.to_string())
 }
 
 #[cfg(test)]
@@ -92,7 +90,7 @@ mod tests {
     fn day03_test1() {
         let v = vec_of_strings!["#1 @ 1,3: 4x4", "#2 @ 3,1: 4x4", "#3 @ 5,5: 2x2"];
         let c = convert(&v);
-        let (area, safeid) = part1(&c);
+        let (area, safeid) = solve(&c);
 
         assert_eq!(area, 4);
         assert_eq!(safeid, 3);

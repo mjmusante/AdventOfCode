@@ -79,12 +79,11 @@ fn parts1and2(lines: &Vec<String>) -> (u64, u64) {
     (maxguard * maxtime, freqguard * freqmin)
 }
 
-pub fn run() {
+pub fn run() -> (String, String) {
     let mut v = lines::lineread("puzzle_data/day04.txt".to_string());
     v.sort();
     let (a, b) = parts1and2(&v);
-    println!("Part 1: {}", a);
-    println!("Part 2: {}", b);
+    (a.to_string(), b.to_string())
 }
 
 #[cfg(test)]

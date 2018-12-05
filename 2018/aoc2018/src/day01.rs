@@ -22,10 +22,9 @@ fn part2(lines: &Vec<String>) -> i64 {
     }
 }
 
-pub fn run() {
+pub fn run() -> (String, String) {
     let lines = lines::lineread(String::from("puzzle_data/day01.txt"));
-    println!("Part 1: {}", part1(&lines));
-    println!("Part 2: {}", part2(&lines));
+    (part1(&lines).to_string(), part2(&lines).to_string())
 }
 
 #[cfg(test)]

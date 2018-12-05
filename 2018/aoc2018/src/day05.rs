@@ -60,11 +60,10 @@ fn part2(line: &String) -> usize {
     best
 }
 
-pub fn run() {
+pub fn run() -> (String, String) {
     let lines = lines::lineread(String::from("puzzle_data/day05.txt"));
     let foo = lines[0].trim().to_string();
-    println!("Part 1: {}", part1(&foo));
-    println!("Part 2: {}", part2(&foo));
+    (part1(&foo).to_string(), part2(&foo).to_string())
 }
 
 #[cfg(test)]

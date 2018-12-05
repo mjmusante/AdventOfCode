@@ -62,10 +62,9 @@ fn part2(lines: &Vec<String>) -> String {
     "none!".to_string()
 }
 
-pub fn run() {
+pub fn run() -> (String, String) {
     let lines = lines::lineread("puzzle_data/day02.txt".to_string());
-    println!("Part 1: {}", part1(&lines));
-    println!("Part 2: {}", part2(&lines));
+    (part1(&lines).to_string(), part2(&lines).to_string())
 }
 
 #[cfg(test)]

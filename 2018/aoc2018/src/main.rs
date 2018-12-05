@@ -21,8 +21,10 @@ fn main() {
     let mut n = 1;
     for l in lst.iter() {
         if which == 0 || which == n {
+            let (p1, p2) = l();
             println!("----- day {} -----", n);
-            l();
+            println!("Part 1: {}", p1);
+            println!("Part 2: {}", p2);
         }
         n += 1;
     }
