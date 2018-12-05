@@ -45,13 +45,19 @@ fn part1(line: &String) -> usize {
 
 fn part2(line: &String) -> usize {
     let mut best = line.len();
-    for c in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
-        'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W',
-        'X', 'Y', 'Z'].iter() {
+    for c in [
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
+        'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+    ]
+        .iter()
+    {
         let mut newstr = String::new();
-        newstr.push_str(&line.chars()
-            .filter(|x| x.to_ascii_uppercase() != *c)
-            .collect::<String>());
+        newstr.push_str(
+            &line
+                .chars()
+                .filter(|x| x.to_ascii_uppercase() != *c)
+                .collect::<String>(),
+        );
         let next = part1(&newstr);
         if next < best {
             best = next;
@@ -59,7 +65,6 @@ fn part2(line: &String) -> usize {
     }
     best
 }
-
 
 pub fn run() {
     let lines = lines::lineread(String::from("puzzle_data/day05.txt"));
