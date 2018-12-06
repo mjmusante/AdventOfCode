@@ -9,7 +9,7 @@ struct GridEntry {
     equal: bool,
 }
 
-fn solve(lines: &Vec<String>) -> (String, String) {
+fn solve(lines: &Vec<String>, region: u64) -> (String, String) {
     let coords = lines
         .iter()
         .map(|str| str.split(", "))
@@ -63,17 +63,15 @@ fn solve(lines: &Vec<String>) -> (String, String) {
                     grid[x as usize][y as usize].equal = true;
                 }
             }
-            if total < 10000 {
+            if total < region {
                 rcount += 1;
             }
         }
     }
     let mut hm = HashMap::new();
     for x in grid.iter() {
-        for y in x.iter() {
-            if y.distance < maxdist && !y.equal {
-                *hm.entry(y.name).or_insert(0) += 1;
-            }
+        for e in x.iter().filter(|y| y.distance < maxdist && !y.equal) {
+            *hm.entry(e.name).or_insert(0) += 1;
         }
     }
     (hm.values().max().unwrap().to_string(), rcount.to_string())
@@ -82,7 +80,7 @@ fn solve(lines: &Vec<String>) -> (String, String) {
 pub fn run() -> (String, String) {
     let lines = lines::lineread(String::from("puzzle_data/day06.txt"));
 
-    solve(&lines)
+    solve(&lines, 10000)
 }
 
 #[cfg(test)]
@@ -96,6 +94,6 @@ mod tests {
     #[test]
     fn day06_part1() {
         let v = vec_of_strings!["1, 1", "1, 6", "8, 3", "3, 4", "5, 5", "8, 9"];
-        assert_eq!(solve(&v), ("17".to_string(), "16".to_string()));
+        assert_eq!(solve(&v, 32), ("17".to_string(), "16".to_string()));
     }
 }
