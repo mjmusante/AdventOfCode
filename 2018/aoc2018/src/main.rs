@@ -11,6 +11,7 @@ mod day03;
 mod day04;
 mod day05;
 mod day06;
+mod day07;
 
 fn main() {
     let mut which = 0;
@@ -25,6 +26,7 @@ fn main() {
         day04::run,
         day05::run,
         day06::run,
+        day07::run
     ];
     let mut n = 1;
     for l in lst.iter() {
