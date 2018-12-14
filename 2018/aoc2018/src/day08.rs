@@ -31,7 +31,7 @@ fn blagh(thing: &mut Iterator<Item = &u64>) -> u64 {
             if i > 0 && i <= children {
                 result += child[i - 1];
             }
-        }    
+        }
     } else {
         for _ in 0..metadata {
             result += *thing.next().unwrap();

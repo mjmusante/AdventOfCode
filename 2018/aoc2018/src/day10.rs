@@ -17,13 +17,13 @@ struct Point {
     x: i64,
     y: i64,
     dx: i64,
-    dy: i64
+    dy: i64,
 }
 
 fn solve(v: &Vec<String>, secs: u64) -> (Vec<String>, u64) {
-    const SIZEX : usize = 64;
-    const SIZEY : usize = 10;
-    let mut stars : Vec<Point> = vec![];
+    const SIZEX: usize = 64;
+    const SIZEY: usize = 10;
+    let mut stars: Vec<Point> = vec![];
     // let reg = Regex::new(r"position=<([ -]?\d+), ([ -]?\d+)> velocity=<([ -]?\d+), ([ -]?\d+)>").unwrap();
     let reg = Regex::new(r"position=<[ ]?([-]?[0-9]+), [ ]?([-]?[0-9]+)> velocity=<[ ]?([-]?[0-9]+), [ ]?([-]?[0-9]+)>").unwrap();
     for line in v {
@@ -32,7 +32,12 @@ fn solve(v: &Vec<String>, secs: u64) -> (Vec<String>, u64) {
         let y = foo[2].parse::<i64>().unwrap();
         let dx = foo[3].parse::<i64>().unwrap();
         let dy = foo[4].parse::<i64>().unwrap();
-        stars.push( Point { x: x, y: y, dx: dx, dy: dy} );
+        stars.push(Point {
+            x: x,
+            y: y,
+            dx: dx,
+            dy: dy,
+        });
     }
 
     for s in 0..secs {
@@ -122,8 +127,8 @@ mod tests {
             "position=< 5,  9> velocity=< 1, -2>",
             "position=<14,  7> velocity=<-2,  0>",
             "position=<-3,  6> velocity=< 2, -1>"
-       ];
-       let result = vec_of_strings![
+        ];
+        let result = vec_of_strings![
             "#...#..###......................................................",
             "#...#...#.......................................................",
             "#...#...#.......................................................",
@@ -134,9 +139,9 @@ mod tests {
             "#...#..###......................................................",
             "................................................................",
             "................................................................"
-       ];
-       let (x, y) = solve(&v, 3);
-       assert_eq!(x, result);
-       assert_eq!(y, 3);
+        ];
+        let (x, y) = solve(&v, 3);
+        assert_eq!(x, result);
+        assert_eq!(y, 3);
     }
 }

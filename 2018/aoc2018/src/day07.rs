@@ -6,13 +6,13 @@ use std::collections::HashSet;
 #[derive(Clone, Debug, PartialEq, Copy)]
 struct DepGraphArrow {
     before: char,
-    after: char
+    after: char,
 }
 
 #[derive(Clone, Debug, Copy, PartialEq)]
 struct Job {
     step: char,
-    time_left: u64
+    time_left: u64,
 }
 
 fn part2(steps: &Vec<DepGraphArrow>, wcount: usize, offset: u8) -> String {
@@ -21,20 +21,19 @@ fn part2(steps: &Vec<DepGraphArrow>, wcount: usize, offset: u8) -> String {
     let mut workers = HashMap::new();
     let mut sec = 0;
     let mut s1 = steps.clone();
-    let mut last_one ='0';
+    let mut last_one = '0';
 
     while s1.len() > 0 {
-
         befores.clear();
         afters.clear();
         for s in &s1 {
             befores.insert(s.before);
             afters.insert(s.after);
         }
-        let mut jobs : Vec<char> = befores.difference(&afters).map(|x| *x).collect();
+        let mut jobs: Vec<char> = befores.difference(&afters).map(|x| *x).collect();
 
         jobs.sort();
-        
+
         while workers.len() < wcount {
             if jobs.len() == 0 {
                 break;
@@ -43,7 +42,13 @@ fn part2(steps: &Vec<DepGraphArrow>, wcount: usize, offset: u8) -> String {
             if workers.contains_key(&j) {
                 continue;
             }
-            workers.insert(j, Job{step: j, time_left: (j as u8 - 'A' as u8 + offset) as u64 + sec + 1,});
+            workers.insert(
+                j,
+                Job {
+                    step: j,
+                    time_left: (j as u8 - 'A' as u8 + offset) as u64 + sec + 1,
+                },
+            );
         }
 
         // do work
@@ -72,17 +77,20 @@ fn part2(steps: &Vec<DepGraphArrow>, wcount: usize, offset: u8) -> String {
 
 fn parse(lines: &Vec<String>) -> Vec<DepGraphArrow> {
     let reg = Regex::new(r"^Step (\S) .*before step (\S)").unwrap();
-    let mut order : Vec<DepGraphArrow> = vec![];
+    let mut order: Vec<DepGraphArrow> = vec![];
 
     for l in lines {
         let foo = reg.captures_iter(l).next().unwrap();
         let (b, a) = (foo[1].to_string(), foo[2].to_string());
         let (before, after) = (b.chars().next().unwrap(), a.chars().next().unwrap());
 
-        order.push(DepGraphArrow { before: before, after: after });
+        order.push(DepGraphArrow {
+            before: before,
+            after: after,
+        });
     }
 
-    order    
+    order
 }
 
 fn part1(inst: &Vec<DepGraphArrow>) -> String {
@@ -93,7 +101,7 @@ fn part1(inst: &Vec<DepGraphArrow>) -> String {
         *hm.entry(o.before).or_insert(0) += 1;
         *hm.entry(o.after).or_insert(0) += 1;
     }
-        
+
     let mut ans = String::from("");
 
     while order.len() > 0 {
@@ -104,7 +112,7 @@ fn part1(inst: &Vec<DepGraphArrow>) -> String {
         s.sort();
         ans.push(s[0]);
         // println!("{:?}", s);
-        let mut order2 : Vec<DepGraphArrow> = vec![];
+        let mut order2: Vec<DepGraphArrow> = vec![];
         let mut hm2 = HashMap::new();
         for step in &order {
             if s[0] != step.before {
@@ -119,7 +127,6 @@ fn part1(inst: &Vec<DepGraphArrow>) -> String {
         }
         order = order2;
         hm = hm2;
-
     }
 
     ans
@@ -150,13 +157,13 @@ mod tests {
             "Step B must be finished before step E can begin.",
             "Step D must be finished before step E can begin.",
             "Step F must be finished before step E can begin."
-            ];
+        ];
         assert_eq!(part1(&parse(&v)), "CABDFE".to_string());
     }
 
     #[test]
     fn day07_test2() {
-        let v= vec_of_strings![
+        let v = vec_of_strings![
             "Step C must be finished before step A can begin.",
             "Step F must be finished before step E can begin.",
             "Step D must be finished before step E can begin.",
@@ -170,7 +177,7 @@ mod tests {
 
     #[test]
     fn day07_test3() {
-        let v= vec_of_strings![
+        let v = vec_of_strings![
             "Step B must be finished before step E can begin.",
             "Step C must be finished before step A can begin.",
             "Step F must be finished before step E can begin.",
@@ -199,14 +206,35 @@ mod tests {
 
     #[test]
     fn day07_test5() {
-        let mut order : Vec<DepGraphArrow> = vec![];
-        order.push(DepGraphArrow { before: 'C', after: 'A' } );
-        order.push(DepGraphArrow { before: 'C', after: 'F' } );
-        order.push(DepGraphArrow { before: 'A', after: 'B' } );
-        order.push(DepGraphArrow { before: 'A', after: 'D' } );
-        order.push(DepGraphArrow { before: 'B', after: 'E' } );
-        order.push(DepGraphArrow { before: 'D', after: 'E' } );
-        order.push(DepGraphArrow { before: 'F', after: 'E' } );
+        let mut order: Vec<DepGraphArrow> = vec![];
+        order.push(DepGraphArrow {
+            before: 'C',
+            after: 'A',
+        });
+        order.push(DepGraphArrow {
+            before: 'C',
+            after: 'F',
+        });
+        order.push(DepGraphArrow {
+            before: 'A',
+            after: 'B',
+        });
+        order.push(DepGraphArrow {
+            before: 'A',
+            after: 'D',
+        });
+        order.push(DepGraphArrow {
+            before: 'B',
+            after: 'E',
+        });
+        order.push(DepGraphArrow {
+            before: 'D',
+            after: 'E',
+        });
+        order.push(DepGraphArrow {
+            before: 'F',
+            after: 'E',
+        });
         assert_eq!(part2(&order, 2, 0), "15".to_string());
     }
 }

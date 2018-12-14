@@ -2,6 +2,7 @@ extern crate itertools;
 extern crate regex;
 
 use std::env;
+use std::time::{Duration, Instant};
 
 mod lines;
 
@@ -32,16 +33,32 @@ fn main() {
         day07::run,
         day08::run,
         day09::run,
-        day10::run
+        day10::run,
     ];
     let mut n = 1;
+    let mut total_time = Duration::new(0, 0);
     for l in lst.iter() {
         if which == 0 || which == n {
+            let start = Instant::now();
             let (p1, p2) = l();
+            let elapsed = start.elapsed();
+
+            total_time += elapsed;
+
             println!("----- day {} -----", n);
             println!("Part 1: {}", p1);
             println!("Part 2: {}", p2);
+            println!(
+                "Execution time: {}ms",
+                (elapsed.as_secs() * 1_000) + elapsed.subsec_millis() as u64
+            );
         }
         n += 1;
+    }
+    if which == 0 {
+        println!(
+            "Total exeuction time: {}ms",
+            (total_time.as_secs() * 1_000 + total_time.subsec_millis() as u64)
+        );
     }
 }

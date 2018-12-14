@@ -1,24 +1,30 @@
-use std::collections::VecDeque;
 use lines;
+use std::collections::VecDeque;
 
 pub fn run() -> (String, String) {
     let data = lines::lineread(String::from("puzzle_data/day09.txt"))[0]
-    .split(" ")
-    .map(|x| x.to_string())
-    .collect::<Vec<String>>();
-    let (players, marbles) = (data[0].parse::<u64>().unwrap(), data[6].parse::<u64>().unwrap());
+        .split(" ")
+        .map(|x| x.to_string())
+        .collect::<Vec<String>>();
+    let (players, marbles) = (
+        data[0].parse::<u64>().unwrap(),
+        data[6].parse::<u64>().unwrap(),
+    );
 
-    (part1(players, marbles).to_string(), part1(players, 100 * marbles).to_string())
+    (
+        part1(players, marbles).to_string(),
+        part1(players, 100 * marbles).to_string(),
+    )
 }
 
 fn part1(players: u64, marbles: u64) -> u64 {
     let mut cur_player = 0;
     let mut v = vec![0; players as usize];
-    let mut circle : VecDeque<u64> = VecDeque::new();
+    let mut circle: VecDeque<u64> = VecDeque::new();
 
     circle.push_back(0);
 
-    for i in 1..(marbles+1) {
+    for i in 1..(marbles + 1) {
         if i % 23 == 0 {
             for _ in 0..7 {
                 if let Some(popped) = circle.pop_back() {

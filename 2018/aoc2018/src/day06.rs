@@ -69,7 +69,11 @@ fn solve(lines: &Vec<String>, region: u64) -> (String, String) {
         }
     }
     let mut hm = HashMap::new();
-    for e in grid.iter().flatten().filter(|y| y.distance < maxdist && !y.equal) {
+    for e in grid
+        .iter()
+        .flatten()
+        .filter(|y| y.distance < maxdist && !y.equal)
+    {
         *hm.entry(e.name).or_insert(0) += 1;
     }
     (hm.values().max().unwrap().to_string(), rcount.to_string())
