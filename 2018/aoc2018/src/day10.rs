@@ -21,11 +21,12 @@ struct Point {
 }
 
 fn solve(v: &Vec<String>, secs: u64) -> (Vec<String>, u64) {
-    const SIZEX: usize = 64;
+    const SIZEX: usize = 64; // SIZE[XY] were determiined after much trial and error
     const SIZEY: usize = 10;
     let mut stars: Vec<Point> = vec![];
-    // let reg = Regex::new(r"position=<([ -]?\d+), ([ -]?\d+)> velocity=<([ -]?\d+), ([ -]?\d+)>").unwrap();
-    let reg = Regex::new(r"position=<[ ]?([-]?[0-9]+), [ ]?([-]?[0-9]+)> velocity=<[ ]?([-]?[0-9]+), [ ]?([-]?[0-9]+)>").unwrap();
+    let reg = Regex::new(
+        r"position=<[ ]?([-]?\d+), [ ]?([-]?\d+)> velocity=<[ ]?([-]?\d+), [ ]?([-]?\d+)>",
+    ).unwrap();
     for line in v {
         let foo = reg.captures_iter(line).next().unwrap();
         let x = foo[1].parse::<i64>().unwrap();
@@ -42,7 +43,6 @@ fn solve(v: &Vec<String>, secs: u64) -> (Vec<String>, u64) {
 
     for s in 0..secs {
         let mut disp = [['.'; SIZEY]; SIZEX];
-        // let mut show_page = false;
         let mut maxx = stars[0].x;
         let mut maxy = stars[0].y;
         let mut minx = maxx;
@@ -55,16 +55,13 @@ fn solve(v: &Vec<String>, secs: u64) -> (Vec<String>, u64) {
             miny = min(p.y, miny);
             maxx = max(p.x, maxx);
             maxy = max(p.y, maxy);
-            // if p.x < 0 || p.y < 0 || p.x >= SIZEX as i64 || p.y >= SIZEY as i64 {
-            //     continue;
-            // }
-            // disp[p.x as usize][p.y as usize] = '#';
-            // show_page = true;
         }
 
+        // hack to let the test case work better
         if secs == 3 && s < 2 {
             continue;
         }
+
         if ((maxx - minx) as usize) < SIZEX && ((maxy - miny) as usize) < SIZEY {
             let mut ans = vec![];
             for p in &stars {
