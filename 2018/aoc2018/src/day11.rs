@@ -32,10 +32,14 @@ fn highest_power(grid: &Vec<Vec<i64>>, gridsize: usize) -> ((i64, i64), i64) {
 
 fn find_best_for(grid: &Vec<Vec<i64>>) -> (i64, i64, usize) {
     let mut bestloc = (0, 0);
-    let mut bestpower = 300 * 300 * -5;
+    let mut bestpower : i64 = 300 * 300 * -5;
     let mut bestsize = 0;
 
-    for msize in 1..SIZE {
+    for s in 1..(SIZE-1) {
+        let msize = SIZE - s;
+        if bestpower > (4 * msize * msize) as i64 {
+            break;
+        }
         let (loc, power) = highest_power(grid, msize);
         if power > bestpower {
             bestsize = msize;
