@@ -18,6 +18,7 @@ mod day09;
 mod day10;
 mod day11;
 mod day12;
+mod day13;
 
 fn main() {
     let mut which = 0;
@@ -38,6 +39,7 @@ fn main() {
         day10::run,
         day11::run,
         day12::run,
+        day13::run,
     ];
     let mut n = 1;
     let mut total_time = Duration::new(0, 0);

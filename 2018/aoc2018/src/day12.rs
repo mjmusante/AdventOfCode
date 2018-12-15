@@ -15,9 +15,9 @@ pub fn run() -> (String, String) {
         }
     }
 
-    let mut values : Vec<i64> = vec![];
-    let mut zeroes : Vec<i64> = vec![];
-    let mut count : i64 = 0;
+    let mut values: Vec<i64> = vec![];
+    let mut zeroes: Vec<i64> = vec![];
+    let mut count: i64 = 0;
 
     while !hm.contains_key(&pots.pot) {
         hm.insert(pots.pot.clone(), count);
@@ -28,7 +28,7 @@ pub fn run() -> (String, String) {
         pots = next;
     }
 
-    let repeat : i64 = *hm.get(&pots.pot).unwrap();
+    let repeat: i64 = *hm.get(&pots.pot).unwrap();
     let newgens = 50_000_000_000i64 - repeat;
     let multiplier = pots.value() - values[repeat as usize];
 
@@ -37,7 +37,6 @@ pub fn run() -> (String, String) {
     (values[20].to_string(), finalval.to_string())
 }
 
-
 // ==========================================================================
 
 use std::collections::HashSet;
@@ -45,12 +44,16 @@ use std::collections::HashSet;
 struct Pots {
     pot: String,
     zero: i64,
-    rules: HashSet<i64>
+    rules: HashSet<i64>,
 }
 
 impl Pots {
     pub fn new(pot: String) -> Pots {
-        let mut p = Pots { pot: pot, zero: 0, rules: HashSet::new() };
+        let mut p = Pots {
+            pot: pot,
+            zero: 0,
+            rules: HashSet::new(),
+        };
         p.trim_empty_pots();
         p
     }
@@ -78,23 +81,30 @@ impl Pots {
         let mut s = String::from("....");
         s.push_str(&self.pot);
         s.push_str("....");
-        let process = s.chars().enumerate().map(|(i, c)| {
-            accum >>= 1;
-            if c == '#' {
-                accum |= 0x10;
-            }
-            if i > 4 {
-                if self.has_rule(&accum) {
-                    '#'
+        let process = s
+            .chars()
+            .enumerate()
+            .map(|(i, c)| {
+                accum >>= 1;
+                if c == '#' {
+                    accum |= 0x10;
+                }
+                if i > 4 {
+                    if self.has_rule(&accum) {
+                        '#'
+                    } else {
+                        '.'
+                    }
                 } else {
                     '.'
                 }
-            } else {
-                '.'
-            }
-        }).collect::<String>();
+            }).collect::<String>();
 
-        let mut p = Pots { pot: process, zero: self.zero + 6, rules: self.rules.clone() };
+        let mut p = Pots {
+            pot: process,
+            zero: self.zero + 6,
+            rules: self.rules.clone(),
+        };
         p.trim_empty_pots();
         p
     }
@@ -104,13 +114,10 @@ impl Pots {
     }
 
     fn str_to_num(code: String) -> i64 {
-        code.chars().enumerate().map(|(i, c)| {
-            if c == '#' {
-                1 << i
-            } else {
-                0
-            }
-        }).sum::<usize>() as i64
+        code.chars()
+            .enumerate()
+            .map(|(i, c)| if c == '#' { 1 << i } else { 0 })
+            .sum::<usize>() as i64
     }
 
     fn trim_empty_pots(&mut self) {
@@ -204,20 +211,8 @@ mod tests {
     #[test]
     fn day12_test6() {
         let v = vec_of_strings![
-            "...##",
-            "..#..",
-            ".#...",
-            ".#.#.",
-            ".#.##",
-            ".##..",
-            ".####",
-            "#.#.#",
-            "#.###",
-            "##.#.",
-            "##.##",
-            "###..",
-            "###.#",
-            "####."
+            "...##", "..#..", ".#...", ".#.#.", ".#.##", ".##..", ".####", "#.#.#", "#.###",
+            "##.#.", "##.##", "###..", "###.#", "####."
         ];
 
         let mut p = Pots::new("#..#.#..##......###...###".to_string());

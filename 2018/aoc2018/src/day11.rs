@@ -1,14 +1,15 @@
 pub fn run() -> (String, String) {
     let grid = make_grid(7400);
-    (format!("{:?}", highest_power(&grid, 3)),
-        format!("{:?}", find_best_for(&grid)))
+    (
+        format!("{:?}", highest_power(&grid, 3)),
+        format!("{:?}", find_best_for(&grid)),
+    )
 }
 
-const SIZE : usize = 300;
+const SIZE: usize = 300;
 
 fn highest_power(grid: &Vec<Vec<i64>>, gridsize: usize) -> ((i64, i64), i64) {
-
-    let mut best : i64 = -5 * (gridsize * gridsize) as i64;
+    let mut best: i64 = -5 * (gridsize * gridsize) as i64;
     let mut loc = (0i64, 0i64);
 
     for row in 0..(SIZE - gridsize + 1) {
@@ -32,10 +33,10 @@ fn highest_power(grid: &Vec<Vec<i64>>, gridsize: usize) -> ((i64, i64), i64) {
 
 fn find_best_for(grid: &Vec<Vec<i64>>) -> (i64, i64, usize) {
     let mut bestloc = (0, 0);
-    let mut bestpower : i64 = 300 * 300 * -5;
+    let mut bestpower: i64 = 300 * 300 * -5;
     let mut bestsize = 0;
 
-    for s in 1..(SIZE-1) {
+    for s in 1..(SIZE - 1) {
         let msize = SIZE - s;
         if bestpower > (4 * msize * msize) as i64 {
             break;
