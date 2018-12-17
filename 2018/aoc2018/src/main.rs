@@ -2,6 +2,7 @@ extern crate itertools;
 extern crate regex;
 
 use std::env;
+use std::path::Path;
 use std::time::{Duration, Instant};
 
 mod lines;
@@ -23,6 +24,11 @@ mod day14;
 mod day15;
 
 fn main() {
+    if !Path::new("./puzzle_data").exists() {
+        println!("Cannot find puzzle data directory");
+        return;
+    }
+
     let mut which = 0;
     if env::args().len() > 1 {
         which = env::args().collect::<Vec<_>>()[1].parse::<usize>().unwrap();
