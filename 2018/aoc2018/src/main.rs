@@ -59,8 +59,9 @@ fn main() {
             println!("Part 1: {}", p1);
             println!("Part 2: {}", p2);
             println!(
-                "Execution time: {}ms",
-                (elapsed.as_secs() * 1_000) + elapsed.subsec_millis() as u64
+                "Execution time: {}.{:03} sec",
+                elapsed.as_secs(),
+                elapsed.subsec_millis()
             );
         }
         n += 1;
