@@ -56,7 +56,6 @@ fn solve(n: usize) -> (Vec<usize>, usize) {
 
         e1 = (e1 + r[e1] + 1) % r.len();
         e2 = (e2 + r[e2] + 1) % r.len();
-
     }
 
     (ans, result.1 - digits as usize - 1)
@@ -68,10 +67,10 @@ mod tests {
 
     #[test]
     fn day14_test1() {
-        assert_eq!(solve(5).0, [0,1,2,4,5,1,5,8,9,1]);
-        assert_eq!(solve(9).0, [5,1,5,8,9,1,6,7,7,9]);
-        assert_eq!(solve(18).0, [9,2,5,1,0,7,1,0,8,5]);
-        assert_eq!(solve(2018).0, [5,9,4,1,4,2,9,8,8,2]);
+        assert_eq!(solve(5).0, [0, 1, 2, 4, 5, 1, 5, 8, 9, 1]);
+        assert_eq!(solve(9).0, [5, 1, 5, 8, 9, 1, 6, 7, 7, 9]);
+        assert_eq!(solve(18).0, [9, 2, 5, 1, 0, 7, 1, 0, 8, 5]);
+        assert_eq!(solve(2018).0, [5, 9, 4, 1, 4, 2, 9, 8, 8, 2]);
     }
 
     #[test]
