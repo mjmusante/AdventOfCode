@@ -2,13 +2,50 @@ use lines;
 
 pub fn run() -> (String, String) {
     let lines = lines::lineread(String::from("puzzle_data/day15.txt"));
+
     let (mut g, xs, ys) = make_grid(&lines);
+    let num_elves = elf_count(&g);
     let mut rounds = 0;
     while find_path(&mut g, xs, ys) {
         rounds += 1;
     }
+    let part1 = format!("{}", rounds * sum_hp(&g));
 
-    (format!("{}", rounds * sum_hp(&g)), "world".to_string())
+    let mut remaining = elf_count(&g);
+    let mut power = 3;
+    while remaining < num_elves {
+        power *= 2;
+        let (mut g, xs, ys) = make_grid(&lines);
+        rounds = 0;
+        while find_path_by_power(&mut g, xs, ys, power) {
+            rounds += 1;
+        }
+        remaining = elf_count(&g);
+    }
+
+    let mut low_power = power / 2;
+    let mut high_power = power;
+    loop {
+        if high_power - low_power < 2 {
+            break;
+        }
+        power = (low_power + high_power) / 2;
+        let (newg, _, _) = make_grid(&lines);
+        g = newg;
+        rounds = 0;
+        while find_path_by_power(&mut g, xs, ys, power) {
+            rounds += 1;
+        }
+        remaining = elf_count(&g);
+        if remaining == num_elves {
+            high_power = power;
+        } else {
+            low_power = power;
+        }
+    }
+    let part2 = format!("{}", rounds * sum_hp(&g));
+
+    (part1, part2)
 }
 
 
@@ -83,9 +120,10 @@ impl Tile {
     }
 
     // returns true if creature taking the hit is still alive
-    pub fn take_hit(&mut self) -> bool {
+    pub fn take_hit(&mut self, power: usize) -> bool {
         let new_item = match self.item {
-            Item::Creature(c, hp) => Item::Creature(c, hp - 3),
+            Item::Creature(CreatureType::Goblin, hp) => Item::Creature(CreatureType::Goblin, hp - power as i32),
+            Item::Creature(CreatureType::Elf, hp) => Item::Creature(CreatureType::Elf, hp - 3),
             _ => { panic!("nooooo! {:?}", self.item); }
         };
         self.item = new_item;
@@ -109,6 +147,20 @@ fn is_creature(a: &Item) -> bool {
         Item::Creature(_, _) => true,
         _ => false
     }
+}
+
+fn elf_count(grid: &HashMap<Point, Tile>) -> usize {
+
+    let mut result = 0;
+
+    for (_, g) in grid.into_iter() {
+        result += match g.item {
+            Item::Creature(CreatureType::Elf, _) => 1,
+            _ => 0,
+        }
+    }
+
+    result
 }
 
 fn surround(pos: &Point) -> Vec<Point> {
@@ -268,6 +320,11 @@ fn make_grid(text_grid: &Vec<String>) -> (HashMap<Point, Tile>, usize, usize) {
 }
 
 fn find_path(grid: &mut HashMap<Point, Tile>, xsize: usize, ysize: usize) -> bool {
+    find_path_by_power(grid, xsize, ysize, 3)
+}
+
+fn find_path_by_power(grid: &mut HashMap<Point, Tile>,
+    xsize: usize, ysize: usize, power: usize) -> bool {
 
     let mut v = vec![];
     let mut nums = HashMap::new();
@@ -319,7 +376,7 @@ fn find_path(grid: &mut HashMap<Point, Tile>, xsize: usize, ysize: usize) -> boo
                 if let Some(a) = can_attack(&m, &grid) {
                     // println!("After moving, we can attack {:?}", a);
                     let mut m = grid.remove(&a).unwrap();
-                    if m.take_hit() {
+                    if m.take_hit(power) {
                         grid.insert(a, m);
                     } else {
                         for j in 0..v.len() {
@@ -337,7 +394,7 @@ fn find_path(grid: &mut HashMap<Point, Tile>, xsize: usize, ysize: usize) -> boo
             },
             Action::Attack(b) => {
                 let mut m = grid.remove(&b).unwrap();
-                if m.take_hit() {
+                if m.take_hit(power) {
                     grid.insert(b, m);
                 } else {
                     for j in 0..v.len() {
@@ -486,10 +543,11 @@ mod tests {
         println!("Round {}", round);
         show_grid(&g, xs, ys);
 
-        assert!(!find_path(&mut g, xs, ys));
+        assert!(find_path(&mut g, xs, ys));
         round += 1;
         println!("Round {}", round);
         show_grid(&g, xs, ys);
+        assert!(!find_path(&mut g, xs, ys));
 
         assert_eq!(round, 47);
         assert_eq!(show_grid(&g, xs, ys), 590);
