@@ -48,10 +48,8 @@ pub fn run() -> (String, String) {
     (part1, part2)
 }
 
-
-
-use std::collections::HashMap;
 use std::cmp::Ordering;
+use std::collections::HashMap;
 
 #[derive(PartialEq, Eq, Hash, Debug, Copy, Clone)]
 enum CreatureType {
@@ -71,7 +69,7 @@ impl PartialEq for Item {
         match (self, other) {
             (&Item::Wall, &Item::Wall) | (&Item::Open, &Item::Open) => true,
             (&Item::Creature(a, _), &Item::Creature(b, _)) => a == b,
-            (_,_) => false
+            (_, _) => false,
         }
     }
 }
@@ -86,7 +84,7 @@ struct Tile {
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 struct Point {
     x: usize,
-    y: usize
+    y: usize,
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -100,14 +98,18 @@ enum Action {
 impl Tile {
     pub fn make(c: char, row: usize, col: usize) -> Tile {
         let item = match c {
-                '.' => Item::Open,
-                '#' => Item::Wall,
-                'E' => Item::Creature(CreatureType::Elf, 200),
-                'G' => Item::Creature(CreatureType::Goblin, 200),
-                _ => panic!("bad char")
-            };
+            '.' => Item::Open,
+            '#' => Item::Wall,
+            'E' => Item::Creature(CreatureType::Elf, 200),
+            'G' => Item::Creature(CreatureType::Goblin, 200),
+            _ => panic!("bad char"),
+        };
 
-        Tile { killed: false, item: item, pos: Point {x: col, y: row} }
+        Tile {
+            killed: false,
+            item: item,
+            pos: Point { x: col, y: row },
+        }
     }
 
     pub fn make_point(c: char, p: &Point) -> Tile {
@@ -122,15 +124,21 @@ impl Tile {
     // returns true if creature taking the hit is still alive
     pub fn take_hit(&mut self, power: usize) -> bool {
         let new_item = match self.item {
-            Item::Creature(CreatureType::Goblin, hp) => Item::Creature(CreatureType::Goblin, hp - power as i32),
+            Item::Creature(CreatureType::Goblin, hp) => {
+                Item::Creature(CreatureType::Goblin, hp - power as i32)
+            }
             Item::Creature(CreatureType::Elf, hp) => Item::Creature(CreatureType::Elf, hp - 3),
-            _ => { panic!("nooooo! {:?}", self.item); }
+            _ => {
+                panic!("nooooo! {:?}", self.item);
+            }
         };
         self.item = new_item;
 
         match new_item {
             Item::Creature(_, hp) => hp > 0,
-            _ => { panic!("unreachable"); }
+            _ => {
+                panic!("unreachable");
+            }
         }
     }
 
@@ -143,14 +151,13 @@ impl Tile {
 }
 
 fn is_creature(a: &Item) -> bool {
-    match a  {
+    match a {
         Item::Creature(_, _) => true,
-        _ => false
+        _ => false,
     }
 }
 
 fn elf_count(grid: &HashMap<Point, Tile>) -> usize {
-
     let mut result = 0;
 
     for (_, g) in grid.into_iter() {
@@ -166,10 +173,22 @@ fn elf_count(grid: &HashMap<Point, Tile>) -> usize {
 fn surround(pos: &Point) -> Vec<Point> {
     let mut locs = vec![];
 
-    locs.push(Point {x: pos.x    , y: pos.y - 1});  // north
-    locs.push(Point {x: pos.x - 1, y: pos.y    });  // west
-    locs.push(Point {x: pos.x + 1, y: pos.y    });  // east
-    locs.push(Point {x: pos.x    , y: pos.y + 1});  // south
+    locs.push(Point {
+        x: pos.x,
+        y: pos.y - 1,
+    }); // north
+    locs.push(Point {
+        x: pos.x - 1,
+        y: pos.y,
+    }); // west
+    locs.push(Point {
+        x: pos.x + 1,
+        y: pos.y,
+    }); // east
+    locs.push(Point {
+        x: pos.x,
+        y: pos.y + 1,
+    }); // south
 
     locs
 }
@@ -180,7 +199,9 @@ fn can_attack(start: &Tile, grid: &HashMap<Point, Tile>) -> Option<Point> {
     let mut result = None;
     let attacker = match start.item {
         Item::Creature(a, _) => a,
-        _ => { panic!("Attacking from invalid location"); }
+        _ => {
+            panic!("Attacking from invalid location");
+        }
     };
 
     for t in tiles {
@@ -192,7 +213,7 @@ fn can_attack(start: &Tile, grid: &HashMap<Point, Tile>) -> Option<Point> {
                         best = hp;
                     }
                 }
-            },
+            }
             _ => {}
         }
     }
@@ -200,11 +221,10 @@ fn can_attack(start: &Tile, grid: &HashMap<Point, Tile>) -> Option<Point> {
     result
 }
 
-fn get_best(start: &Tile, dests: &Vec<Point>,
-    grid: &HashMap<Point, Tile>) -> Action {
+fn get_best(start: &Tile, dests: &Vec<Point>, grid: &HashMap<Point, Tile>) -> Action {
     let mut hm = HashMap::new();
     let mut dist = 1;
-    let mut search : Vec<Point> = vec![];
+    let mut search: Vec<Point> = vec![];
 
     if dests.len() == 0 {
         return Action::DoNothing;
@@ -299,7 +319,6 @@ fn reading_order(a: &Point, b: &Point) -> Ordering {
     }
 }
 
-
 fn make_grid(text_grid: &Vec<String>) -> (HashMap<Point, Tile>, usize, usize) {
     let xsize = text_grid[0].len();
     let ysize = text_grid.len();
@@ -307,12 +326,17 @@ fn make_grid(text_grid: &Vec<String>) -> (HashMap<Point, Tile>, usize, usize) {
     let mut lnum = 0;
     let mut grid = HashMap::new();
 
-    for g in  text_grid.iter().map(|l| {
-        lnum += 1;
-        l.chars().enumerate().map(|(i, c)| {
-            Tile::make(c, lnum - 1, i)
-        }).collect::<Vec<Tile>>()
-    }).flat_map(|x| x).collect::<Vec<Tile>>() {
+    for g in text_grid
+        .iter()
+        .map(|l| {
+            lnum += 1;
+            l.chars()
+                .enumerate()
+                .map(|(i, c)| Tile::make(c, lnum - 1, i))
+                .collect::<Vec<Tile>>()
+        }).flat_map(|x| x)
+        .collect::<Vec<Tile>>()
+    {
         grid.insert(g.pos, g);
     }
 
@@ -323,9 +347,12 @@ fn find_path(grid: &mut HashMap<Point, Tile>, xsize: usize, ysize: usize) -> boo
     find_path_by_power(grid, xsize, ysize, 3)
 }
 
-fn find_path_by_power(grid: &mut HashMap<Point, Tile>,
-    xsize: usize, ysize: usize, power: usize) -> bool {
-
+fn find_path_by_power(
+    grid: &mut HashMap<Point, Tile>,
+    xsize: usize,
+    ysize: usize,
+    power: usize,
+) -> bool {
     let mut v = vec![];
     let mut nums = HashMap::new();
 
@@ -334,7 +361,7 @@ fn find_path_by_power(grid: &mut HashMap<Point, Tile>,
             Item::Creature(c, _) => {
                 *nums.entry(c).or_insert(0) += 1;
                 v.push(g.clone());
-            },
+            }
             _ => (),
         }
     }
@@ -353,16 +380,20 @@ fn find_path_by_power(grid: &mut HashMap<Point, Tile>,
         if !living[i] {
             continue;
         }
-        if (*nums.get(&CreatureType::Elf).unwrap() == 0) ||
-            (*nums.get(&CreatureType::Goblin).unwrap() == 0) {
-                return false;
+        if (*nums.get(&CreatureType::Elf).unwrap() == 0)
+            || (*nums.get(&CreatureType::Goblin).unwrap() == 0)
+        {
+            return false;
         }
-        let mut dests : Vec<Point> = targets.clone().into_iter().filter(|d|
-            (d.item != src.item) &&
-            is_creature(&grid.get(&d.pos).unwrap().item)).map(|x| x.pos).collect();
+        let mut dests: Vec<Point> = targets
+            .clone()
+            .into_iter()
+            .filter(|d| (d.item != src.item) && is_creature(&grid.get(&d.pos).unwrap().item))
+            .map(|x| x.pos)
+            .collect();
 
         match get_best(src, &dests, &grid) {
-            Action::DoNothing => {},
+            Action::DoNothing => {}
             Action::MoveTo(b) => {
                 let mut m = grid.remove(&src.pos).unwrap();
                 grid.insert(src.pos, Tile::make('.', src.pos.y, src.pos.x));
@@ -370,7 +401,11 @@ fn find_path_by_power(grid: &mut HashMap<Point, Tile>,
                 m.adjust(b.y, b.x);
                 grid.remove(&b);
                 grid.insert(b, m);
-                targets = targets.iter().filter(|d| d.pos != src.pos).map(|d| *d).collect();
+                targets = targets
+                    .iter()
+                    .filter(|d| d.pos != src.pos)
+                    .map(|d| *d)
+                    .collect();
                 targets.push(m.clone());
 
                 if let Some(a) = can_attack(&m, &grid) {
@@ -391,7 +426,7 @@ fn find_path_by_power(grid: &mut HashMap<Point, Tile>,
                         targets = targets.iter().filter(|d| d.pos != a).map(|d| *d).collect();
                     }
                 }
-            },
+            }
             Action::Attack(b) => {
                 let mut m = grid.remove(&b).unwrap();
                 if m.take_hit(power) {
@@ -408,7 +443,7 @@ fn find_path_by_power(grid: &mut HashMap<Point, Tile>,
                     grid.insert(b, Tile::make_point('.', &b));
                     targets = targets.iter().filter(|d| d.pos != b).map(|d| *d).collect();
                 }
-            },
+            }
             Action::Abort => {
                 show_grid(grid, xsize, ysize);
                 panic!("Abort");
@@ -423,7 +458,7 @@ fn sum_hp(grid: &HashMap<Point, Tile>) -> i32 {
     let mut total_hp = 0;
     for (_, v) in grid {
         match v.item {
-            Item::Creature(_, hp) => { total_hp += hp },
+            Item::Creature(_, hp) => total_hp += hp,
             _ => {}
         };
     }
@@ -437,7 +472,7 @@ fn show_grid(grid: &HashMap<Point, Tile>, xsize: usize, ysize: usize) -> i32 {
     for row in 0..ysize {
         let mut s = String::from("");
         for col in 0..xsize {
-            match grid.get(&(Point {x: col, y: row})).unwrap().item {
+            match grid.get(&(Point { x: col, y: row })).unwrap().item {
                 Item::Creature(CreatureType::Goblin, hp) => {
                     print!("G");
                     s.push_str(&format!("G({}) ", hp));
@@ -448,9 +483,12 @@ fn show_grid(grid: &HashMap<Point, Tile>, xsize: usize, ysize: usize) -> i32 {
                     s.push_str(&format!("E({}) ", hp));
                     total_hp += hp;
                 }
-                Item::Wall =>{  print!("#"); }
-                Item::Open => { print!("."); }
-
+                Item::Wall => {
+                    print!("#");
+                }
+                Item::Open => {
+                    print!(".");
+                }
             };
         }
         println!("   {}", s);
@@ -465,7 +503,7 @@ mod tests {
 
     #[test]
     fn day15_test1() {
-        let v : Vec<String> = [
+        let v: Vec<String> = [
             String::from("#########"),
             String::from("#G..G..G#"),
             String::from("#.......#"),
@@ -475,7 +513,8 @@ mod tests {
             String::from("#.......#"),
             String::from("#G..G..G#"),
             String::from("#########"),
-        ].to_vec();
+        ]
+            .to_vec();
 
         let (mut g, xs, ys) = make_grid(&v);
         show_grid(&g, xs, ys);
@@ -496,7 +535,7 @@ mod tests {
 
     #[test]
     fn day15_test2() {
-        let v : Vec<String> = [
+        let v: Vec<String> = [
             String::from("#######"),
             String::from("#.G...#"),
             String::from("#...EG#"),
@@ -504,7 +543,8 @@ mod tests {
             String::from("#..G#E#"),
             String::from("#.....#"),
             String::from("#######"),
-        ].to_vec();
+        ]
+            .to_vec();
 
         let mut round = 0;
 
@@ -570,7 +610,7 @@ mod tests {
 
     #[test]
     fn day15_test3() {
-        let v : Vec<String> = [
+        let v: Vec<String> = [
             String::from("#######"),
             String::from("#G..#E#"),
             String::from("#E#E.E#"),
@@ -578,14 +618,15 @@ mod tests {
             String::from("#...#E#"),
             String::from("#...E.#"),
             String::from("#######"),
-        ].to_vec();
+        ]
+            .to_vec();
 
         assert_eq!(run_test(v), (37, 982));
     }
 
     #[test]
     fn day15_test4() {
-        let v : Vec<String> = [
+        let v: Vec<String> = [
             String::from("#######"),
             String::from("#E..EG#"),
             String::from("#.#G.E#"),
@@ -593,14 +634,15 @@ mod tests {
             String::from("#G..#.#"),
             String::from("#..E#.#"),
             String::from("#######"),
-        ].to_vec();
+        ]
+            .to_vec();
 
         assert_eq!(run_test(v), (46, 859));
     }
 
     #[test]
     fn day15_test5() {
-        let v : Vec<String> = [
+        let v: Vec<String> = [
             String::from("#######"),
             String::from("#E.G#.#"),
             String::from("#.#G..#"),
@@ -608,7 +650,8 @@ mod tests {
             String::from("#G..#.#"),
             String::from("#...E.#"),
             String::from("#######"),
-        ].to_vec();
+        ]
+            .to_vec();
 
         // let (mut g, xs, ys) = make_grid(&v);
         // show_grid(&g, xs, ys);
@@ -623,7 +666,7 @@ mod tests {
 
     #[test]
     fn day15_test6() {
-        let v : Vec<String> = [
+        let v: Vec<String> = [
             String::from("#######"),
             String::from("#.E...#"),
             String::from("#.#..G#"),
@@ -631,14 +674,15 @@ mod tests {
             String::from("#E#G#G#"),
             String::from("#...#G#"),
             String::from("#######"),
-        ].to_vec();
+        ]
+            .to_vec();
 
         assert_eq!(run_test(v), (54, 536));
     }
 
     #[test]
     fn day15_test7() {
-        let v : Vec<String> = [
+        let v: Vec<String> = [
             String::from("#########"),
             String::from("#G......#"),
             String::from("#.E.#...#"),
@@ -648,20 +692,22 @@ mod tests {
             String::from("#.G...G.#"),
             String::from("#.....G.#"),
             String::from("#########"),
-        ].to_vec();
+        ]
+            .to_vec();
 
         assert_eq!(run_test(v), (20, 937));
     }
 
     #[test]
     fn day15_test8() {
-        let v1 : Vec<String> = [
+        let v1: Vec<String> = [
             String::from("#######"),
             String::from("#.E..G#"),
             String::from("#.#####"),
             String::from("#G#####"),
             String::from("#######"),
-        ].to_vec();
+        ]
+            .to_vec();
         assert_eq!(run_test(v1), (34, 301));
 
         let v2 = [
@@ -669,7 +715,8 @@ mod tests {
             String::from("##E#"),
             String::from("#GG#"),
             String::from("####"),
-        ].to_vec();
+        ]
+            .to_vec();
         assert_eq!(run_test(v2), (67, 200));
     }
 }

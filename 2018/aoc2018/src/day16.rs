@@ -18,14 +18,16 @@ pub fn run() -> (String, String) {
                 bcap[3].parse::<i64>().unwrap(),
                 bcap[4].parse::<i64>().unwrap(),
                 bcap[5].parse::<i64>().unwrap(),
-            ].to_vec();
+            ]
+                .to_vec();
             let opcap = in_reg.captures_iter(i.next().unwrap()).next().unwrap();
             let instruc = [
                 opcap[1].parse::<i64>().unwrap(),
                 opcap[2].parse::<i64>().unwrap(),
                 opcap[3].parse::<i64>().unwrap(),
                 opcap[4].parse::<i64>().unwrap(),
-            ].to_vec();
+            ]
+                .to_vec();
             let acap = be_reg.captures_iter(i.next().unwrap()).next().unwrap();
             assert_eq!(&acap[1], "After");
             let after = [
@@ -33,7 +35,8 @@ pub fn run() -> (String, String) {
                 acap[3].parse::<i64>().unwrap(),
                 acap[4].parse::<i64>().unwrap(),
                 acap[5].parse::<i64>().unwrap(),
-            ].to_vec();
+            ]
+                .to_vec();
             if m.three_or_more(before, instruc, after) {
                 count += 1;
             }
@@ -45,7 +48,7 @@ pub fn run() -> (String, String) {
     m.op.sort_by(|a, b| a.id.cmp(&b.id));
 
     i.next(); // one more blank line
-    m.reg = [0,0,0,0].to_vec();
+    m.reg = [0, 0, 0, 0].to_vec();
     while let Some(l) = i.next() {
         if let Some(cap) = in_reg.captures_iter(l).next() {
             let code = cap[1].parse::<usize>().unwrap();
@@ -58,7 +61,6 @@ pub fn run() -> (String, String) {
 
     (format!("{}", count), format!("{}", m.reg[0]))
 }
-
 
 // -----
 
@@ -88,7 +90,10 @@ impl Machine {
         v.push(Opcode::new("eqri", eqri));
         v.push(Opcode::new("eqrr", eqrr));
 
-        Machine { reg: vec![0; 4], op: v }
+        Machine {
+            reg: vec![0; 4],
+            op: v,
+        }
     }
 
     pub fn exec(&mut self, code: &usize, src1: &i64, src2: &i64, dst: &i64) {
@@ -148,7 +153,11 @@ impl fmt::Debug for Opcode {
 
 impl Opcode {
     pub fn new(name: &str, func: fn(m: &mut Machine, src1: &i64, src2: &i64, dst: &i64)) -> Opcode {
-        Opcode { name: String::from(name), id: 987654321, func: func }
+        Opcode {
+            name: String::from(name),
+            id: 987654321,
+            func: func,
+        }
     }
 }
 
@@ -195,42 +204,42 @@ fn seti(m: &mut Machine, src1: &i64, _: &i64, dst: &i64) {
 fn gtir(m: &mut Machine, src1: &i64, src2: &i64, dst: &i64) {
     m.reg[*dst as usize] = match *src1 > m.reg[*src2 as usize] {
         true => 1,
-        false => 0
+        false => 0,
     };
 }
 
 fn gtri(m: &mut Machine, src1: &i64, src2: &i64, dst: &i64) {
     m.reg[*dst as usize] = match m.reg[*src1 as usize] > *src2 {
         true => 1,
-        false => 0
+        false => 0,
     };
 }
 
 fn gtrr(m: &mut Machine, src1: &i64, src2: &i64, dst: &i64) {
     m.reg[*dst as usize] = match m.reg[*src1 as usize] > m.reg[*src2 as usize] {
         true => 1,
-        false => 0
+        false => 0,
     };
 }
 
 fn eqir(m: &mut Machine, src1: &i64, src2: &i64, dst: &i64) {
     m.reg[*dst as usize] = match *src1 == m.reg[*src2 as usize] {
         true => 1,
-        false => 0
+        false => 0,
     };
 }
 
 fn eqri(m: &mut Machine, src1: &i64, src2: &i64, dst: &i64) {
     m.reg[*dst as usize] = match m.reg[*src1 as usize] == *src2 {
         true => 1,
-        false => 0
+        false => 0,
     };
 }
 
 fn eqrr(m: &mut Machine, src1: &i64, src2: &i64, dst: &i64) {
     m.reg[*dst as usize] = match m.reg[*src1 as usize] == m.reg[*src2 as usize] {
         true => 1,
-        false => 0
+        false => 0,
     };
 }
 
@@ -254,7 +263,7 @@ mod tests {
         let mut m = Machine::new();
         m.reg[0] = 3;
         m.reg[1] = 5;
-        
+
         m.exec(&2, &0, &1, &2);
         assert_eq!(m.reg[2], 15);
 
@@ -272,9 +281,15 @@ mod tests {
     fn day16_test3() {
         let mut m = Machine::new();
 
-        assert!(m.three_or_more([3, 2, 1, 1].to_vec(), [9, 2, 1, 2].to_vec(), [3, 2, 2, 1].to_vec()));
-        assert!(!m.three_or_more([20, 30, 40, 50].to_vec(),
+        assert!(m.three_or_more(
+            [3, 2, 1, 1].to_vec(),
             [9, 2, 1, 2].to_vec(),
-            [2839, 29834, 9873, 928374].to_vec()));
+            [3, 2, 2, 1].to_vec()
+        ));
+        assert!(!m.three_or_more(
+            [20, 30, 40, 50].to_vec(),
+            [9, 2, 1, 2].to_vec(),
+            [2839, 29834, 9873, 928374].to_vec()
+        ));
     }
 }
