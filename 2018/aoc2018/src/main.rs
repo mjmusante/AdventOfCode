@@ -23,6 +23,7 @@ mod day13;
 mod day14;
 mod day15;
 mod day16;
+mod day17;
 
 fn main() {
     if !Path::new("./puzzle_data").exists() {
@@ -52,6 +53,7 @@ fn main() {
         day14::run,
         day15::run,
         day16::run,
+        day17::run,
     ];
     let mut n = 1;
     let mut total_time = Duration::new(0, 0);
