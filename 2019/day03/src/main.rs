@@ -15,12 +15,8 @@ struct Point {
 }
 
 impl Point {
-    fn mhatdist(&self) -> i64 {
+    fn mdist(&self) -> i64 {
         self.x.abs() + self.y.abs()
-    }
-
-    fn clone(&self) -> Point {
-        Point { x: self.x, y: self.y }
     }
 }
 
@@ -36,11 +32,17 @@ impl Line {
     }
 }
 
-fn intersect(netlist: &Vec<Line>, line: &Line) -> Point {
+fn intersect(netlist: &Vec<Line>, line: &Line) -> (i64, i64, i64) {
     let mut result = Point { x: 0, y: 0 };
-    let mut found = false;
+    let mut path = 0;
+    let mut nextpath = 0;
+    let mut partial = 0;
+    let mut linepartial = 0;
+
     for n in netlist.iter() {
+        path += nextpath;
         if n.is_vertical() {
+            nextpath = max(n.start.y, n.end.y) - min(n.start.y, n.end.y);
             if line.is_vertical() {
                 continue;
             }
@@ -54,12 +56,12 @@ fn intersect(netlist: &Vec<Line>, line: &Line) -> Point {
             if top < line.start.y || bot > line.start.y {
                 continue;
             }
-            let isect = Point { x: n.start.x, y: line.start.y };
-            if !found || result.mhatdist() > isect.mhatdist() {
-                found = true;
-                result = isect.clone();
-            }
+            result = Point { x: n.start.x, y: line.start.y };
+            partial = (n.start.y - line.start.y).abs();
+            linepartial = (line.start.x - n.start.x).abs();
+            break;
         } else {
+            nextpath = max(n.start.x, n.end.x) - min(n.start.x, n.end.x);
             if !line.is_vertical() {
                 continue;
             }
@@ -73,15 +75,14 @@ fn intersect(netlist: &Vec<Line>, line: &Line) -> Point {
             if left > line.start.x || right < line.start.x {
                 continue;
             }
-            let isect = Point { x: line.start.x, y: n.start.y };
-            if !found || result.mhatdist() > isect.mhatdist() {
-                found = true;
-                result = isect.clone();
-            }
+            result = Point { x: line.start.x, y: n.start.y };
+            partial = (n.start.x - line.start.x).abs();
+            linepartial = (line.start.y - n.start.y).abs();
+            break;
         }
     }
 
-    result
+    (result.mdist(), path + partial, linepartial)
 }
 
 fn main() {
@@ -124,9 +125,16 @@ fn main() {
     curx = 0;
     cury = 0;
     let mut closest = 0;
+    let mut shortest = 0;
+    let mut curlen = 0;
+    let mut nextlen = 0;
 
     for s in decode.captures_iter(second) {
+
+        curlen += nextlen;
         let dist = &s[2].parse::<i64>().unwrap();
+        nextlen = *dist;
+
         let start = Point { x: curx, y: cury };
         match &s[1] {
             "U" => { cury += dist; }
@@ -137,13 +145,19 @@ fn main() {
         };
         let end = Point { x: curx, y: cury };
         let myline = Line { start: start, end: end };
-        let p = intersect(&netlist, &myline);
-        let manhattan = p.x.abs() + p.y.abs();
+        let (mdist, netlength, linelength) = intersect(&netlist, &myline);
+        if mdist == 0 {
+            continue;
+        }
 
-        if closest == 0 || (manhattan > 0 && manhattan < closest) {
-            closest = manhattan;
+        if closest == 0 || (mdist > 0 && mdist < closest) {
+            closest = mdist;
+        }
+        if shortest == 0 || curlen + linelength + netlength < shortest {
+            shortest = curlen + linelength + netlength;
         }
     }
 
-    println!("part 1: closest = {}", closest);
+    println!("part 1: closest  = {}", closest);
+    println!("part 2: shortest = {}", shortest);
 }
