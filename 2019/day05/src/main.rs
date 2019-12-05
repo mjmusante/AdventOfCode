@@ -95,5 +95,5 @@ fn main() {
         .collect::<Vec<i64>>();
 
     println!("part 1 = {}", intcode(&ary, 1));
-    println!("part 1 = {}", intcode(&ary, 5));
+    println!("part 2 = {}", intcode(&ary, 5));
 }
