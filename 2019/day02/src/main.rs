@@ -1,8 +1,8 @@
-use std::process::exit;
-
 use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
+
+use std::time::Instant;
 
 fn try_values(program: &Vec<i64>, noun: i64, verb: i64) -> i64 {
     let mut mem = program.clone();
@@ -41,15 +41,23 @@ fn main() {
         .map(|num| num.parse::<i64>().unwrap())
         .collect::<Vec<i64>>();
 
-    println!("part 1 = {}", try_values(&ary, 12, 2));
-    for i in 0..99 {
+    let now = Instant::now();
+
+    let part1 = try_values(&ary, 12, 2);
+    let mut part2 = 0;
+
+    'outer: for i in 0..99 {
         for j in 0..99 {
             let v = try_values(&ary, i, j);
             if v == 19690720 {
-                println!("part 2 = noun: {}, verb: {}, code = {}", i, j, 100 * i + j);
-                exit(0);
+                part2 = 100 * i + j;
+                break 'outer;
             }
         }
     }
-    println!("part 2 = FAILED");
+    let exec_ms = now.elapsed().as_millis();
+
+    println!("part 1 = {}", part1);
+    println!("part 2 = {}", if part2 == 0 { "FAILED".to_string() } else {part2.to_string()} );
+    println!("elapsed time = {}ms", exec_ms);
 }
