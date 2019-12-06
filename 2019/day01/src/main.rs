@@ -35,7 +35,7 @@ fn main() {
         }
     }
 
-    let f = File::open("data/input.txt").unwrap();
+    let f = File::open("inputs/day01.txt").unwrap();
     let vlist =  BufReader::new(&f)
         .lines()
         .map(|line| line.unwrap())

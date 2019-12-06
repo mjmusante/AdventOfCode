@@ -83,7 +83,7 @@ fn intcode(program: &Vec<i64>, id: i64) -> i64 {
 
 
 fn main() {
-    let f = File::open("data/input.txt").unwrap();
+    let f = File::open("inputs/day05.txt").unwrap();
     let vlist =  BufReader::new(&f)
         .lines()
         .map(|line| line.unwrap())

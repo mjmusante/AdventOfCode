@@ -30,7 +30,7 @@ fn try_values(program: &Vec<i64>, noun: i64, verb: i64) -> i64 {
 
 
 fn main() {
-    let f = File::open("data/input.txt").unwrap();
+    let f = File::open("inputs/day02.txt").unwrap();
     let vlist =  BufReader::new(&f)
         .lines()
         .map(|line| line.unwrap())

@@ -87,7 +87,7 @@ fn intersect(netlist: &Vec<Line>, line: &Line) -> (i64, i64, i64) {
 
 fn main() {
 
-    let f = File::open("data/input.txt").unwrap();
+    let f = File::open("inputs/day03.txt").unwrap();
     let wires =  BufReader::new(&f)
         .lines()
         .map(|line| line.unwrap())
