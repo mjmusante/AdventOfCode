@@ -2,6 +2,8 @@ use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
 
+use std::time::Instant;
+
 use std::collections::HashMap;
 
 struct Orbital {
@@ -24,8 +26,10 @@ fn main() {
     //     "COM)B", "B)C", "C)D", "D)E", "E)F", "B)G", "G)H", "D)I", "E)J", "J)K", "K)L", "K)YOU",
     //     "I)SAN",
     // ];
-    let mut orbits = Vec::new();
 
+    let now = Instant::now();
+
+    let mut orbits = Vec::new();
     for v in &vlist {
         let orbital = &v.split(")").collect::<Vec<&str>>();
         orbits.push(Orbital {
@@ -48,7 +52,6 @@ fn main() {
         }
     }
 
-    println!("part1={}", part1);
 
     // count steps back to origin
     let mut you_depth = 0;
@@ -73,7 +76,11 @@ fn main() {
 
     // this node has the number of steps from YOU to the
     // common ancestor but includes the initial extra step
-    let common = steps.get(&san).unwrap();
+    let part2 = (steps.get(&san).unwrap() - 1) + (san_depth - 1);
 
-    println!("part2={}", (common - 1) + (san_depth - 1));
+    let exec_ms = now.elapsed().as_millis();
+
+    println!("part 1 = {}", part1);
+    println!("part 2 = {}", part2);
+    println!("elapsed time = {}ms", exec_ms);
 }
