@@ -16,11 +16,14 @@ fn main() {
         .map(|line| line.unwrap())
         .collect::<Vec<String>>();
 
-    /*
-    let vlist = [
-        "COM)B", "B)C", "C)D", "D)E", "E)F", "B)G", "G)H", "D)I", "E)J", "J)K", "K)L",
-    ];
-    */
+    // let vlist = [
+    //     "COM)B", "B)C", "C)D", "D)E", "E)F", "B)G", "G)H", "D)I", "E)J", "J)K", "K)L",
+    // ];
+
+    // let vlist = [
+    //     "COM)B", "B)C", "C)D", "D)E", "E)F", "B)G", "G)H", "D)I", "E)J", "J)K", "K)L", "K)YOU",
+    //     "I)SAN",
+    // ];
     let mut orbits = Vec::new();
 
     for v in &vlist {
@@ -46,4 +49,31 @@ fn main() {
     }
 
     println!("part1={}", part1);
+
+    // count steps back to origin
+    let mut you_depth = 0;
+    let mut you = "YOU".to_string();
+    let mut steps = HashMap::new();
+    while comlist.contains_key(&you) {
+        steps.insert(you.clone(), you_depth);
+        you_depth += 1;
+        you = comlist.get(&you).unwrap().to_string();
+    }
+
+    // count steps back to first common ancestor
+    let mut san = "SAN".to_string();
+    let mut san_depth = 0;
+    while comlist.contains_key(&san) {
+        if steps.contains_key(&san) {
+            break;
+        }
+        san_depth += 1;
+        san = comlist.get(&san).unwrap().to_string();
+    }
+
+    // this node has the number of steps from YOU to the
+    // common ancestor but includes the initial extra step
+    let common = steps.get(&san).unwrap();
+
+    println!("part2={}", (common - 1) + (san_depth - 1));
 }
