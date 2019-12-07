@@ -51,20 +51,17 @@ impl Computer {
                 1 => {
                     let op1 = self.get_operand(src1);
                     let op2 = self.get_operand(src2);
-                    let dest = self.mem[self.ip] as usize;
-                    self.ip += 1;
+                    let dest = self.get_operand(false) as usize;
                     self.mem[dest] = op1 + op2;
                 }
                 2 => {
                     let op1 = self.get_operand(src1);
                     let op2 = self.get_operand(src2);
-                    let dest = self.mem[self.ip] as usize;
-                    self.ip += 1;
+                    let dest = self.get_operand(false) as usize;
                     self.mem[dest] = op1 * op2;
                 }
                 3 => {
-                    let dest = self.mem[self.ip] as usize;
-                    self.ip += 1;
+                    let dest = self.get_operand(false) as usize;
                     self.mem[dest] = self.input.remove(0);
                 }
                 4 => {
@@ -82,23 +79,11 @@ impl Computer {
                         self.ip = jump_loc;
                     }
                 }
-                7 => {
+                7|8 => {
                     let op1 = self.get_operand(src1);
                     let op2 = self.get_operand(src2);
-                    let dest = self.mem[self.ip] as usize;
-                    self.ip += 1;
-                    if op1 < op2 {
-                        self.mem[dest] = 1;
-                    } else {
-                        self.mem[dest] = 0;
-                    }
-                }
-                8 => {
-                    let op1 = self.get_operand(src1);
-                    let op2 = self.get_operand(src2);
-                    let dest = self.mem[self.ip] as usize;
-                    self.ip += 1;
-                    if op1 == op2 {
+                    let dest = self.get_operand(false) as usize;
+                    if (opcode == 7 &&op1 < op2) || (opcode == 8 && op1 == op2) {
                         self.mem[dest] = 1;
                     } else {
                         self.mem[dest] = 0;
