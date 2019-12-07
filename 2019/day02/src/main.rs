@@ -13,10 +13,24 @@ fn try_values(program: &Vec<i64>, noun: i64, verb: i64) -> i64 {
 
     loop {
         let (val, loc) = match mem[pos] {
-            1 => { pos += 4; (mem[mem[pos - 3] as usize] + mem[mem[pos - 2] as usize], mem[pos - 1]) }
-            2 => { pos += 4; (mem[mem[pos - 3] as usize] * mem[mem[pos - 2] as usize], mem[pos - 1]) }
-            99 => { (-1, -1) }
-            _ => { return -1; }
+            1 => {
+                pos += 4;
+                (
+                    mem[mem[pos - 3] as usize] + mem[mem[pos - 2] as usize],
+                    mem[pos - 1],
+                )
+            }
+            2 => {
+                pos += 4;
+                (
+                    mem[mem[pos - 3] as usize] * mem[mem[pos - 2] as usize],
+                    mem[pos - 1],
+                )
+            }
+            99 => (-1, -1),
+            _ => {
+                return -1;
+            }
         };
 
         if loc < 0 {
@@ -28,10 +42,9 @@ fn try_values(program: &Vec<i64>, noun: i64, verb: i64) -> i64 {
     mem[0]
 }
 
-
 fn main() {
     let f = File::open("inputs/day02.txt").unwrap();
-    let vlist =  BufReader::new(&f)
+    let vlist = BufReader::new(&f)
         .lines()
         .map(|line| line.unwrap())
         .collect::<Vec<String>>();
@@ -58,6 +71,13 @@ fn main() {
     let exec_ms = now.elapsed().as_millis();
 
     println!("part 1 = {}", part1);
-    println!("part 2 = {}", if part2 == 0 { "FAILED".to_string() } else {part2.to_string()} );
+    println!(
+        "part 2 = {}",
+        if part2 == 0 {
+            "FAILED".to_string()
+        } else {
+            part2.to_string()
+        }
+    );
     println!("elapsed time = {}ms", exec_ms);
 }

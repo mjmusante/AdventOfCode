@@ -52,7 +52,6 @@ fn main() {
         }
     }
 
-
     // count steps back to origin
     let mut you_depth = 0;
     let mut you = "YOU".to_string();

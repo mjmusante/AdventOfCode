@@ -15,14 +15,22 @@ fn intcode(program: &Vec<i64>, id: i64) -> i64 {
         let (op1, op2);
         pos += 1;
 
-        if OPCOUNT[opcode as usize] > 0  {
-            op1 = if src1 == 0 { mem[mem[pos] as usize] } else { mem[pos] };
+        if OPCOUNT[opcode as usize] > 0 {
+            op1 = if src1 == 0 {
+                mem[mem[pos] as usize]
+            } else {
+                mem[pos]
+            };
             pos += 1;
         } else {
             op1 = 0;
         }
         if OPCOUNT[opcode as usize] > 1 {
-            op2 = if src2 == 0 { mem[mem[pos] as usize] } else { mem[pos] };
+            op2 = if src2 == 0 {
+                mem[mem[pos] as usize]
+            } else {
+                mem[pos]
+            };
             pos += 1;
         } else {
             op2 = 0;
@@ -32,24 +40,27 @@ fn intcode(program: &Vec<i64>, id: i64) -> i64 {
             1 => {
                 pos += 1;
                 (op1 + op2, mem[pos - 1])
-             }
+            }
             2 => {
                 pos += 1;
                 (op1 * op2, mem[pos - 1])
-             }
-            3 => { pos += 1; (id, mem[pos - 1]) }
+            }
+            3 => {
+                pos += 1;
+                (id, mem[pos - 1])
+            }
             4 => {
                 if op1 != 0 {
                     return op1;
                 }
                 (0, -1)
-             }
-            5|6 => {
+            }
+            5 | 6 => {
                 if (opcode == 5 && op1 != 0) || (opcode == 6 && op1 == 0) {
                     pos = op2 as usize;
                 }
                 (0, -1)
-             }
+            }
             7 => {
                 pos += 1;
                 if op1 < op2 {
@@ -57,7 +68,7 @@ fn intcode(program: &Vec<i64>, id: i64) -> i64 {
                 } else {
                     (0, mem[pos - 1])
                 }
-             }
+            }
             8 => {
                 pos += 1;
                 if op1 == op2 {
@@ -65,9 +76,11 @@ fn intcode(program: &Vec<i64>, id: i64) -> i64 {
                 } else {
                     (0, mem[pos - 1])
                 }
-             }
-            99 => { (-1, -1) }
-            _ => { return -1; }
+            }
+            99 => (-1, -1),
+            _ => {
+                return -1;
+            }
         };
 
         if loc >= 0 {
@@ -81,10 +94,9 @@ fn intcode(program: &Vec<i64>, id: i64) -> i64 {
     mem[0]
 }
 
-
 fn main() {
     let f = File::open("inputs/day05.txt").unwrap();
-    let vlist =  BufReader::new(&f)
+    let vlist = BufReader::new(&f)
         .lines()
         .map(|line| line.unwrap())
         .collect::<Vec<String>>();

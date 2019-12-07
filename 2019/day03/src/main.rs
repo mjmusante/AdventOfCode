@@ -1,6 +1,6 @@
 use std::process::exit;
 
-use std::cmp::{min, max};
+use std::cmp::{max, min};
 
 use std::fs::File;
 use std::io::BufRead;
@@ -23,7 +23,7 @@ impl Point {
 #[derive(Debug)]
 struct Line {
     start: Point,
-    end: Point
+    end: Point,
 }
 
 impl Line {
@@ -56,7 +56,10 @@ fn intersect(netlist: &Vec<Line>, line: &Line) -> (i64, i64, i64) {
             if top < line.start.y || bot > line.start.y {
                 continue;
             }
-            result = Point { x: n.start.x, y: line.start.y };
+            result = Point {
+                x: n.start.x,
+                y: line.start.y,
+            };
             partial = (n.start.y - line.start.y).abs();
             linepartial = (line.start.x - n.start.x).abs();
             break;
@@ -75,7 +78,10 @@ fn intersect(netlist: &Vec<Line>, line: &Line) -> (i64, i64, i64) {
             if left > line.start.x || right < line.start.x {
                 continue;
             }
-            result = Point { x: line.start.x, y: n.start.y };
+            result = Point {
+                x: line.start.x,
+                y: n.start.y,
+            };
             partial = (n.start.x - line.start.x).abs();
             linepartial = (line.start.y - n.start.y).abs();
             break;
@@ -86,9 +92,8 @@ fn intersect(netlist: &Vec<Line>, line: &Line) -> (i64, i64, i64) {
 }
 
 fn main() {
-
     let f = File::open("inputs/day03.txt").unwrap();
-    let wires =  BufReader::new(&f)
+    let wires = BufReader::new(&f)
         .lines()
         .map(|line| line.unwrap())
         .collect::<Vec<String>>();
@@ -101,25 +106,39 @@ fn main() {
     //let second = "U62,R66,U55,R34,D71,R55,D58,R83";
     //let first = "R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51";
     //let second = "U98,R91,D20,R16,D67,R40,U7,R15,U6,R7";
-    
+
     let decode = Regex::new(r"([UDLR])(\d+)").unwrap();
 
     let mut curx = 0;
     let mut cury = 0;
-    let mut netlist : Vec<Line> = Vec::new();
+    let mut netlist: Vec<Line> = Vec::new();
 
     for f in decode.captures_iter(first) {
         let dist = &f[2].parse::<i64>().unwrap();
         let start = Point { x: curx, y: cury };
         match &f[1] {
-            "U" => { cury += dist; }
-            "D" => { cury -= dist; }
-            "L" => { curx -= dist; }
-            "R" => { curx += dist; }
-            _ => { println!("bad match"); exit(1); }
+            "U" => {
+                cury += dist;
+            }
+            "D" => {
+                cury -= dist;
+            }
+            "L" => {
+                curx -= dist;
+            }
+            "R" => {
+                curx += dist;
+            }
+            _ => {
+                println!("bad match");
+                exit(1);
+            }
         };
         let end = Point { x: curx, y: cury };
-        netlist.push(Line { start: start, end: end });
+        netlist.push(Line {
+            start: start,
+            end: end,
+        });
     }
 
     curx = 0;
@@ -130,21 +149,34 @@ fn main() {
     let mut nextlen = 0;
 
     for s in decode.captures_iter(second) {
-
         curlen += nextlen;
         let dist = &s[2].parse::<i64>().unwrap();
         nextlen = *dist;
 
         let start = Point { x: curx, y: cury };
         match &s[1] {
-            "U" => { cury += dist; }
-            "D" => { cury -= dist; }
-            "L" => { curx -= dist; }
-            "R" => { curx += dist; }
-            _ => { println!("bad match"); exit(1); }
+            "U" => {
+                cury += dist;
+            }
+            "D" => {
+                cury -= dist;
+            }
+            "L" => {
+                curx -= dist;
+            }
+            "R" => {
+                curx += dist;
+            }
+            _ => {
+                println!("bad match");
+                exit(1);
+            }
         };
         let end = Point { x: curx, y: cury };
-        let myline = Line { start: start, end: end };
+        let myline = Line {
+            start: start,
+            end: end,
+        };
         let (mdist, netlength, linelength) = intersect(&netlist, &myline);
         if mdist == 0 {
             continue;

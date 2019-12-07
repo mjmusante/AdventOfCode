@@ -1,4 +1,4 @@
-fn valid (num: i64, exact: bool) -> bool {
+fn valid(num: i64, exact: bool) -> bool {
     let mut prev_dig = 10;
     let mut left = num;
     let mut doubles = false;

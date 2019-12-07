@@ -4,11 +4,11 @@ use std::io::BufReader;
 
 use std::time::Instant;
 
-fn fuel(mass : i64) -> i64 {
+fn fuel(mass: i64) -> i64 {
     mass / 3 - 2
 }
 
-fn account_for_fuel(fuelmass : i64) -> i64 {
+fn account_for_fuel(fuelmass: i64) -> i64 {
     let mut fmass = fuelmass;
     let mut adjustment = 0;
     loop {
@@ -21,7 +21,6 @@ fn account_for_fuel(fuelmass : i64) -> i64 {
 
     adjustment
 }
-
 
 fn main() {
     // let masses = vec![12, 14, 1969, 100756];
@@ -38,7 +37,7 @@ fn main() {
     // }
 
     let f = File::open("inputs/day01.txt").unwrap();
-    let vlist =  BufReader::new(&f)
+    let vlist = BufReader::new(&f)
         .lines()
         .map(|line| line.unwrap())
         .collect::<Vec<String>>();
