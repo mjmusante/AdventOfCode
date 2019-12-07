@@ -3,6 +3,7 @@ pub struct Computer {
     ip: usize,
     input: Vec<i64>,
     running: bool,
+    awaiting_input: bool,
 }
 
 impl Computer {
@@ -12,6 +13,7 @@ impl Computer {
             ip: 0,
             input: input,
             running: true,
+            awaiting_input: false,
         }
     }
 
@@ -22,6 +24,10 @@ impl Computer {
 
     pub fn halted(&self) -> bool {
         !self.running
+    }
+
+    pub fn waiting_for_input(&self) -> bool {
+        self.awaiting_input
     }
 
     fn get_opcode(&mut self) -> (usize, bool, bool) {
@@ -61,6 +67,11 @@ impl Computer {
                     self.mem[dest] = op1 * op2;
                 }
                 3 => {
+                    if self.input.len() == 0 {
+                        self.ip -= 1;
+                        self.awaiting_input = true;
+                        return 0;
+                    }
                     let dest = self.get_operand(false) as usize;
                     self.mem[dest] = self.input.remove(0);
                 }
@@ -99,6 +110,13 @@ impl Computer {
         }
 
         self.mem[0]
+    }
+
+    pub fn run_with_input(&mut self, inpval: i64) -> i64 {
+        assert_eq!(self.mem[self.ip] % 100, 3);
+        self.input.push(inpval);
+        self.awaiting_input = false;
+        return self.intcode();
     }
 
     pub fn current_ip(&self) -> usize {
