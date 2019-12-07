@@ -21,7 +21,6 @@ fn main() {
     c.set_noun_verb(12, 2);
     let part1 = c.intcode();
 
-
     let mut part2 = -1;
     'outer: for i in 0..=99 {
         for j in 0..=99 {

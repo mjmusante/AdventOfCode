@@ -6,7 +6,6 @@ use std::io::BufReader;
 
 use intcode::Computer;
 
-
 fn main() {
     let f = File::open("inputs/day05.txt").unwrap();
     let vlist = BufReader::new(&f)
@@ -32,7 +31,11 @@ fn main() {
             break;
         }
         if rslt != 0 {
-            println!("Got error on loop count {} at ip {}", loop_count, c1.current_ip());
+            println!(
+                "Got error on loop count {} at ip {}",
+                loop_count,
+                c1.current_ip()
+            );
             exit(1);
         }
     }

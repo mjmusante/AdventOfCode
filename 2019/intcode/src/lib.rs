@@ -79,11 +79,11 @@ impl Computer {
                         self.ip = jump_loc;
                     }
                 }
-                7|8 => {
+                7 | 8 => {
                     let op1 = self.get_operand(src1);
                     let op2 = self.get_operand(src2);
                     let dest = self.get_operand(false) as usize;
-                    if (opcode == 7 &&op1 < op2) || (opcode == 8 && op1 == op2) {
+                    if (opcode == 7 && op1 < op2) || (opcode == 8 && op1 == op2) {
                         self.mem[dest] = 1;
                     } else {
                         self.mem[dest] = 0;
