@@ -93,9 +93,6 @@ fn main() {
 
     println!("part 2:");
     for row in image {
-        for col in row {
-            print!("{}", col);
-        }
-        println!("");
+        println!("{}", row.into_iter().collect::<String>());
     }
 }
