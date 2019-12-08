@@ -92,7 +92,7 @@ fn main() {
     }
 
     println!("part 2:");
-    for row in image {
+    image.iter().for_each(|row| {
         println!("{}", row.into_iter().collect::<String>());
-    }
+    });
 }
