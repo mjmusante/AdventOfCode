@@ -19,14 +19,14 @@ fn main() {
     let mut c = Computer::new(&ary);
 
     c.set_noun_verb(12, 2);
-    let part1 = c.intcode();
+    let part1 = c.run();
 
     let mut part2 = -1;
     'outer: for i in 0..=99 {
         for j in 0..=99 {
             let mut c = Computer::new(&ary);
             c.set_noun_verb(i, j);
-            if c.intcode() == 19690720 {
+            if c.run() == 19690720 {
                 part2 = 100 * i + j;
                 break 'outer;
             }

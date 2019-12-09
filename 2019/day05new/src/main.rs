@@ -25,7 +25,7 @@ fn main() {
 
     loop {
         loop_count += 1;
-        let rslt = c1.intcode();
+        let rslt = c1.run();
         if c1.halted() {
             part1 = rslt;
             break;
@@ -41,7 +41,7 @@ fn main() {
     }
 
     let mut c5 = Computer::new(&ary).with_input([5].to_vec());
-    let part2 = c5.intcode();
+    let part2 = c5.run();
 
     println!("part 1 = {}", part1);
     println!("part 2 = {}", part2);

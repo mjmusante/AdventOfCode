@@ -71,7 +71,7 @@ fn main() {
             for i in p {
                 let inputs = [i, signal].to_vec();
                 let mut c = Computer::new(&ary).with_input(inputs);
-                signal = c.intcode();
+                signal = c.run();
             }
             if signal > part1 {
                 part1 = signal;
@@ -86,7 +86,7 @@ fn main() {
             let mut amps = vec![];
             for i in p {
                 let mut c = Computer::new(&ary).with_input([i + 5].to_vec());
-                if c.intcode() != 0 || !c.waiting_for_input() {
+                if c.run() != 0 || !c.waiting_for_input() {
                     println!("computer should've been waiting for input");
                     exit(1);
                 }
@@ -103,7 +103,7 @@ fn main() {
                     assert!(!amp.waiting_for_input() || amp.halted());
 
                     if !amp.halted() {
-                        let m = amp.intcode();
+                        let m = amp.run();
                         if !amp.waiting_for_input() && !amp.halted() {
                             println!("expected input or halted state, {}", m);
                             exit(1);
