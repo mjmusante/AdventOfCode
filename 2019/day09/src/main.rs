@@ -18,9 +18,8 @@ fn main() {
         .map(|num| num.parse::<i64>().unwrap())
         .collect::<Vec<i64>>();
 
-    let mut part1 = Computer::new(&ary).with_input([1].to_vec());
-    println!("part 1 = {}", part1.intcode());
-
-    let mut part2 = Computer::new(&ary).with_input([2].to_vec());
-    println!("part 2 = {}", part2.intcode());
+    for i in 1..=2 {
+        let mut c = Computer::new(&ary).with_input([i].to_vec());
+        println!("part {} = {}", i, c.intcode());
+    }
 }
