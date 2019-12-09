@@ -1,9 +1,18 @@
+#[derive(PartialEq)]
+enum AddrMode {
+    Positional,
+    Immeidate,
+    Relative,
+    Mistake,
+}
+
 pub struct Computer {
     mem: Vec<i64>,
     ip: usize,
     input: Vec<i64>,
     running: bool,
     awaiting_input: bool,
+    roffset: i64,
 }
 
 impl Computer {
@@ -14,6 +23,7 @@ impl Computer {
             input: input,
             running: true,
             awaiting_input: false,
+            roffset: 0,
         }
     }
 
@@ -30,41 +40,81 @@ impl Computer {
         self.awaiting_input
     }
 
-    fn get_opcode(&mut self) -> (usize, bool, bool) {
+    fn to_mode(num: usize) -> AddrMode {
+        match num {
+            0 => AddrMode::Positional,
+            1 => AddrMode::Immeidate,
+            2 => AddrMode::Relative,
+            _ => AddrMode::Mistake,
+        }
+    }
+
+    fn get_opcode(&mut self) -> (usize, AddrMode, AddrMode, AddrMode) {
         let opval = self.mem[self.ip] as usize;
         self.ip += 1;
         (
             opval % 100,
-            (opval / 100) % 10 == 0,
-            (opval / 1000) % 10 == 0,
+            Computer::to_mode((opval / 100) % 10),
+            Computer::to_mode((opval / 1000) % 10),
+            Computer::to_mode((opval / 10000) % 10),
         )
     }
 
-    fn get_operand(&mut self, positional: bool) -> i64 {
-        let mut addr = self.ip;
-        if positional {
-            addr = self.mem[addr] as usize;
+    fn read(&mut self, addr: usize) -> i64 {
+        if self.mem.len() <= addr {
+            self.mem.resize(addr + 1, 0);
         }
-        self.ip += 1;
         self.mem[addr]
+    }
+
+    fn get_operand(&mut self, mode: AddrMode) -> i64 {
+        let mut addr = self.ip;
+        self.ip += 1;
+
+        if mode == AddrMode::Relative {
+            let adj = self.read(addr);
+            return self.read((self.roffset + adj) as usize);
+        }
+
+        if mode == AddrMode::Positional {
+            addr = self.read(addr) as usize;
+        }
+        self.read(addr)
+    }
+
+    fn get_dest(&mut self, mode: AddrMode) -> usize {
+        let addr = self.ip;
+        self.ip += 1;
+        if mode == AddrMode::Relative {
+            (self.roffset + self.read(addr)) as usize
+        } else {
+            self.read(addr) as usize
+        }
+    }
+
+    fn write(&mut self, addr: usize, value: i64) {
+        if self.mem.len() <= addr {
+            self.mem.resize(addr + 1, 0);
+        }
+        self.mem[addr] = value;
     }
 
     pub fn intcode(&mut self) -> i64 {
         while self.running {
-            let (opcode, src1, src2) = self.get_opcode();
+            let (opcode, src1, src2, dst) = self.get_opcode();
 
             match opcode {
                 1 => {
                     let op1 = self.get_operand(src1);
                     let op2 = self.get_operand(src2);
-                    let dest = self.get_operand(false) as usize;
-                    self.mem[dest] = op1 + op2;
+                    let dest = self.get_dest(dst);
+                    self.write(dest, op1 + op2);
                 }
                 2 => {
                     let op1 = self.get_operand(src1);
                     let op2 = self.get_operand(src2);
-                    let dest = self.get_operand(false) as usize;
-                    self.mem[dest] = op1 * op2;
+                    let dest = self.get_dest(dst);
+                    self.write(dest, op1 * op2);
                 }
                 3 => {
                     if self.input.len() == 0 {
@@ -72,8 +122,9 @@ impl Computer {
                         self.awaiting_input = true;
                         return 0;
                     }
-                    let dest = self.get_operand(false) as usize;
-                    self.mem[dest] = self.input.remove(0);
+                    let dest = self.get_dest(src1);
+                    let val = self.input.remove(0);
+                    self.write(dest, val);
                 }
                 4 => {
                     let output = self.get_operand(src1);
@@ -93,12 +144,18 @@ impl Computer {
                 7 | 8 => {
                     let op1 = self.get_operand(src1);
                     let op2 = self.get_operand(src2);
-                    let dest = self.get_operand(false) as usize;
-                    if (opcode == 7 && op1 < op2) || (opcode == 8 && op1 == op2) {
-                        self.mem[dest] = 1;
-                    } else {
-                        self.mem[dest] = 0;
-                    }
+                    let dest = self.get_dest(dst);
+                    self.write(
+                        dest,
+                        if (opcode == 7 && op1 < op2) || (opcode == 8 && op1 == op2) {
+                            1
+                        } else {
+                            0
+                        },
+                    );
+                }
+                9 => {
+                    self.roffset += self.get_operand(src1);
                 }
                 99 => {
                     self.running = false;
