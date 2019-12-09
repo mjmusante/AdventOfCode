@@ -18,7 +18,7 @@ fn main() {
         .map(|num| num.parse::<i64>().unwrap())
         .collect::<Vec<i64>>();
 
-    let mut c1 = Computer::new(&ary, [1].to_vec());
+    let mut c1 = Computer::new(&ary).with_input([1].to_vec());
 
     let mut loop_count = 0;
     let part1;
@@ -40,7 +40,7 @@ fn main() {
         }
     }
 
-    let mut c5 = Computer::new(&ary, [5].to_vec());
+    let mut c5 = Computer::new(&ary).with_input([5].to_vec());
     let part2 = c5.intcode();
 
     println!("part 1 = {}", part1);

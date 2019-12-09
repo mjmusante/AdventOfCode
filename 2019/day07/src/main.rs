@@ -70,7 +70,7 @@ fn main() {
             let mut signal = 0;
             for i in p {
                 let inputs = [i, signal].to_vec();
-                let mut c = Computer::new(&ary, inputs);
+                let mut c = Computer::new(&ary).with_input(inputs);
                 signal = c.intcode();
             }
             if signal > part1 {
@@ -85,7 +85,7 @@ fn main() {
         for p in phase {
             let mut amps = vec![];
             for i in p {
-                let mut c = Computer::new(&ary, [i + 5].to_vec());
+                let mut c = Computer::new(&ary).with_input([i + 5].to_vec());
                 if c.intcode() != 0 || !c.waiting_for_input() {
                     println!("computer should've been waiting for input");
                     exit(1);

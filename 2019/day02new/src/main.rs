@@ -16,7 +16,7 @@ fn main() {
         .map(|num| num.parse::<i64>().unwrap())
         .collect::<Vec<i64>>();
 
-    let mut c = Computer::new(&ary, [].to_vec());
+    let mut c = Computer::new(&ary);
 
     c.set_noun_verb(12, 2);
     let part1 = c.intcode();
@@ -24,7 +24,7 @@ fn main() {
     let mut part2 = -1;
     'outer: for i in 0..=99 {
         for j in 0..=99 {
-            let mut c = Computer::new(&ary, [].to_vec());
+            let mut c = Computer::new(&ary);
             c.set_noun_verb(i, j);
             if c.intcode() == 19690720 {
                 part2 = 100 * i + j;
