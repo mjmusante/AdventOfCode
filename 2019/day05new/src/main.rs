@@ -18,30 +18,30 @@ fn main() {
         .map(|num| num.parse::<i64>().unwrap())
         .collect::<Vec<i64>>();
 
-    let mut c1 = Computer::new(&ary).with_input([1].to_vec());
-
-    let mut loop_count = 0;
     let part1;
-
+    let mut c1 = Computer::new(&ary).with_input(vec![1]);
+    c1.run();
+    assert!(c1.halted());
     loop {
-        loop_count += 1;
-        let rslt = c1.run();
-        if c1.halted() {
-            part1 = rslt;
-            break;
-        }
-        if rslt != 0 {
-            println!(
-                "Got error on loop count {} at ip {}",
-                loop_count,
-                c1.current_ip()
-            );
+        if !c1.has_output() {
+            println!("Computer[1] failed to generate output");
             exit(1);
+        }
+        let val = c1.next_output();
+        if val != 0 {
+            part1 = val;
+            break;
         }
     }
 
-    let mut c5 = Computer::new(&ary).with_input([5].to_vec());
-    let part2 = c5.run();
+    let mut c5 = Computer::new(&ary).with_input(vec![5]);
+    c5.run();
+    if !c5.has_output() {
+        println!("Computer[5] failed to generate output");
+        exit(1);
+    }
+    assert!(c5.halted());
+    let part2 = c5.next_output();
 
     println!("part 1 = {}", part1);
     println!("part 2 = {}", part2);

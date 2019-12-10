@@ -10,6 +10,7 @@ pub struct Computer {
     mem: Vec<i64>,
     ip: usize,
     input: Vec<i64>,
+    output: Vec<i64>,
     running: bool,
     awaiting_input: bool,
     roffset: i64,
@@ -20,7 +21,8 @@ impl Computer {
         Computer {
             mem: program.clone(),
             ip: 0,
-            input: [].to_vec(),
+            input: vec![],
+            output: vec![],
             running: true,
             awaiting_input: false,
             roffset: 0,
@@ -44,6 +46,18 @@ impl Computer {
 
     pub fn waiting_for_input(&self) -> bool {
         self.awaiting_input
+    }
+
+    pub fn has_output(&self) -> bool {
+        self.output.len() > 0
+    }
+
+    pub fn next_output(&mut self) -> i64 {
+        self.output.remove(0)
+    }
+
+    pub fn peek(&self, addr: usize) -> i64 {
+        self.mem[addr]
     }
 
     fn to_mode(num: usize) -> AddrMode {
@@ -105,7 +119,7 @@ impl Computer {
         self.mem[addr] = value;
     }
 
-    pub fn run(&mut self) -> i64 {
+    pub fn run(&mut self) {
         while self.running {
             let (opcode, src1, src2, dst) = self.get_opcode();
 
@@ -126,19 +140,15 @@ impl Computer {
                     if self.input.len() == 0 {
                         self.ip -= 1;
                         self.awaiting_input = true;
-                        return 0;
+                        return;
                     }
                     let dest = self.get_dest(src1);
                     let val = self.input.remove(0);
                     self.write(dest, val);
                 }
                 4 => {
-                    let output = self.get_operand(src1);
-                    // we peek ahead to see if we're halting
-                    if self.mem[self.ip] == 99 {
-                        self.running = false;
-                    }
-                    return output;
+                    let rslt = self.get_operand(src1);
+                    self.output.push(rslt);
                 }
                 5 | 6 => {
                     let op1 = self.get_operand(src1);
@@ -167,19 +177,17 @@ impl Computer {
                     self.running = false;
                 }
                 _ => {
-                    return -1;
+                    println!("Invalid opcode {}", opcode);
                 }
             };
         }
-
-        self.mem[0]
     }
 
-    pub fn run_with_input(&mut self, inpval: i64) -> i64 {
+    pub fn run_with_input(&mut self, inpval: i64) {
         assert_eq!(self.mem[self.ip] % 100, 3);
         self.input.push(inpval);
         self.awaiting_input = false;
-        return self.run();
+        self.run();
     }
 
     pub fn current_ip(&self) -> usize {
@@ -195,71 +203,96 @@ mod tests {
     fn it_works() {
         let prg = vec![3, 0, 4, 0, 99];
 
-        let mut c = Computer::new(&prg).with_input([5].to_vec());
+        let mut c = Computer::new(&prg).with_input(vec![5]);
         assert_eq!(c.current_ip(), 0);
-        assert_eq!(c.run(), 5);
+        c.run();
+        assert_eq!(c.next_output(), 5);
     }
 
     #[test]
     fn addition() {
         let prg = vec![1, 0, 2, 0, 4, 0, 99];
         let mut c = Computer::new(&prg);
-        assert_eq!(c.run(), 3);
+        c.run();
+        assert_eq!(c.next_output(), 3);
     }
 
     #[test]
     fn multiplication() {
         let prg = vec![1002, 2, 3, 0, 4, 0, 99];
         let mut c = Computer::new(&prg);
-        assert_eq!(c.run(), 9);
+        c.run();
+        assert_eq!(c.next_output(), 9);
     }
 
     #[test]
     fn jump_positional() {
         let prg1 = vec![3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9];
-        let mut c = Computer::new(&prg1).with_input([0].to_vec());
-        assert_eq!(c.run(), 0);
-        let mut c = Computer::new(&prg1).with_input([10].to_vec());
-        assert_eq!(c.run(), 1);
+        let mut c = Computer::new(&prg1).with_input(vec![0]);
+        c.run();
+        assert_eq!(c.next_output(), 0);
+        let mut c = Computer::new(&prg1).with_input(vec![10]);
+        c.run();
+        assert_eq!(c.next_output(), 1);
     }
 
     #[test]
     fn jump_immediate() {
         let prg1 = vec![3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1];
-        let mut c = Computer::new(&prg1).with_input([0].to_vec());
-        assert_eq!(c.run(), 0);
-        let mut c = Computer::new(&prg1).with_input([10].to_vec());
-        assert_eq!(c.run(), 1);
+
+        let mut c = Computer::new(&prg1).with_input(vec![0]);
+        c.run();
+        assert_eq!(c.next_output(), 0);
+
+        let mut c = Computer::new(&prg1).with_input(vec![10]);
+        c.run();
+        assert_eq!(c.next_output(), 1);
     }
 
     #[test]
     fn less_than() {
         let prg1 = vec![3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8];
-        let mut c = Computer::new(&prg1).with_input([7].to_vec());
-        assert_eq!(c.run(), 1);
-        let mut c = Computer::new(&prg1).with_input([8].to_vec());
-        assert_eq!(c.run(), 0);
+
+        let mut c = Computer::new(&prg1).with_input(vec![7]);
+        c.run();
+        assert_eq!(c.next_output(), 1);
+
+        let mut c = Computer::new(&prg1).with_input(vec![8]);
+        c.run();
+        assert_eq!(c.next_output(), 0);
 
         let prg2 = vec![3, 3, 1107, -1, 8, 3, 4, 3, 99];
-        let mut c = Computer::new(&prg2).with_input([7].to_vec());
-        assert_eq!(c.run(), 1);
-        let mut c = Computer::new(&prg2).with_input([8].to_vec());
-        assert_eq!(c.run(), 0);
+
+        let mut c = Computer::new(&prg2).with_input(vec![7]);
+        c.run();
+        assert_eq!(c.next_output(), 1);
+
+        let mut c = Computer::new(&prg2).with_input(vec![8]);
+        c.run();
+        assert_eq!(c.next_output(), 0);
     }
 
     #[test]
     fn equals() {
         let prg1 = vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8];
-        let mut c = Computer::new(&prg1).with_input([7].to_vec());
-        assert_eq!(c.run(), 0);
-        let mut c = Computer::new(&prg1).with_input([8].to_vec());
-        assert_eq!(c.run(), 1);
+
+        let mut c = Computer::new(&prg1).with_input(vec![7]);
+        c.run();
+        assert_eq!(c.next_output(), 0);
+
+        let mut c = Computer::new(&prg1).with_input(vec![8]);
+        c.run();
+        assert_eq!(c.next_output(), 1);
 
         let prg2 = vec![3, 3, 1108, -1, 8, 3, 4, 3, 99];
-        let mut c = Computer::new(&prg2).with_input([7].to_vec());
-        assert_eq!(c.run(), 0);
-        let mut c = Computer::new(&prg2).with_input([8].to_vec());
-        assert_eq!(c.run(), 1);
+
+        let mut c = Computer::new(&prg2).with_input(vec![7]);
+        c.run();
+        assert_eq!(c.next_output(), 0);
+
+        let mut c = Computer::new(&prg2).with_input(vec![8]);
+        c.run();
+        assert_eq!(c.next_output(), 1);
     }
 
     #[test]
@@ -271,16 +304,19 @@ mod tests {
         ];
 
         // check less than eight
-        let mut c = Computer::new(&prg).with_input([7].to_vec());
-        assert_eq!(c.run(), 999);
+        let mut c = Computer::new(&prg).with_input(vec![7]);
+        c.run();
+        assert_eq!(c.next_output(), 999);
 
-        // check equao to eight
-        let mut c = Computer::new(&prg).with_input([8].to_vec());
-        assert_eq!(c.run(), 1000);
+        // check equal to eight
+        let mut c = Computer::new(&prg).with_input(vec![8]);
+        c.run();
+        assert_eq!(c.next_output(), 1000);
 
         // check greater than eight
-        let mut c = Computer::new(&prg).with_input([9].to_vec());
-        assert_eq!(c.run(), 1001);
+        let mut c = Computer::new(&prg).with_input(vec![9]);
+        c.run();
+        assert_eq!(c.next_output(), 1001);
     }
 
     #[test]
@@ -291,12 +327,10 @@ mod tests {
 
         let mut c = Computer::new(&prg);
         let mut output = vec![];
-        loop {
-            let next = c.run();
-            if !c.halted() {
-                output.push(next);
-            } else {
-                break;
+        while !c.halted() {
+            c.run();
+            while c.has_output() {
+                output.push(c.next_output());
             }
         }
         assert_eq!(prg, output);
@@ -304,15 +338,17 @@ mod tests {
 
     #[test]
     fn bignum1() {
-        let prg = [1102, 34915192, 34915192, 7, 4, 7, 99, 0];
-        let mut c = Computer::new(&prg.to_vec());
-        assert_eq!(1219070632396864, c.run());
+        let prg = vec![1102, 34915192, 34915192, 7, 4, 7, 99, 0];
+        let mut c = Computer::new(&prg);
+        c.run();
+        assert_eq!(1219070632396864, c.next_output());
     }
 
     #[test]
     fn bignum2() {
-        let prg = [104, 1125899906842624, 99];
-        let mut c = Computer::new(&prg.to_vec());
-        assert_eq!(1125899906842624, c.run());
+        let prg = vec![104, 1125899906842624, 99];
+        let mut c = Computer::new(&prg);
+        c.run();
+        assert_eq!(1125899906842624, c.next_output());
     }
 }

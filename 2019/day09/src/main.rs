@@ -20,6 +20,7 @@ fn main() {
 
     for i in 1..=2 {
         let mut c = Computer::new(&ary).with_input([i].to_vec());
-        println!("part {} = {}", i, c.run());
+        c.run();
+        println!("part {} = {}", i, c.next_output());
     }
 }

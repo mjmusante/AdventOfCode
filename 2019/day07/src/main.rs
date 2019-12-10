@@ -1,5 +1,3 @@
-use std::process::exit;
-
 use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
@@ -69,9 +67,11 @@ fn main() {
         for p in phase {
             let mut signal = 0;
             for i in p {
-                let inputs = [i, signal].to_vec();
+                let inputs = vec![i, signal];
                 let mut c = Computer::new(&ary).with_input(inputs);
-                signal = c.run();
+                c.run();
+                signal = c.next_output();
+                assert!(!c.has_output());
             }
             if signal > part1 {
                 part1 = signal;
@@ -85,11 +85,9 @@ fn main() {
         for p in phase {
             let mut amps = vec![];
             for i in p {
-                let mut c = Computer::new(&ary).with_input([i + 5].to_vec());
-                if c.run() != 0 || !c.waiting_for_input() {
-                    println!("computer should've been waiting for input");
-                    exit(1);
-                }
+                let mut c = Computer::new(&ary).with_input(vec![i + 5]);
+                c.run();
+                assert!(c.waiting_for_input() || c.halted());
                 amps.push(c);
             }
 
@@ -98,17 +96,9 @@ fn main() {
             // making the rash assumption that all amps stop at the same time
             while amps[0].waiting_for_input() {
                 for amp in &mut amps {
-                    signal = amp.run_with_input(signal);
-
-                    assert!(!amp.waiting_for_input() || amp.halted());
-
-                    if !amp.halted() {
-                        let m = amp.run();
-                        if !amp.waiting_for_input() && !amp.halted() {
-                            println!("expected input or halted state, {}", m);
-                            exit(1);
-                        }
-                    }
+                    amp.run_with_input(signal);
+                    assert!(amp.waiting_for_input() || amp.halted());
+                    signal = amp.next_output();
                 }
             }
 
