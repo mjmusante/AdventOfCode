@@ -1,3 +1,5 @@
+use std::process::exit;
+
 use core::cmp::max;
 
 use std::fs::File;
@@ -27,7 +29,7 @@ fn cast_ray(
             count += 1;
             aster[ru][cu] = '*';
             found = true;
-        } else {
+        } else if aster[ru][cu] == '.' {
             aster[ru][cu] = '_';
         }
 
@@ -37,10 +39,9 @@ fn cast_ray(
     count
 }
 
-fn count_visible(aster: &Vec<Vec<char>>, row: usize, col: usize) -> i64 {
+fn count_visible(mut aster: &mut Vec<Vec<char>>, row: usize, col: usize) -> i64 {
     let width = aster[0].len();
     let height = aster.len();
-    let mut a = aster.clone();
     let mut count = 0;
 
     for i in 1..=max(width, height) {
@@ -64,24 +65,32 @@ fn count_visible(aster: &Vec<Vec<char>>, row: usize, col: usize) -> i64 {
 
         for c in -left_stride..=right_stride {
             if up_stride > 0 {
-                count += cast_ray(&mut a, row, col, -up_stride, c);
+                count += cast_ray(&mut aster, row, col, -up_stride, c);
             }
             if down_stride > 0 {
-                count += cast_ray(&mut a, row, col, down_stride, c);
+                count += cast_ray(&mut aster, row, col, down_stride, c);
             }
         }
 
         for r in -up_stride..=down_stride {
             if left_stride > 0 {
-                count += cast_ray(&mut a, row, col, r, -left_stride);
+                count += cast_ray(&mut aster, row, col, r, -left_stride);
             }
             if right_stride > 0 {
-                count += cast_ray(&mut a, row, col, r, right_stride);
+                count += cast_ray(&mut aster, row, col, r, right_stride);
             }
         }
     }
 
     count
+}
+
+fn compute_angle(start_y: usize, start_x: usize, end_y: usize, end_x: usize) -> f64 {
+    let sy = start_y as f64;
+    let sx = start_x as f64;
+    let ey = end_y as f64;
+    let ex = end_x as f64;
+    (ex - sx).atan2(ey - sy)
 }
 
 fn main() {
@@ -100,16 +109,19 @@ fn main() {
     let height = aster.len();
     let mut monitor_row = 0;
     let mut monitor_col = 0;
+    let mut endmap = vec![];
 
     let mut count = 0;
     for row in 0..height {
         for col in 0..width {
             if aster[row][col] == '#' {
-                let c = count_visible(&aster, row, col);
+                let mut a = aster.clone();
+                let c = count_visible(&mut a, row, col);
                 if c > count {
                     count = c;
                     monitor_row = row;
                     monitor_col = col;
+                    endmap = a.clone();
                 }
             }
         }
@@ -118,4 +130,21 @@ fn main() {
         "part 1 = {}, coords = ({},{})",
         count, monitor_col, monitor_row
     );
+
+    if count < 200 {
+        println!("Multiple-sweeps not implemented yet");
+        exit(1);
+    }
+
+    let mut angle_list = vec![];
+    for row in 0..height {
+        for col in 0..width {
+            if endmap[row][col] == '*' {
+                angle_list.push((row, col, compute_angle(monitor_row, monitor_col, row, col)));
+            }
+        }
+    }
+
+    angle_list.sort_by(|a, b| b.2.partial_cmp(&a.2).unwrap());
+    println!("part 2 = {}", angle_list[199].1 * 100 + angle_list[199].0);
 }
