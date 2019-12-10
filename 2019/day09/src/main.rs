@@ -19,7 +19,7 @@ fn main() {
         .collect::<Vec<i64>>();
 
     for i in 1..=2 {
-        let mut c = Computer::new(&ary).with_input([i].to_vec());
+        let mut c = Computer::new(&ary).with_input(vec![i]);
         c.run();
         println!("part {} = {}", i, c.next_output());
     }
