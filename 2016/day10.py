@@ -16,9 +16,7 @@ class Factory:
 
 
     def show_output(self):
-        print("Output[0] = %s" % self.output["0"])
-        print("Output[1] = %s" % self.output["1"])
-        print("Output[2] = %s" % self.output["2"])
+        print("part 2 = %s" % (int(self.output["0"][0]) * int(self.output["1"][0]) * int(self.output["2"][0])))
 
 
     def add(self, bot, low, low_dest, high, high_dest):
@@ -39,14 +37,16 @@ class Factory:
 
         b = self.botlist[bot]
 
-        print("loading bot %s with val-%s" % (bot, val))
+        # print("loading bot %s with val-%s" % (bot, val))
         if b.give(val):
             # l/h - low, high
             # t/b/v - type, bot, value
             (lt, lb, lv, ht, hb, hv) = b.unload()
+            if lv == 17 and hv == 61:
+                print("part 1 = %s" % bot)
 
-            print("bot %s giving val-%s to %s %s and val-%s to %s %s" %
-                    (bot, lv, lt, lb, hv, ht, hb))
+            # print("bot %s giving val-%s to %s %s and val-%s to %s %s" %
+            #         (bot, lv, lt, lb, hv, ht, hb))
             self.handle(lt, lb, lv)
             self.handle(ht, hb, hv)
 
@@ -55,7 +55,7 @@ class Factory:
             if bot not in self.output:
                 self.output[bot] = list()
             self.output[bot].append(value)
-            print("Output %s getting val %s" % (bot, value))
+            # print("Output %s getting val %s" % (bot, value))
         else:
             self.load(bot, value)
 
@@ -74,7 +74,7 @@ class Bot:
 
     def give(self, val):
         self.holding.append(int(val))
-        print(self.holding)
+        # print(self.holding)
         return len(self.holding) > 1
 
     def unload(self):
