@@ -54,6 +54,24 @@ impl Moon {
         (self.xpos.abs() + self.ypos.abs() + self.zpos.abs())
             * (self.xvel.abs() + self.yvel.abs() + self.zvel.abs())
     }
+
+    pub fn xmatch(&self, other: &Moon) -> bool {
+        self.xpos == other.xpos && self.xvel == other.xvel
+    }
+    pub fn ymatch(&self, other: &Moon) -> bool {
+        self.ypos == other.ypos && self.yvel == other.yvel
+    }
+    pub fn zmatch(&self, other: &Moon) -> bool {
+        self.zpos == other.zpos && self.zvel == other.zvel
+    }
+}
+
+fn gcd(num1: i64, num2: i64) -> i64 {
+    if num1 == 0 {
+        num2
+    } else {
+        gcd(num2 % num1, num1)
+    }
 }
 
 fn main() {
@@ -74,7 +92,13 @@ fn main() {
         moons.push(Moon::new(xpos, ypos, zpos));
     }
 
-    for _ in 0..1000 {
+    let mut part1: i64 = 0;
+    let mut xperiod = 0;
+    let mut yperiod = 0;
+    let mut zperiod = 0;
+    let orig_moons = moons.clone();
+
+    for loops in 0.. {
         let mut newmoons = vec![];
         for i in 0..moons.len() {
             let mut m = moons[i].clone();
@@ -87,8 +111,56 @@ fn main() {
             newmoons.push(m);
         }
         moons = newmoons;
+        if loops == 1000 {
+            part1 = moons.iter().map(|m| m.energy()).sum();
+        }
+        if xperiod == 0 {
+            let mut count = 0;
+            for i in 0..moons.len() {
+                if moons[i].xmatch(&orig_moons[i]) {
+                    count += 1;
+                } else {
+                    break;
+                }
+            }
+            if count == moons.len() {
+                xperiod = loops + 1;
+            }
+        }
+        if yperiod == 0 {
+            let mut count = 0;
+            for i in 0..moons.len() {
+                if moons[i].ymatch(&orig_moons[i]) {
+                    count += 1;
+                } else {
+                    break;
+                }
+            }
+            if count == moons.len() {
+                yperiod = loops + 1
+            }
+        }
+        if zperiod == 0 {
+            let mut count = 0;
+            for i in 0..moons.len() {
+                if moons[i].zmatch(&orig_moons[i]) {
+                    count += 1;
+                } else {
+                    break;
+                }
+            }
+            if count == moons.len() {
+                zperiod = loops + 1;
+            }
+        }
+        if part1 != 0 && xperiod != 0 && yperiod != 0 && zperiod != 0 {
+            break;
+        }
     }
 
-    let total_energy: i64 = moons.iter().map(|m| m.energy()).sum();
-    println!("part 1 = {}", total_energy);
+    let g = gcd(xperiod, gcd(yperiod, zperiod));
+    let m = ((xperiod * yperiod) / g) * zperiod / g;
+
+    println!("part 1 = {}", part1);
+    println!("part 2 = {}", m);
 }
