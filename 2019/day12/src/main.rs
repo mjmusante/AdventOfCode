@@ -98,7 +98,7 @@ fn main() {
     let mut zperiod = 0;
     let orig_moons = moons.clone();
 
-    for loops in 0.. {
+    for loops in 1.. {
         let mut newmoons = vec![];
         for i in 0..moons.len() {
             let mut m = moons[i].clone();
@@ -124,7 +124,7 @@ fn main() {
                 }
             }
             if count == moons.len() {
-                xperiod = loops + 1;
+                xperiod = loops;
             }
         }
         if yperiod == 0 {
@@ -137,7 +137,7 @@ fn main() {
                 }
             }
             if count == moons.len() {
-                yperiod = loops + 1
+                yperiod = loops;
             }
         }
         if zperiod == 0 {
@@ -150,7 +150,7 @@ fn main() {
                 }
             }
             if count == moons.len() {
-                zperiod = loops + 1;
+                zperiod = loops;
             }
         }
         if part1 != 0 && xperiod != 0 && yperiod != 0 && zperiod != 0 {
