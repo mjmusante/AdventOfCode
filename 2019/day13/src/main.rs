@@ -80,13 +80,7 @@ fn main() {
                 }
             }
         }
-        game.run_with_input(if ballx < paddlex {
-            -1
-        } else if ballx > paddlex {
-            1
-        } else {
-            0
-        });
+        game.run_with_input((ballx - paddlex).signum());
     }
 
     while game.has_output() {
