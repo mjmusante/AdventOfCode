@@ -60,6 +60,10 @@ impl Computer {
         self.mem[addr]
     }
 
+    pub fn poke(&mut self, addr: usize, val: i64) {
+        self.mem[addr] = val;
+    }
+
     fn to_mode(num: usize) -> AddrMode {
         match num {
             0 => AddrMode::Positional,
