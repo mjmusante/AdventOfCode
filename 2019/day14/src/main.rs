@@ -4,6 +4,8 @@ use std::io::BufReader;
 
 use std::collections::HashMap;
 
+const TRILLION: i64 = 1_000_000_000_000;
+
 #[derive(Debug)]
 struct Reaction {
     amount: i64,
@@ -60,7 +62,7 @@ fn need_for(
     x
 }
 
-fn for_n_ore(map: &HashMap<String, Reaction>, n: i64) -> i64 {
+fn for_n_fuel(map: &HashMap<String, Reaction>, n: i64) -> i64 {
     let mut leftover = HashMap::new();
     let mut total_ore = 0;
     let xyzzy = need_for(&map, &mut leftover, n, &"FUEL".to_string());
@@ -158,5 +160,35 @@ fn main() {
         map.insert(product[1].to_string(), r);
     }
 
-    println!("part 1 = {}", for_n_ore(&map, 1));
+    println!("part 1 = {}", for_n_fuel(&map, 1));
+
+    let mut target = 2;
+    loop {
+        let val = for_n_fuel(&map, target);
+        if val < TRILLION {
+            target *= 2;
+        } else {
+            break;
+        }
+    }
+
+    let mut low = target / 2;
+    let mut high = target;
+    loop {
+        target = (low + high) / 2;
+        if target == low || target == high {
+            println!("part 2 = {}", target);
+            break;
+        }
+
+        let val = for_n_fuel(&map, target);
+        if val < TRILLION {
+            low = target;
+        } else if val > TRILLION {
+            high = target;
+        } else {
+            println!("part 2 = {}", target);
+            break;
+        }
+    }
 }
