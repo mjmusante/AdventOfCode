@@ -1,7 +1,3 @@
-use std::fs::File;
-use std::io::BufRead;
-use std::io::BufReader;
-
 use std::collections::HashMap;
 
 use intcode::Computer;
@@ -33,25 +29,14 @@ fn _show_map(map: &HashMap<(i64, i64), i64>) {
 }
 
 fn main() {
-    let f = File::open("inputs/day13.txt").unwrap();
-    let vlist = BufReader::new(&f)
-        .lines()
-        .map(|line| line.unwrap())
-        .collect::<Vec<String>>();
-
-    let ary = vlist[0]
-        .split(",")
-        .map(|num| num.parse::<i64>().unwrap())
-        .collect::<Vec<i64>>();
-
-    let mut c = Computer::new(&ary);
-    c.run();
+    let mut game = Computer::new().from_file("inputs/day13.txt");
+    game.run();
 
     let mut part1 = 0;
-    while c.has_output() {
-        let _x = c.next_output();
-        let _y = c.next_output();
-        let g = c.next_output();
+    while game.has_output() {
+        let _x = game.next_output();
+        let _y = game.next_output();
+        let g = game.next_output();
         if g == 2 {
             part1 += 1;
         }
@@ -60,7 +45,7 @@ fn main() {
     println!("part 1 = {}", part1);
 
     let mut board = HashMap::new();
-    let mut game = Computer::new(&ary);
+    game.reset();
     game.poke(0, 2);
     let mut paddlex = 0;
 

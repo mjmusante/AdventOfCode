@@ -1,7 +1,3 @@
-use std::fs::File;
-use std::io::BufRead;
-use std::io::BufReader;
-
 use std::cmp::{max, min};
 
 use std::collections::HashMap;
@@ -90,23 +86,12 @@ impl Robot {
 }
 
 fn main() {
-    let f = File::open("inputs/day11.txt").unwrap();
-    let vlist = BufReader::new(&f)
-        .lines()
-        .map(|line| line.unwrap())
-        .collect::<Vec<String>>();
-
-    let ary = vlist[0]
-        .split(",")
-        .map(|num| num.parse::<i64>().unwrap())
-        .collect::<Vec<i64>>();
-
-    let c1 = Computer::new(&ary);
+    let c1 = Computer::new().from_file("inputs/day11.txt");
     let mut r1 = Robot::new(c1);
     r1.run();
     println!("part 1 = {}", r1.visited());
 
-    let c2 = Computer::new(&ary);
+    let c2 = Computer::new().from_file("inputs/day11.txt");
     let mut r2 = Robot::new(c2);
     r2.paint_one((0, 0), 1);
     r2.run();

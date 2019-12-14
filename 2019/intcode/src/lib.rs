@@ -1,3 +1,7 @@
+use std::fs::File;
+use std::io::BufRead;
+use std::io::BufReader;
+
 #[derive(PartialEq)]
 enum AddrMode {
     Positional,
@@ -7,6 +11,7 @@ enum AddrMode {
 }
 
 pub struct Computer {
+    rollback: Vec<i64>,
     mem: Vec<i64>,
     ip: usize,
     input: Vec<i64>,
@@ -17,9 +22,10 @@ pub struct Computer {
 }
 
 impl Computer {
-    pub fn new(program: &Vec<i64>) -> Computer {
+    pub fn new() -> Computer {
         Computer {
-            mem: program.clone(),
+            rollback: vec![],
+            mem: vec![],
             ip: 0,
             input: vec![],
             output: vec![],
@@ -28,11 +34,39 @@ impl Computer {
             roffset: 0,
         }
     }
+    pub fn from_array(mut self, program: &Vec<i64>) -> Computer {
+        self.rollback = program.clone();
+        self.reset();
+        self
+    }
+
+    pub fn from_file(self, pathname: &str) -> Computer {
+        let f = File::open(pathname).unwrap();
+        let vlist = BufReader::new(&f)
+            .lines()
+            .map(|line| line.unwrap())
+            .collect::<Vec<String>>();
+        let ary = vlist[0]
+            .split(",")
+            .map(|num| num.parse::<i64>().unwrap())
+            .collect::<Vec<i64>>();
+        self.from_array(&ary)
+    }
 
     pub fn with_input(mut self, input: Vec<i64>) -> Computer {
         assert!(self.input.len() == 0);
         self.input = input;
         self
+    }
+
+    pub fn reset(&mut self) {
+        self.mem = self.rollback.clone();
+        self.ip = 0;
+        self.running = true;
+        self.input = vec![];
+        self.output = vec![];
+        self.awaiting_input = false;
+        self.roffset = 0;
     }
 
     pub fn set_noun_verb(&mut self, noun: i64, verb: i64) {
@@ -188,7 +222,6 @@ impl Computer {
     }
 
     pub fn run_with_input(&mut self, inpval: i64) {
-        assert_eq!(self.mem[self.ip] % 100, 3);
         self.input.push(inpval);
         self.awaiting_input = false;
         self.run();
@@ -207,7 +240,7 @@ mod tests {
     fn it_works() {
         let prg = vec![3, 0, 4, 0, 99];
 
-        let mut c = Computer::new(&prg).with_input(vec![5]);
+        let mut c = Computer::new().from_array(&prg).with_input(vec![5]);
         assert_eq!(c.current_ip(), 0);
         c.run();
         assert_eq!(c.next_output(), 5);
@@ -216,7 +249,7 @@ mod tests {
     #[test]
     fn addition() {
         let prg = vec![1, 0, 2, 0, 4, 0, 99];
-        let mut c = Computer::new(&prg);
+        let mut c = Computer::new().from_array(&prg);
         c.run();
         assert_eq!(c.next_output(), 3);
     }
@@ -224,7 +257,7 @@ mod tests {
     #[test]
     fn multiplication() {
         let prg = vec![1002, 2, 3, 0, 4, 0, 99];
-        let mut c = Computer::new(&prg);
+        let mut c = Computer::new().from_array(&prg);
         c.run();
         assert_eq!(c.next_output(), 9);
     }
@@ -232,11 +265,11 @@ mod tests {
     #[test]
     fn jump_positional() {
         let prg1 = vec![3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9];
-        let mut c = Computer::new(&prg1).with_input(vec![0]);
+        let mut c = Computer::new().from_array(&prg1).with_input(vec![0]);
         c.run();
         assert_eq!(c.next_output(), 0);
-        let mut c = Computer::new(&prg1).with_input(vec![10]);
-        c.run();
+        c.reset();
+        c.run_with_input(10);
         assert_eq!(c.next_output(), 1);
     }
 
@@ -244,12 +277,12 @@ mod tests {
     fn jump_immediate() {
         let prg1 = vec![3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1];
 
-        let mut c = Computer::new(&prg1).with_input(vec![0]);
+        let mut c = Computer::new().from_array(&prg1).with_input(vec![0]);
         c.run();
         assert_eq!(c.next_output(), 0);
 
-        let mut c = Computer::new(&prg1).with_input(vec![10]);
-        c.run();
+        c.reset();
+        c.run_with_input(10);
         assert_eq!(c.next_output(), 1);
     }
 
@@ -257,22 +290,22 @@ mod tests {
     fn less_than() {
         let prg1 = vec![3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8];
 
-        let mut c = Computer::new(&prg1).with_input(vec![7]);
+        let mut c = Computer::new().from_array(&prg1).with_input(vec![7]);
         c.run();
         assert_eq!(c.next_output(), 1);
 
-        let mut c = Computer::new(&prg1).with_input(vec![8]);
-        c.run();
+        c.reset();
+        c.run_with_input(8);
         assert_eq!(c.next_output(), 0);
 
         let prg2 = vec![3, 3, 1107, -1, 8, 3, 4, 3, 99];
 
-        let mut c = Computer::new(&prg2).with_input(vec![7]);
+        let mut c = Computer::new().from_array(&prg2).with_input(vec![7]);
         c.run();
         assert_eq!(c.next_output(), 1);
 
-        let mut c = Computer::new(&prg2).with_input(vec![8]);
-        c.run();
+        c.reset();
+        c.run_with_input(8);
         assert_eq!(c.next_output(), 0);
     }
 
@@ -280,22 +313,22 @@ mod tests {
     fn equals() {
         let prg1 = vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8];
 
-        let mut c = Computer::new(&prg1).with_input(vec![7]);
+        let mut c = Computer::new().from_array(&prg1).with_input(vec![7]);
         c.run();
         assert_eq!(c.next_output(), 0);
 
-        let mut c = Computer::new(&prg1).with_input(vec![8]);
-        c.run();
+        c.reset();
+        c.run_with_input(8);
         assert_eq!(c.next_output(), 1);
 
         let prg2 = vec![3, 3, 1108, -1, 8, 3, 4, 3, 99];
 
-        let mut c = Computer::new(&prg2).with_input(vec![7]);
-        c.run();
+        let mut c = Computer::new().from_array(&prg2).with_input(vec![7]);
+        c.run_with_input(7);
         assert_eq!(c.next_output(), 0);
 
-        let mut c = Computer::new(&prg2).with_input(vec![8]);
-        c.run();
+        c.reset();
+        c.run_with_input(8);
         assert_eq!(c.next_output(), 1);
     }
 
@@ -308,18 +341,18 @@ mod tests {
         ];
 
         // check less than eight
-        let mut c = Computer::new(&prg).with_input(vec![7]);
+        let mut c = Computer::new().from_array(&prg).with_input(vec![7]);
         c.run();
         assert_eq!(c.next_output(), 999);
 
         // check equal to eight
-        let mut c = Computer::new(&prg).with_input(vec![8]);
-        c.run();
+        c.reset();
+        c.run_with_input(8);
         assert_eq!(c.next_output(), 1000);
 
         // check greater than eight
-        let mut c = Computer::new(&prg).with_input(vec![9]);
-        c.run();
+        c.reset();
+        c.run_with_input(9);
         assert_eq!(c.next_output(), 1001);
     }
 
@@ -329,7 +362,7 @@ mod tests {
             109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99,
         ];
 
-        let mut c = Computer::new(&prg);
+        let mut c = Computer::new().from_array(&prg);
         let mut output = vec![];
         while !c.halted() {
             c.run();
@@ -343,7 +376,7 @@ mod tests {
     #[test]
     fn bignum1() {
         let prg = vec![1102, 34915192, 34915192, 7, 4, 7, 99, 0];
-        let mut c = Computer::new(&prg);
+        let mut c = Computer::new().from_array(&prg);
         c.run();
         assert_eq!(1219070632396864, c.next_output());
     }
@@ -351,7 +384,7 @@ mod tests {
     #[test]
     fn bignum2() {
         let prg = vec![104, 1125899906842624, 99];
-        let mut c = Computer::new(&prg);
+        let mut c = Computer::new().from_array(&prg);
         c.run();
         assert_eq!(1125899906842624, c.next_output());
     }

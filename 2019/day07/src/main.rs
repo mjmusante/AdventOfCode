@@ -1,7 +1,3 @@
-use std::fs::File;
-use std::io::BufRead;
-use std::io::BufReader;
-
 use intcode::Computer;
 
 /*
@@ -49,17 +45,6 @@ impl Iterator for Permutations {
  */
 
 fn main() {
-    let f = File::open("inputs/day07.txt").unwrap();
-    let vlist = BufReader::new(&f)
-        .lines()
-        .map(|line| line.unwrap())
-        .collect::<Vec<String>>();
-
-    let ary = vlist[0]
-        .split(",")
-        .map(|num| num.parse::<i64>().unwrap())
-        .collect::<Vec<i64>>();
-
     let mut part1 = 0;
     {
         let phase = permutations(5);
@@ -68,7 +53,9 @@ fn main() {
             let mut signal = 0;
             for i in p {
                 let inputs = vec![i, signal];
-                let mut c = Computer::new(&ary).with_input(inputs);
+                let mut c = Computer::new()
+                    .from_file("inputs/day07.txt")
+                    .with_input(inputs);
                 c.run();
                 signal = c.next_output();
                 assert!(!c.has_output());
@@ -85,7 +72,9 @@ fn main() {
         for p in phase {
             let mut amps = vec![];
             for i in p {
-                let mut c = Computer::new(&ary).with_input(vec![i + 5]);
+                let mut c = Computer::new()
+                    .from_file("inputs/day07.txt")
+                    .with_input(vec![i + 5]);
                 c.run();
                 assert!(c.waiting_for_input() || c.halted());
                 amps.push(c);
