@@ -60,6 +60,23 @@ fn need_for(
     x
 }
 
+fn for_n_ore(map: &HashMap<String, Reaction>, n: i64) -> i64 {
+    let mut leftover = HashMap::new();
+    let mut total_ore = 0;
+    let xyzzy = need_for(&map, &mut leftover, n, &"FUEL".to_string());
+    for (k, v) in xyzzy {
+        if map.contains_key(&k) {
+            let r = map.get(&k).unwrap();
+            if r.needs[0].1 == "ORE" {
+                let produce = v / r.amount + if v % r.amount == 0 { 0 } else { 1 };
+                total_ore += r.needs[0].0 * produce;
+            }
+        }
+    }
+
+    total_ore
+}
+
 fn main() {
     // let example1 = vec![
     //     "10 ORE => 10 A".to_string(),
@@ -141,17 +158,5 @@ fn main() {
         map.insert(product[1].to_string(), r);
     }
 
-    let mut leftover = HashMap::new();
-    let mut total_ore = 0;
-    let xyzzy = need_for(&map, &mut leftover, 1, &"FUEL".to_string());
-    for (k, v) in xyzzy {
-        if map.contains_key(&k) {
-            let r = map.get(&k).unwrap();
-            if r.needs[0].1 == "ORE" {
-                let produce = v / r.amount + if v % r.amount == 0 { 0 } else { 1 };
-                total_ore += r.needs[0].0 * produce;
-            }
-        }
-    }
-    println!("part 1 = {}", total_ore);
+    println!("part 1 = {}", for_n_ore(&map, 1));
 }
