@@ -39,6 +39,7 @@ fn main() {
     let mut stack: Vec<((i64, i64), usize)> = vec![];
     let mut upper_left = (0, 0);
     let mut lower_right = (0, 0);
+    let mut oxypos = (0, 0);
 
     maze.insert((0, 0), '.');
 
@@ -86,7 +87,47 @@ fn main() {
             assert_eq!(result, 2);
             stack.push((pos, reverse[dir]));
             maze.insert(pos, 'O');
+            oxypos = pos;
             println!("part 1 = {}", stack.len());
         }
     }
+
+    let mut minutes = 0;
+    let mut oxylist = vec![];
+
+    oxylist.push(oxypos);
+
+    loop {
+        minutes += 1;
+
+        let mut oxy2 = vec![];
+        let mut found = false;
+
+        for o in oxylist {
+            let spread = vec![
+                (o.0 - 1, o.1),
+                (o.0 + 1, o.1),
+                (o.0, o.1 - 1),
+                (o.0, o.1 + 1),
+            ];
+            for (xo, yo) in spread {
+                if !maze.contains_key(&(xo, yo)) {
+                    continue;
+                }
+                let sq = *maze.get(&(xo, yo)).unwrap();
+                if sq == '.' {
+                    maze.insert((xo, yo), 'O');
+                    oxy2.push((xo, yo));
+                    found = true;
+                }
+            }
+        }
+
+        if found {
+            oxylist = oxy2;
+        } else {
+            break;
+        }
+    }
+    println!("part 2 = {}", minutes)
 }
