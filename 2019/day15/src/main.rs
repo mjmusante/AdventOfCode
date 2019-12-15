@@ -123,11 +123,10 @@ fn main() {
             }
         }
 
-        if found {
-            oxylist = oxy2;
-        } else {
+        if !found {
             break;
         }
+        oxylist = oxy2;
     }
     println!("part 2 = {}", minutes)
 }
