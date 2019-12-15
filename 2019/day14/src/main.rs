@@ -176,7 +176,7 @@ fn main() {
     let mut high = target;
     loop {
         target = (low + high) / 2;
-        if target == low || target == high {
+        if target == low {
             println!("part 2 = {}", target);
             break;
         }
