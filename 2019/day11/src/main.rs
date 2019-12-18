@@ -52,14 +52,16 @@ impl Robot {
             self.pos_x += Robot::MOVES[self.facing][0];
             self.pos_y += Robot::MOVES[self.facing][1];
 
-            self.upper_left = (
-                min(self.upper_left.0, self.pos_x),
-                min(self.upper_left.1, self.pos_y),
-            );
-            self.lower_right = (
-                max(self.lower_right.0, self.pos_x),
-                max(self.lower_right.1, self.pos_y),
-            );
+            if new_color == 1 {
+                self.upper_left = (
+                    min(self.upper_left.0, self.pos_x),
+                    min(self.upper_left.1, self.pos_y),
+                );
+                self.lower_right = (
+                    max(self.lower_right.0, self.pos_x),
+                    max(self.lower_right.1, self.pos_y),
+                );
+            }
         }
     }
 
