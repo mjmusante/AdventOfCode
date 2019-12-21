@@ -55,25 +55,21 @@ use intcode::Computer;
     A B C D   J
     --------+--
     . . . . | X
-    . . . 1 | 1 (3)
+    . . . 1 | 1 (1)
     . . 1 . | X
-    . . 1 1 | 1 (3)
+    . . 1 1 | 1 (1)
     . 1 . . | X
-    . 1 . 1 | 1 (2)
+    . 1 . 1 | 1 (1)
     . 1 1 . | X
-    . 1 1 1 | 1 (2)
+    . 1 1 1 | 1 (1)
     1 . . . | 0
-    1 . . 1 | 1 (1)
+    1 . . 1 | 1 (2) (!B && D)
     1 . 1 . | 0
-    1 . 1 1 | 1 (1)
+    1 . 1 1 | 1 (2) (!B && D)
     1 1 . . | 0
-    1 1 . 1 | 1 (?)
+    1 1 . 1 | 1 (3) (!C && D)
     1 1 1 . | 0
     1 1 1 1 | 0
-
-    1 = (A and NOT B and D) +
-    2 = (not A and B and D) +
-    3 = (not A and not B and D)
 
 */
 
@@ -86,8 +82,17 @@ fn main() {
     }
 
     let instructions = [
-        "NOT A T", "AND D T", "OR T J", "NOT B T", "AND A T", "AND D T", "OR T J", "NOT C T",
-        "AND D T", "AND A T", "OR T J", "WALK",
+        // case 1:
+        "NOT A J", // if the next step is a hole, jump
+        // case 2:
+        "NOT B T", // if b is a hole
+        "AND D T", // and we can jump
+        "OR T J",  // then jump
+        // case 3
+        "NOT C T", // if C is a hole
+        "AND D T", // and we can jump
+        "OR T J",  // then jump
+        "WALK",
     ];
 
     for i in instructions.iter() {
