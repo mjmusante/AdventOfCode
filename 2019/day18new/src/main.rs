@@ -34,7 +34,8 @@ fn main() {
         print!("{}", v);
     }
     println!("'");
-    dsearch(&maze);
+    // dsearch(&maze);
+    d4search(&maze);
 }
 
 /*
@@ -110,6 +111,71 @@ fn dsearch(maze: &Maze) {
         }
         let u = queue.remove(best);
         println!("best - {:?}", u);
+        for s in find_current_keys(&maze, (u.0).0, &string2hs(&(u.0).1)) {
+            println!(" >>> {:?}", s);
+            let mut hs = string2hs(&(u.0).1);
+            hs.insert(s.2);
+            let v: Index = (s.0, hs2string(&hs));
+            let alt = dist[&u.0] + s.1;
+            if !dist.contains_key(&v) || alt < dist[&v] {
+                dist.insert(v.clone(), alt);
+                prev.insert(v.clone(), u.0.clone());
+                queue.push((v, alt));
+            }
+        }
+    }
+    // println!("DIST: {:?}", dist);
+    // println!("PREV: {:?}", prev);
+}
+
+fn d4search(maze2: &Maze) {
+    let mut layout = maze2.layout.clone();
+    layout.remove(&(maze2.curloc.0 - 1, maze2.curloc.1));
+    layout.remove(&(maze2.curloc.0 + 1, maze2.curloc.1));
+    layout.remove(&(maze2.curloc.0, maze2.curloc.1 - 1));
+    layout.remove(&(maze2.curloc.0, maze2.curloc.1 + 1));
+    let maze = Maze {
+        layout: layout,
+        keys: maze2.keys.clone(),
+        doors: maze2.doors.clone(),
+        curloc: maze2.curloc,
+        size: maze2.size,
+    };
+
+    let mut dist: HashMap<Index, i64> = HashMap::new();
+    let mut prev: HashMap<Index, Index> = HashMap::new();
+    let mut queue: Vec<Value> = Vec::new();
+
+    let origin1: Index = ((maze.curloc.0 - 1, maze.curloc.1 - 1), String::new());
+    let origin2: Index = ((maze.curloc.0 - 1, maze.curloc.1 + 1), String::new());
+    let origin3: Index = ((maze.curloc.0 + 1, maze.curloc.1 - 1), String::new());
+    let origin4: Index = ((maze.curloc.0 + 1, maze.curloc.1 + 1), String::new());
+
+    dist.insert(origin1.clone(), 0);
+    dist.insert(origin2.clone(), 0);
+    dist.insert(origin3.clone(), 0);
+    dist.insert(origin4.clone(), 0);
+    queue.push((origin1.clone(), 0));
+    queue.push((origin2.clone(), 0));
+    queue.push((origin3.clone(), 0));
+    queue.push((origin4.clone(), 0));
+    for o in [origin1, origin2, origin3, origin4].iter() {
+        for s in find_current_keys(&maze, o.0, &string2hs(&o.1)) {
+            let u: Index = (s.0, format!("{}", s.2));
+            dist.insert(u.clone(), 999_999);
+            queue.push((u, 999_999));
+        }
+    }
+
+    while queue.len() > 0 {
+        let mut best = 0;
+        for i in 1..queue.len() {
+            if dist[&queue[i].0] < dist[&queue[best].0] {
+                best = i;
+            }
+        }
+        let u = queue.remove(best);
+        println!("b4est - {:?}", u);
         for s in find_current_keys(&maze, (u.0).0, &string2hs(&(u.0).1)) {
             println!(" >>> {:?}", s);
             let mut hs = string2hs(&(u.0).1);
