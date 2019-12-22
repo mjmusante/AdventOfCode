@@ -76,12 +76,7 @@ use intcode::Computer;
 fn main() {
     let mut c = Computer::new().from_file("inputs/day21.txt");
 
-    c.run();
-    while c.has_output() {
-        print!("{}", c.next_output() as u8 as char);
-    }
-
-    let instructions = [
+    let part1i = [
         // case 1:
         "NOT A J", // if the next step is a hole, jump
         // case 2:
@@ -95,7 +90,12 @@ fn main() {
         "WALK",
     ];
 
-    for i in instructions.iter() {
+    c.run();
+    while c.has_output() {
+        print!("{}", c.next_output() as u8 as char);
+    }
+
+    for i in part1i.iter() {
         println!("> {}", i);
         for code in i.chars() {
             c.run_with_input(code as i64);
@@ -109,6 +109,42 @@ fn main() {
             print!("{}", ch as u8 as char);
         } else {
             println!("part 1 = {}", ch);
+        }
+    }
+
+    c.reset();
+
+    /*
+     * @
+     * #ABCDEFGHI#
+     *  111
+     *     11  1
+     *
+     */
+
+    let part2i = [
+        "OR A J", "AND B J", "AND C J", "NOT J J", "AND D J", "OR E T", "OR H T", "AND T J", "RUN",
+    ];
+
+    c.run();
+    while c.has_output() {
+        print!("{}", c.next_output() as u8 as char);
+    }
+
+    for i in part2i.iter() {
+        println!("> {}", i);
+        for code in i.chars() {
+            c.run_with_input(code as i64);
+        }
+        c.run_with_input(10);
+    }
+
+    while c.has_output() {
+        let ch = c.next_output();
+        if ch < 256 {
+            print!("{}", ch as u8 as char);
+        } else {
+            println!("part 2 = {}", ch);
         }
     }
 }
