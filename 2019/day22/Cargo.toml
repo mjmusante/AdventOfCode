@@ -6,3 +6,6 @@ edition = "2018"
 
 [dependencies]
 regex = "1"
+num = "0.2"
+num-traits = "0.2.10"
+
