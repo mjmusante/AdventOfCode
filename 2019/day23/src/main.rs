@@ -1,5 +1,7 @@
 use intcode::Computer;
 
+use std::collections::HashSet;
+
 struct Nic {
     c: Computer,
     q: Vec<(i64, i64)>,
@@ -8,6 +10,9 @@ struct Nic {
 
 fn main() {
     let mut nic = vec![];
+    let mut nat = (0, 0);
+    let mut part1shown = false;
+    let mut hs: HashSet<i64> = HashSet::new();
 
     for i in 0..50 {
         nic.push(Nic {
@@ -27,6 +32,7 @@ fn main() {
                         let v = nic[i].q[0].0;
                         nic[i].c.run_with_input(v);
                         nic[i].f = true;
+                        did_work = true;
                     } else {
                         nic[i].c.run_with_input(-1);
                     }
@@ -36,11 +42,11 @@ fn main() {
                         nic[i].c.run_with_input(v);
                         nic[i].q.remove(0);
                         nic[i].f = false;
+                        did_work = true;
                     } else {
                         nic[i].c.run_with_input(-1);
                     }
                 }
-                did_work = true;
             }
 
             if nic[i].c.has_output() {
@@ -48,16 +54,24 @@ fn main() {
                 let x = nic[i].c.next_output();
                 let y = nic[i].c.next_output();
                 if dest == 255 {
-                    println!("part 1 = {}", y);
-                    break 'outer;
+                    if !part1shown {
+                        println!("part 1 = {}", y);
+                        part1shown = true;
+                    }
+                    nat = (x, y);
+                } else {
+                    nic[dest].q.push((x, y));
                 }
-                nic[dest].q.push((x, y));
                 did_work = true;
             }
         }
         if !did_work {
-            println!("loop completed without doing work!");
-            break;
+            if hs.contains(&nat.1) {
+                println!("part 2 = {}", nat.1);
+                break;
+            }
+            hs.insert(nat.1);
+            nic[0].q.push(nat);
         }
     }
 }
