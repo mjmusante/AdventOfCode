@@ -22,11 +22,12 @@ struct Maze {
 }
 
 fn main() {
-    let f = File::open("inputs/day18.txt").unwrap();
+    let f = File::open("inputs/day18ex6.txt").unwrap();
     let vlist = BufReader::new(&f)
         .lines()
         .map(|line| line.unwrap())
         .collect::<Vec<String>>();
+    println!("{:?}", vlist);
 
     let maze = parse_maze(&vlist);
     print!("keys ='");
@@ -128,7 +129,22 @@ fn dsearch(maze: &Maze) {
     // println!("PREV: {:?}", prev);
 }
 
+fn show_map(maze: &Maze) {
+    for y in 0..maze.size.1 {
+        for x in 0..maze.size.0 {
+            if maze.layout.contains_key(&(x, y)) {
+                print!(".");
+            } else {
+                print!("#");
+            }
+        }
+        println!("");
+    }
+}
+
 fn d4search(maze2: &Maze) {
+    show_map(&maze2);
+    println!("-vs-");
     let mut layout = maze2.layout.clone();
     layout.remove(&(maze2.curloc.0 - 1, maze2.curloc.1));
     layout.remove(&(maze2.curloc.0 + 1, maze2.curloc.1));
@@ -141,52 +157,78 @@ fn d4search(maze2: &Maze) {
         curloc: maze2.curloc,
         size: maze2.size,
     };
+    show_map(&maze);
 
-    let mut dist: HashMap<Index, i64> = HashMap::new();
-    let mut prev: HashMap<Index, Index> = HashMap::new();
-    let mut queue: Vec<Value> = Vec::new();
+    let mut dist: [HashMap<Index, i64>; 4] = [
+        HashMap::new(),
+        HashMap::new(),
+        HashMap::new(),
+        HashMap::new(),
+    ];
+    let mut queue: [Vec<Value>; 4] = [Vec::new(), Vec::new(), Vec::new(), Vec::new()];
 
     let origin1: Index = ((maze.curloc.0 - 1, maze.curloc.1 - 1), String::new());
     let origin2: Index = ((maze.curloc.0 - 1, maze.curloc.1 + 1), String::new());
     let origin3: Index = ((maze.curloc.0 + 1, maze.curloc.1 - 1), String::new());
     let origin4: Index = ((maze.curloc.0 + 1, maze.curloc.1 + 1), String::new());
 
-    dist.insert(origin1.clone(), 0);
-    dist.insert(origin2.clone(), 0);
-    dist.insert(origin3.clone(), 0);
-    dist.insert(origin4.clone(), 0);
-    queue.push((origin1.clone(), 0));
-    queue.push((origin2.clone(), 0));
-    queue.push((origin3.clone(), 0));
-    queue.push((origin4.clone(), 0));
+    dist[0].insert(origin1.clone(), 0);
+    dist[1].insert(origin2.clone(), 0);
+    dist[2].insert(origin3.clone(), 0);
+    dist[3].insert(origin4.clone(), 0);
+    queue[0].push((origin1.clone(), 0));
+    queue[1].push((origin2.clone(), 0));
+    queue[2].push((origin3.clone(), 0));
+    queue[3].push((origin4.clone(), 0));
+    let mut i = 0;
     for o in [origin1, origin2, origin3, origin4].iter() {
         for s in find_current_keys(&maze, o.0, &string2hs(&o.1)) {
             let u: Index = (s.0, format!("{}", s.2));
-            dist.insert(u.clone(), 999_999);
-            queue.push((u, 999_999));
+            dist[i].insert(u.clone(), 999_999);
+            queue[i].push((u, 999_999));
         }
+        i += 1;
     }
 
-    while queue.len() > 0 {
+    let mut q = 0;
+    let mut pass = 0;
+    while queue[0].len() > 0 || queue[1].len() > 0 || queue[2].len() > 0 || queue[3].len() > 0 {
+        q = (q + 1) % 4;
+        if queue[q].len() == 0 {
+            q = (q + 1) % 4;
+        }
         let mut best = 0;
-        for i in 1..queue.len() {
-            if dist[&queue[i].0] < dist[&queue[best].0] {
+        for i in 1..queue[q].len() {
+            if dist[q][&queue[q][i].0] < dist[q][&queue[q][best].0] {
                 best = i;
             }
         }
-        let u = queue.remove(best);
+        let u = queue[q].remove(best);
         println!("b4est - {:?}", u);
-        for s in find_current_keys(&maze, (u.0).0, &string2hs(&(u.0).1)) {
-            println!(" >>> {:?}", s);
-            let mut hs = string2hs(&(u.0).1);
-            hs.insert(s.2);
-            let v: Index = (s.0, hs2string(&hs));
-            let alt = dist[&u.0] + s.1;
-            if !dist.contains_key(&v) || alt < dist[&v] {
-                dist.insert(v.clone(), alt);
-                prev.insert(v.clone(), u.0.clone());
-                queue.push((v, alt));
+        let m = find_current_keys(&maze, (u.0).0, &string2hs(&(u.0).1));
+        if m.len() == 0 {
+            // put it at the back of the queue in case we can pick up some other keys
+            // in other quadrants
+            queue[q].push(u);
+            pass += 1;
+        } else {
+            pass = 0;
+            for s in m {
+                println!(" >>> {:?}", s);
+                let mut hs = string2hs(&(u.0).1);
+                hs.insert(s.2);
+                let v: Index = (s.0, hs2string(&hs));
+                let alt = dist[q][&u.0] + s.1;
+                if !dist[q].contains_key(&v) || alt < dist[q][&v] {
+                    dist[q].insert(v.clone(), alt);
+                    queue[q].push((v, alt));
+                }
             }
+        }
+
+        if pass == 4 {
+            println!("no work for 4 passes - quitting");
+            break;
         }
     }
     // println!("DIST: {:?}", dist);
@@ -285,6 +327,7 @@ fn parse_maze(text: &Vec<String>) -> Maze {
         xpos = 0;
         ypos += 1;
     }
+    println!("({}, {})", max_x, ypos);
 
     Maze {
         layout: maze,
