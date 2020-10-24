@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ -d "bin/$1" ]
+then
+    exec "bin/$1/run.py" $*
+else
+    echo "Solution for $1 not done yet"
+fi
