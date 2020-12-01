@@ -7,6 +7,7 @@ pub fn day01() {
     for pair in v.clone().into_iter().combinations(2) {
         if pair[0] + pair[1] == 2020 {
             println!("Part 1 = {}", pair[0] * pair[1]);
+            break;
         }
     }
 
