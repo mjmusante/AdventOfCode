@@ -3,14 +3,15 @@ use std::time::Instant;
 mod day01;
 mod day02;
 
-fn main() {
-    let now = Instant::now();
-    day01::day01();
-    let elapsed = now.elapsed().as_millis();
-    println!(" -> Time: {}ms", elapsed);
+type Func = fn();
 
-    let now = Instant::now();
-    day02::day02();
-    let elapsed = now.elapsed().as_millis();
-    println!(" -> Time: {}ms", elapsed);
+fn main() {
+    let runners: Vec<Func> = vec![day01::run, day02::run];
+
+    for run in runners {
+        let now = Instant::now();
+        run();
+        let elapsed = now.elapsed().as_millis();
+        println!(" -> Time: {}ms", elapsed);
+    }
 }

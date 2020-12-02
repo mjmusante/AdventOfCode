@@ -2,7 +2,7 @@ use itertools::Itertools;
 
 use aoc::utils::nums;
 
-pub fn day01() {
+pub fn run() {
     let v = nums("data/01.txt");
     println!(
         "Part 1 = {}",

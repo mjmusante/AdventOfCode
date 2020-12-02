@@ -2,7 +2,7 @@ use aoc::utils::lines;
 
 use regex::Regex;
 
-pub fn day02() {
+pub fn run() {
     let reg = Regex::new(r"(\d+)-(\d+) (.): (.*)").unwrap();
     if check(&reg, "1-3 a: abcde") != (true, true) {
         panic!("failure in case 1");
