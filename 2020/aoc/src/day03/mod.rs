@@ -9,7 +9,7 @@ pub fn run() {
     let slopes = vec![(1, 1), (5, 1), (7, 1), (1, 2)];
     let part2 = slopes
         .iter()
-        .map(|(row, col)| count(&lines, *row, *col))
+        .map(|(right, down)| count(&lines, *right, *down))
         .fold(part1, |prod, x| prod * x);
     println!("Part 2 = {}", part2);
 }
