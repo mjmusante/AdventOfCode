@@ -15,26 +15,16 @@ pub fn run() {
 }
 
 fn count(grid: &Vec<String>, right: usize, down: usize) -> usize {
-    let mut row = 0;
+    let width = grid.get(0).unwrap().len();
     let mut col = 0;
     let mut trees = 0;
 
-    while row < grid.len() {
-        if has_tree(&grid, row, col) {
+    for line in grid.iter().step_by(down) {
+        if line.chars().nth(col).unwrap() == '#' {
             trees += 1;
         }
-        row += down;
-        col += right;
+        col = (col + right) % width;
     }
 
     trees
-}
-
-fn has_tree(grid: &Vec<String>, row: usize, col: usize) -> bool {
-    if row >= grid.len() {
-        return false;
-    }
-    let real_col = col % grid.get(0).unwrap().len();
-
-    grid.get(row).unwrap().chars().nth(real_col).unwrap() == '#'
 }
