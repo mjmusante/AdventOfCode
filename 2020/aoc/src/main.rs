@@ -5,11 +5,12 @@ mod day01;
 mod day02;
 mod day03;
 mod day04;
+mod day05;
 
 type Func = fn();
 
 fn main() {
-    let runners: Vec<Func> = vec![day01::run, day02::run, day03::run, day04::run];
+    let runners: Vec<Func> = vec![day01::run, day02::run, day03::run, day04::run, day05::run];
     let mut total = Duration::new(0, 0);
 
     for run in runners {
