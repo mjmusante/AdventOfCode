@@ -3,7 +3,7 @@ use aoc::utils::lines;
 pub fn run() {
     let lines = lines("data/05.txt");
 
-    let mut list = lines.iter().map(|l| convert(&l)).collect::<Vec<i64>>();
+    let mut list = lines.iter().map(convert).collect::<Vec<i64>>();
     list.sort();
 
     println!("Part 1 = {}", list.get(list.len() - 1).unwrap());
