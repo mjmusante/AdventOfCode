@@ -12,7 +12,7 @@ pub fn run() {
     let mut p2total = 0;
     for g in groups.iter() {
         let mut hs = HashSet::<char>::new();
-        let mut inter;
+        let mut inter = HashSet::<char>::new();
         let mut cur = HashSet::<char>::new();
         let mut first = true;
 
