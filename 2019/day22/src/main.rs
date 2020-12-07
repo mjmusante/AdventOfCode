@@ -59,9 +59,9 @@ fn modpow(b: u64, e: u64, modulus: u64) -> BigInt {
     let mut result: BigInt = One::one();
     while exp > 0 {
         if exp & 1 == 1 {
-            result = (result * base) % modulus as u128;
+            result = (result * &base) % modulus as u128;
         }
-        base = (base * base) % modulus as u128;
+        base = (&base * &base) % modulus as u128;
         exp >>= 1;
     }
 
@@ -84,20 +84,20 @@ fn reverse_compute(cards: u64, shuffles: u64, index: u64, rules: &Vec<String>) -
             let newval = val * modpow(incr, cards - 2, cards);
             val = newval;
         } else if rev.is_match(&r) {
-            o -= val;
+            o -= &val;
             val *= -1;
         } else if cut.is_match(&r) {
             let cap = cut.captures_iter(&r).next().unwrap();
             let dist = cap[1].parse::<i128>().unwrap();
-            o += val * dist;
+            o += &val * dist;
         }
     }
-    o *= modpow((one - val).to_u64().unwrap(), cards - 2, cards);
+    o *= modpow((&one - &val).to_u64().unwrap(), cards - 2, cards);
     val = modpow(val.to_u64().unwrap(), shuffles, cards);
 
-    let mul: BigInt = (one - val) * o;
+    let mul: BigInt = (&one - &val) * o;
 
-    (index * val).to_u64().unwrap() + mul.to_u64().unwrap() % cards
+    (index * &val).to_u64().unwrap() + mul.to_u64().unwrap() % cards
 }
 
 fn main() {

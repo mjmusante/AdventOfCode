@@ -23,7 +23,7 @@ fn main() {
         nic[i].c.run_with_input(i as i64);
     }
 
-    'outer: loop {
+    loop {
         let mut did_work = false;
         for i in 0..50 {
             if nic[i].c.waiting_for_input() {

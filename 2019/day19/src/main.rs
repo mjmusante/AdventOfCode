@@ -11,7 +11,7 @@ fn main() {
     let mut c = Computer::new().from_file("inputs/day19.txt");
 
     let mut count = 0;
-    'outer: for x in 0..50 {
+    for x in 0..50 {
         for y in 0..50 {
             if in_beam(&mut c, x, y) {
                 count += 1;

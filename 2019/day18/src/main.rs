@@ -17,7 +17,6 @@ struct Maze {
     keys: Map,
     doors: Map,
     curloc: Pos,
-    size: Pos,
 }
 
 fn main() {
@@ -152,24 +151,10 @@ fn parse_maze(text: &Vec<String>) -> Maze {
 
     Maze {
         layout: maze,
-        keys: keys,
-        doors: doors,
+        keys,
+        doors,
         // have_keys: HashSet::new(),
         curloc: start,
-        size: (max_x, ypos),
-    }
-}
-
-fn _show_maze(maze: &Maze) {
-    for y in 0..maze.size.1 {
-        for x in 0..maze.size.0 {
-            if maze.layout.contains_key(&(x, y)) {
-                print!(".");
-            } else {
-                print!(" ");
-            }
-        }
-        println!("");
     }
 }
 
