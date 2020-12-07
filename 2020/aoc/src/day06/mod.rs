@@ -18,7 +18,10 @@ pub fn run() {
 
         for c in g.chars() {
             match c {
-                'a'..='z' => { hs.insert(c); cur.insert(c); },
+                'a'..='z' => {
+                    hs.insert(c);
+                    cur.insert(c);
+                }
                 '\n' => {
                     if first {
                         inter = hs.clone();
@@ -28,7 +31,9 @@ pub fn run() {
                     }
                     cur = HashSet::<char>::new();
                 }
-                c => { panic!("Unknown char {}", c); },
+                c => {
+                    panic!("Unknown char {}", c);
+                }
             }
         }
         if !cur.is_empty() {

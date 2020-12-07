@@ -28,28 +28,40 @@ struct Bag {
 type Data = HashMap<String, HashSet<Inner>>;
 
 fn parse(data: &Vec<String>) -> (Vec<Bag>, Data) {
-    let mut bags : Vec<Bag> = Vec::new();
-    let mut forward : Data = HashMap::new();
+    let mut bags: Vec<Bag> = Vec::new();
+    let mut forward: Data = HashMap::new();
 
     for d in data {
-        let sp = d.find(" bags contain ").expect("invalid instruction: missing 'contain'");
+        let sp = d
+            .find(" bags contain ")
+            .expect("invalid instruction: missing 'contain'");
         let (bag_name, remainder) = d.split_at(sp);
         let (_, contents) = remainder.split_at(14);
         if contents.starts_with("no ") {
-            let b = Bag { name: bag_name.to_string(), containment: HashSet::new() };
+            let b = Bag {
+                name: bag_name.to_string(),
+                containment: HashSet::new(),
+            };
             bags.push(b);
         } else {
             let mut hs = HashSet::new();
             let mut inner = HashSet::new();
             for btype in contents.split(",") {
-                let desc_data : Vec<&str> = btype.split_whitespace().collect();
-                let desc = format!("{} {}", desc_data.get(1).unwrap(), desc_data.get(2).unwrap());
-                let count : usize = desc_data.get(0).unwrap().parse().unwrap();
+                let desc_data: Vec<&str> = btype.split_whitespace().collect();
+                let desc = format!(
+                    "{} {}",
+                    desc_data.get(1).unwrap(),
+                    desc_data.get(2).unwrap()
+                );
+                let count: usize = desc_data.get(0).unwrap().parse().unwrap();
 
                 hs.insert(desc.clone());
-                inner.insert(Inner { count, name: desc } );
+                inner.insert(Inner { count, name: desc });
             }
-            bags.push(Bag { name: bag_name.to_string(), containment: hs } );
+            bags.push(Bag {
+                name: bag_name.to_string(),
+                containment: hs,
+            });
             forward.insert(bag_name.to_string(), inner);
         }
     }
@@ -92,15 +104,14 @@ fn count_possible(bags: &Vec<Bag>) -> usize {
 }
 
 fn count_depth(data: &Data, look_for: &String) -> usize {
-    let mut count = 0;
-
-    if data.contains_key(look_for) {
-        for j in data.get(look_for).expect("could not find name in data") {
-            count += j.count * (1 + count_depth(data, &j.name));
-        }
+    if !data.contains_key(look_for) {
+        return 0;
     }
 
-    count
+    data.get(look_for)
+        .unwrap()
+        .iter()
+        .fold(0, |sum, d| sum + d.count * (1 + count_depth(data, &d.name)))
 }
 
 impl Bag {
@@ -115,7 +126,7 @@ mod tests {
 
     #[test]
     fn try1() {
-        let joe : Vec<String> = vec![
+        let joe: Vec<String> = vec![
             "light red bags contain 1 bright white bag, 2 muted yellow bags.".to_string(),
             "dark orange bags contain 3 bright white bags, 4 muted yellow bags.".to_string(),
             "bright white bags contain 1 shiny gold bag.".to_string(),
@@ -125,7 +136,7 @@ mod tests {
             "vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.".to_string(),
             "faded blue bags contain no other bags.".to_string(),
             "dotted black bags contain no other bags.".to_string(),
-            ];
+        ];
         let (bags, data) = parse(&joe);
         assert_eq!(count_possible(&bags), 4);
         assert_eq!(count_depth(&data, &"shiny gold".to_string()), 32);
@@ -133,7 +144,7 @@ mod tests {
 
     #[test]
     fn try2() {
-        let joe : Vec<String> = vec![
+        let joe: Vec<String> = vec![
             "shiny gold bags contain 2 dark red bags.".to_string(),
             "dark red bags contain 2 dark orange bags.".to_string(),
             "dark orange bags contain 2 dark yellow bags.".to_string(),
@@ -141,7 +152,7 @@ mod tests {
             "dark green bags contain 2 dark blue bags.".to_string(),
             "dark blue bags contain 2 dark violet bags.".to_string(),
             "dark violet bags contain no other bags.".to_string(),
-            ];
+        ];
         let (_, data) = parse(&joe);
         assert_eq!(count_depth(&data, &"shiny gold".to_string()), 126);
     }
