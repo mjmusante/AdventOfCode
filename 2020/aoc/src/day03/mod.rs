@@ -28,3 +28,49 @@ fn count(grid: &Vec<String>, right: usize, down: usize) -> usize {
 
     trees
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test1() {
+        let v = vec![
+            "..##.......".to_string(),
+            "#...#...#..".to_string(),
+            ".#....#..#.".to_string(),
+            "..#.#...#.#".to_string(),
+            ".#...##..#.".to_string(),
+            "..#.##.....".to_string(),
+            ".#.#.#....#".to_string(),
+            ".#........#".to_string(),
+            "#.##...#...".to_string(),
+            "#...##....#".to_string(),
+            ".#..#...#.#".to_string(),
+        ];
+        assert_eq!(count(&v, 3, 1), 7);
+    }
+
+    #[test]
+    fn test2() {
+        let slopes = vec![(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)];
+        let v = vec![
+            "..##.......".to_string(),
+            "#...#...#..".to_string(),
+            ".#....#..#.".to_string(),
+            "..#.#...#.#".to_string(),
+            ".#...##..#.".to_string(),
+            "..#.##.....".to_string(),
+            ".#.#.#....#".to_string(),
+            ".#........#".to_string(),
+            "#.##...#...".to_string(),
+            "#...##....#".to_string(),
+            ".#..#...#.#".to_string(),
+        ];
+        assert_eq!(slopes
+        .iter()
+        .map(|(right, down)| count(&v, *right, *down))
+        .fold(1, |prod, x| prod * x), 336);
+
+    }
+}
