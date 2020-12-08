@@ -67,10 +67,12 @@ mod test {
             "#...##....#".to_string(),
             ".#..#...#.#".to_string(),
         ];
-        assert_eq!(slopes
-        .iter()
-        .map(|(right, down)| count(&v, *right, *down))
-        .fold(1, |prod, x| prod * x), 336);
-
+        assert_eq!(
+            slopes
+                .iter()
+                .map(|(right, down)| count(&v, *right, *down))
+                .fold(1, |prod, x| prod * x),
+            336
+        );
     }
 }

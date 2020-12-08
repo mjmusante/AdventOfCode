@@ -26,7 +26,9 @@ struct Checker {
 
 impl Checker {
     pub fn new() -> Checker {
-        Checker { reg: Regex::new(r"(\d+)-(\d+) (.): (.*)").unwrap() }
+        Checker {
+            reg: Regex::new(r"(\d+)-(\d+) (.): (.*)").unwrap(),
+        }
     }
 
     pub fn check(&self, line: &str) -> (bool, bool) {
