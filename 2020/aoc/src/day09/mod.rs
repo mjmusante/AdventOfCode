@@ -4,7 +4,9 @@ use aoc::utils::nums;
 
 pub fn run() {
     let num = nums("data/09.txt");
-    println!("Part 1 = {}", find_first(25, &num));
+    let part1 = find_first(25, &num);
+    println!("Part 1 = {}", part1);
+    println!("Part 2 = {}", find_sum(&num, part1));
 }
 
 fn find_first(pre: usize, v: &Vec<i64>) -> i64 {
@@ -18,6 +20,23 @@ fn find_first(pre: usize, v: &Vec<i64>) -> i64 {
     }
 
     -1
+}
+
+fn find_sum(v: &Vec<i64>, target: i64) -> i64 {
+    let w = v.clone().into_iter().filter(|x| x < &target).collect::<Vec<i64>>();
+
+    for i in 0..w.len() - 1 {
+        for j in i + 1..w.len() {
+            let s : i64 = w[i..j].iter().sum();
+            if s == target {
+                let min = w[i..j].iter().min().expect("No min found");
+                let max = w[i..j].iter().max().expect("No max found");
+                return min + max;
+            }
+        }
+    }
+
+    w.len() as i64
 }
 
 #[cfg(test)]
@@ -34,5 +53,10 @@ mod test {
     #[test]
     fn test1() {
         assert_eq!(find_first(5, &test_data()), 127);
+    }
+
+    #[test]
+    fn test2() {
+        assert_eq!(find_sum(&test_data(), 127), 62);
     }
 }
