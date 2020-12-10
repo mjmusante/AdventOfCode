@@ -13,7 +13,11 @@ fn find_first(pre: usize, v: &Vec<i64>) -> i64 {
     for i in pre..v.len() {
         let f = v.get(i).unwrap();
         let m = &v[(i - pre)..i];
-        let n = m.iter().combinations(2).map(|x| x[0] + x[1]).collect::<Vec<i64>>();
+        let n = m
+            .iter()
+            .combinations(2)
+            .map(|x| x[0] + x[1])
+            .collect::<Vec<i64>>();
         if !n.contains(f) {
             return *f;
         }
@@ -23,11 +27,15 @@ fn find_first(pre: usize, v: &Vec<i64>) -> i64 {
 }
 
 fn find_sum(v: &Vec<i64>, target: i64) -> i64 {
-    let w = v.clone().into_iter().filter(|x| x < &target).collect::<Vec<i64>>();
+    let w = v
+        .clone()
+        .into_iter()
+        .filter(|x| x < &target)
+        .collect::<Vec<i64>>();
 
     for i in 0..w.len() - 1 {
         for j in i + 1..w.len() {
-            let s : i64 = w[i..j].iter().sum();
+            let s: i64 = w[i..j].iter().sum();
             if s == target {
                 let min = w[i..j].iter().min().expect("No min found");
                 let max = w[i..j].iter().max().expect("No max found");
