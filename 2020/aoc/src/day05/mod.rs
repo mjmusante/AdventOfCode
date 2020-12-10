@@ -11,7 +11,7 @@ pub fn run() {
     let mut last = 0;
     for seat in list {
         if last + 2 == seat {
-            println!("Part 2 = {}?", seat - 1);
+            println!("Part 2 = {}", seat - 1);
             break; // assuming AoC's input only has one match
         }
         last = seat;
