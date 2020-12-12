@@ -43,13 +43,16 @@ fn parse(v: &Vec<String>) -> Layout {
     for line in v {
         let mut col = 0;
         for seat in line.chars() {
-            l.seats.insert((row, col), match seat {
-                'L' => Position::Empty,
-                '.' => Position::Floor,
-                ch => {
-                    panic!(format!("Invalid char in input {}", ch));
-                }
-            });
+            l.seats.insert(
+                (row, col),
+                match seat {
+                    'L' => Position::Empty,
+                    '.' => Position::Floor,
+                    ch => {
+                        panic!(format!("Invalid char in input {}", ch));
+                    }
+                },
+            );
             col += 1;
         }
         row += 1;
@@ -59,18 +62,38 @@ fn parse(v: &Vec<String>) -> Layout {
 }
 
 fn occupied(l: &Layout) -> usize {
-    l.seats.iter().filter(|x| *x.1 == Position::Occupied).count()
+    l.seats
+        .iter()
+        .filter(|x| *x.1 == Position::Occupied)
+        .count()
 }
 
 fn checklist_part1(loc: (i64, i64)) -> Vec<(i64, i64)> {
-    vec![(loc.0 - 1, loc.1 - 1), (loc.0 - 1, loc.1), (loc.0 - 1, loc.1 + 1),
-    (loc.0, loc.1 - 1), (loc.0, loc.1 + 1), (loc.0 + 1, loc.1 - 1), (loc.0 + 1, loc.1), (loc.0 + 1, loc.1 + 1)]
+    vec![
+        (loc.0 - 1, loc.1 - 1),
+        (loc.0 - 1, loc.1),
+        (loc.0 - 1, loc.1 + 1),
+        (loc.0, loc.1 - 1),
+        (loc.0, loc.1 + 1),
+        (loc.0 + 1, loc.1 - 1),
+        (loc.0 + 1, loc.1),
+        (loc.0 + 1, loc.1 + 1),
+    ]
 }
 
 fn checklist_part2(loc: (i64, i64), layout: &Layout) -> Vec<(i64, i64)> {
     let mut visible = Vec::new();
 
-    let dirs = vec![(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)];
+    let dirs = vec![
+        (-1, -1),
+        (-1, 0),
+        (-1, 1),
+        (0, -1),
+        (0, 1),
+        (1, -1),
+        (1, 0),
+        (1, 1),
+    ];
 
     for d in dirs {
         let mut row = loc.0 + d.0;
@@ -81,7 +104,7 @@ fn checklist_part2(loc: (i64, i64), layout: &Layout) -> Vec<(i64, i64)> {
                 _ => {
                     visible.push((row, col));
                     break;
-                },
+                }
             }
             row += d.0;
             col += d.1;
