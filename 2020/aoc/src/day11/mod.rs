@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use aoc::utils::lines;
 
 pub fn run() {
@@ -17,7 +19,7 @@ pub fn run() {
     println!("Part 2 = {}", occupied(&layout.1));
 }
 
-#[derive(PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 enum Position {
     Floor,
     Empty,
@@ -25,163 +27,65 @@ enum Position {
 }
 
 struct Layout {
-    width: usize,
-    rows: usize,
-    seats: Vec<Position>,
+    width: i64,
+    height: i64,
+    seats: HashMap<(i64, i64), Position>,
 }
 
 fn parse(v: &Vec<String>) -> Layout {
     let mut l = Layout {
-        width: v.get(0).expect("empty array").len(),
-        rows: v.len(),
-        seats: Vec::new(),
+        width: v.get(0).expect("empty array").len() as i64,
+        height: v.len() as i64,
+        seats: HashMap::new(),
     };
 
-    for row in v {
-        for seat in row.chars() {
-            match seat {
-                'L' => l.seats.push(Position::Empty),
-                '.' => l.seats.push(Position::Floor),
+    let mut row = 0;
+    for line in v {
+        let mut col = 0;
+        for seat in line.chars() {
+            l.seats.insert((row, col), match seat {
+                'L' => Position::Empty,
+                '.' => Position::Floor,
                 ch => {
                     panic!(format!("Invalid char in input {}", ch));
                 }
-            }
+            });
+            col += 1;
         }
+        row += 1;
     }
 
     l
 }
 
 fn occupied(l: &Layout) -> usize {
-    l.seats.iter().filter(|x| **x == Position::Occupied).count()
+    l.seats.iter().filter(|x| *x.1 == Position::Occupied).count()
 }
 
-fn checklist_part1(loc: usize, width: usize, max: usize) -> Vec<usize> {
-    let mut surround = Vec::new();
-    if loc >= width {
-        surround.push(loc - width);
-    }
-    if loc % width > 0 {
-        surround.push(loc - 1);
-        if loc + width - 1 < max {
-            surround.push(loc + width - 1);
-        }
-        if loc >= (width + 1) {
-            surround.push(loc - width - 1);
-        }
-    }
-    if (loc + 1) % width > 0 {
-        surround.push(loc + 1);
-        if loc + width + 1 < max {
-            surround.push(loc + width + 1);
-        }
-        if loc > (width - 1) {
-            surround.push(loc - width + 1);
-        }
-    }
-    if loc + width < max {
-        surround.push(loc + width);
-    }
-
-    surround
+fn checklist_part1(loc: (i64, i64)) -> Vec<(i64, i64)> {
+    vec![(loc.0 - 1, loc.1 - 1), (loc.0 - 1, loc.1), (loc.0 - 1, loc.1 + 1),
+    (loc.0, loc.1 - 1), (loc.0, loc.1 + 1), (loc.0 + 1, loc.1 - 1), (loc.0 + 1, loc.1), (loc.0 + 1, loc.1 + 1)]
 }
 
-fn checklist_part2(loc: usize, layout: &Layout) -> Vec<usize> {
+fn checklist_part2(loc: (i64, i64), layout: &Layout) -> Vec<(i64, i64)> {
     let mut visible = Vec::new();
 
-    // up
-    let mut i = loc;
-    while i >= layout.width {
-        i -= layout.width;
-        if *layout.seats.get(i).unwrap() != Position::Floor {
-            visible.push(i);
-            break;
-        }
-    }
+    let dirs = vec![(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)];
 
-    // down
-    i = loc + layout.width;
-    while i < layout.seats.len() {
-        if *layout.seats.get(i).unwrap() != Position::Floor {
-            visible.push(i);
-            break;
-        }
-        i += layout.width;
-    }
-
-    // left
-    i = loc;
-    while i % layout.width > 0 {
-        i -= 1;
-        if *layout.seats.get(i).unwrap() != Position::Floor {
-            visible.push(i);
-            break;
-        }
-    }
-
-    // right
-    i = loc + 1;
-    while i % layout.width > 0 && i < layout.seats.len() {
-        if *layout.seats.get(i).unwrap() != Position::Floor {
-            visible.push(i);
-            break;
-        }
-        i += 1;
-    }
-
-    // up + right
-    i = loc;
-    while i >= layout.width {
-        i -= layout.width - 1;
-        if i % layout.width != 0 {
-            if *layout.seats.get(i).unwrap() != Position::Floor {
-                visible.push(i);
-                break;
+    for d in dirs {
+        let mut row = loc.0 + d.0;
+        let mut col = loc.1 + d.1;
+        while row >= 0 && row < layout.height && col >= 0 && col < layout.width {
+            match layout.seats.get(&(row, col)) {
+                Some(Position::Floor) => (),
+                _ => {
+                    visible.push((row, col));
+                    break;
+                },
             }
-        } else {
-            break;
+            row += d.0;
+            col += d.1;
         }
-    }
-
-    // down + right
-    i = loc + layout.width + 1;
-    while i < layout.seats.len() {
-        if i % layout.width != 0 {
-            if *layout.seats.get(i).unwrap() != Position::Floor {
-                visible.push(i);
-                break;
-            }
-            i += layout.width + 1;
-        } else {
-            break;
-        }
-    }
-
-    // up + left
-    i = loc;
-    while i >= layout.width {
-        if i % layout.width != 0 {
-            i -= layout.width + 1;
-            if *layout.seats.get(i).unwrap() != Position::Floor {
-                visible.push(i);
-                break;
-            }
-        } else {
-            break;
-        }
-    }
-
-    // down + left
-    i = loc + layout.width;
-    while i < layout.seats.len() {
-        if i % layout.width == 0 {
-            break;
-        }
-        if *layout.seats.get(i - 1).unwrap() != Position::Floor {
-            visible.push(i - 1);
-            break;
-        }
-        i += layout.width - 1;
     }
 
     visible
@@ -190,60 +94,57 @@ fn checklist_part2(loc: usize, layout: &Layout) -> Vec<usize> {
 fn step(part: i64, l: &Layout) -> (bool, Layout) {
     let mut next_l = Layout {
         width: l.width,
-        rows: l.rows,
-        seats: Vec::new(),
+        height: l.height,
+        seats: HashMap::new(),
     };
     let mut flipped = false;
     let occ = if part == 1 { 4 } else { 5 };
 
-    for (i, p) in l.seats.iter().enumerate() {
-        if *p == Position::Floor {
-            next_l.seats.push(Position::Floor);
-            continue;
-        }
+    for row in 0..l.height {
+        for col in 0..l.width {
+            let p = l.seats.get(&(row, col)).unwrap();
 
-        let surround = if part == 1 {
-            checklist_part1(i, l.width, l.seats.len())
-        } else {
-            checklist_part2(i, &l)
-        };
-
-        // print!("Position {}: [", i);
-        // for x in &surround {
-        //     print!(" {}", x);
-        // }
-        // println!(" ]");
-
-        if *p == Position::Empty {
-            let mut found = false;
-            // if no occupied seats around us, then become occupied
-            for j in surround {
-                if j < l.seats.len() && *l.seats.get(j).unwrap() == Position::Occupied {
-                    found = true;
-                    break;
-                }
+            if *p == Position::Floor {
+                next_l.seats.insert((row, col), Position::Floor);
+                continue;
             }
-            if !found {
-                flipped = true;
-                next_l.seats.push(Position::Occupied);
+
+            let surround = if part == 1 {
+                checklist_part1((row, col))
             } else {
-                next_l.seats.push(Position::Empty);
-            }
-        } else {
-            let mut count = 0;
-            for j in surround {
-                if j < l.seats.len() && *l.seats.get(j).unwrap() == Position::Occupied {
-                    count += 1;
-                    if count >= occ {
+                checklist_part2((row, col), &l)
+            };
+
+            if *p == Position::Empty {
+                let mut found = false;
+                for j in surround {
+                    if l.seats.get(&j) == Some(&Position::Occupied) {
+                        found = true;
                         break;
                     }
                 }
-            }
-            if count >= occ {
-                flipped = true;
-                next_l.seats.push(Position::Empty);
+                if !found {
+                    flipped = true;
+                    next_l.seats.insert((row, col), Position::Occupied);
+                } else {
+                    next_l.seats.insert((row, col), Position::Empty);
+                }
             } else {
-                next_l.seats.push(Position::Occupied);
+                let mut count = 0;
+                for j in surround {
+                    if l.seats.get(&j) == Some(&Position::Occupied) {
+                        count += 1;
+                        if count >= occ {
+                            break;
+                        }
+                    }
+                }
+                if count >= occ {
+                    flipped = true;
+                    next_l.seats.insert((row, col), Position::Empty);
+                } else {
+                    next_l.seats.insert((row, col), Position::Occupied);
+                }
             }
         }
     }
