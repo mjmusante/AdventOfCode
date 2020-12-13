@@ -65,11 +65,13 @@ fn contest(sched: &Schedule) -> i128 {
         x += 1;
     }
 
-    // Chinese Remainder 
+    // Chinese Remainder
     // Translated from https://rosettacode.org/wiki/Chinese_remainder_theorem#Rust
     let mut sum = 0;
     for i in list {
-        if i.0 == 0 || i.0 == *i.1 { continue; }
+        if i.0 == 0 || i.0 == *i.1 {
+            continue;
+        }
         let p = prod / i.1;
         let mi = mod_inv(p, *i.1).expect("no modular inverse");
         sum += i.0 * mi * p;

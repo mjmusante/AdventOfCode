@@ -52,7 +52,9 @@ pub fn mod_inv(num: i128, modulus: i128) -> Option<i128> {
         r = tmp;
     }
 
-    if r > 1 { return None; }
+    if r > 1 {
+        return None;
+    }
     if t < 0 {
         t += modulus;
     }
