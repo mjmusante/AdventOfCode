@@ -33,3 +33,28 @@ pub fn nums(filename: impl AsRef<Path>) -> Vec<i64> {
 
     v
 }
+
+pub fn mod_inv(num: i128, modulus: i128) -> Option<i128> {
+    let mdl = modulus.abs();
+    let val = if num < 0 { mdl - (-num % mdl) } else { num };
+
+    let mut t = 0;
+    let mut nt = 1;
+    let mut r = mdl;
+    let mut nr = val % mdl;
+    while nr != 0 {
+        let q = r / nr;
+        let tmp = nt;
+        nt = t - q * nt;
+        t = tmp;
+        let tmp = nr;
+        nr = r - q * nr;
+        r = tmp;
+    }
+
+    if r > 1 { return None; }
+    if t < 0 {
+        t += modulus;
+    }
+    Some(t)
+}
