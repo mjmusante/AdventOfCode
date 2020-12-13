@@ -1,15 +1,17 @@
 use aoc::utils::lines;
+use aoc::utils::mod_inv;
 
 pub fn run() {
-    let data = lines("data/13.txt");
+    let data = parse(&lines("data/13.txt"));
 
-    println!("Part 1 = {}", next_bus(&parse(&data)));
+    println!("Part 1 = {}", next_bus(&data));
+    println!("Part 2 = {}", contest(&data));
 }
 
 #[derive(Debug)]
 struct Schedule {
-    timestamp: i64,
-    bus: Vec<i64>,
+    timestamp: i128,
+    bus: Vec<i128>,
 }
 
 fn parse(lines: &Vec<String>) -> Schedule {
@@ -33,8 +35,8 @@ fn parse(lines: &Vec<String>) -> Schedule {
     sched
 }
 
-fn next_bus(sched: &Schedule) -> i64 {
-    let wait_times: Vec<(i64, i64)> = sched
+fn next_bus(sched: &Schedule) -> i128 {
+    let wait_times: Vec<(i128, i128)> = sched
         .bus
         .iter()
         .filter(|x| **x != 0)
@@ -51,19 +53,48 @@ fn next_bus(sched: &Schedule) -> i64 {
     min.0 * min.1
 }
 
+fn contest(sched: &Schedule) -> i128 {
+    let mut list = Vec::new();
+    let mut x = 0;
+    let mut prod = 1;
+    for i in &sched.bus {
+        if *i > 0 {
+            list.push((i - x % i, i));
+            prod *= i;
+        }
+        x += 1;
+    }
+
+    // Chinese Remainder 
+    // Translated from https://rosettacode.org/wiki/Chinese_remainder_theorem#Rust
+    let mut sum = 0;
+    for i in list {
+        if i.0 == 0 || i.0 == *i.1 { continue; }
+        let p = prod / i.1;
+        let mi = mod_inv(p, *i.1).expect("no modular inverse");
+        sum += i.0 * mi * p;
+    }
+
+    sum % prod
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
 
     fn test_data() -> Vec<String> {
         vec!["939".to_string(), "7,13,x,x,59,x,31,19".to_string()]
-        // vec!["1007153".to_string(),
-        //      "29,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,37,x,x,x,x,x,433,x,x,x,x,x,x,x,x,x,x,x,x,13,17,x,x,x,x,19,x,x,x,23,x,x,x,x,x,x,x,977,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,41".to_string()]
     }
 
     #[test]
     fn test1() {
         let v = parse(&test_data());
         assert_eq!(next_bus(&v), 295);
+    }
+
+    #[test]
+    fn test2() {
+        let v = parse(&test_data());
+        assert_eq!(contest(&v), 1068781);
     }
 }
