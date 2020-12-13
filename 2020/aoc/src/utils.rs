@@ -50,7 +50,7 @@ pub fn mod_inv(num: i128, modulus: i128) -> Option<i128> {
         return None;
     }
     if t.0 < 0 {
-        t.0 += modulus;
+        t.0 += mdl;
     }
     Some(t.0)
 }
