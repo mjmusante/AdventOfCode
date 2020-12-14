@@ -1,6 +1,6 @@
-//use itertools::Itertools;
 use regex::Regex;
 use std::collections::HashMap;
+use std::iter;
 
 use aoc::utils::lines;
 
@@ -39,14 +39,12 @@ fn execute(program: &Vec<String>, part: i64) -> i64 {
             }
 
             if xlist.len() > 0 && xlist.len() < 12 {
-                fulland = (1 << 36) - 1;
-                orvec = Vec::<i64>::new();
-                for _ in 0..(1 << xlist.len()) {
-                    orvec.push(0);
-                }
+                fulland = xlist.iter().fold((1 << 36) - 1, |a, v| a & !v);
+                orvec = iter::repeat(or)
+                    .take(1 << xlist.len())
+                    .collect::<Vec<i64>>();
 
                 for i in 0..xlist.len() {
-                    fulland &= !xlist[i];
                     for j in 0..(1 << xlist.len()) {
                         if (1 << i) & j != 0 {
                             orvec[j] |= xlist[i];
@@ -66,7 +64,7 @@ fn execute(program: &Vec<String>, part: i64) -> i64 {
                 mem.insert(addr, data & and | or);
             } else if part == 2 {
                 for i in 0..(1 << xlist.len()) {
-                    let newaddr = addr & fulland | orvec[i] | or;
+                    let newaddr = addr & fulland | orvec[i];
                     mem.insert(newaddr, data);
                 }
             }
