@@ -1,3 +1,4 @@
+//use itertools::Itertools;
 use regex::Regex;
 use std::collections::HashMap;
 
@@ -6,23 +7,28 @@ use aoc::utils::lines;
 pub fn run() {
     let lines = lines("data/14.txt");
 
-    println!("Part 1 = {}", execute(&lines));
+    println!("Part 1 = {}", execute(&lines, 1));
+    println!("Part 2 = {}", execute(&lines, 2));
 }
 
-fn execute(program: &Vec<String>) -> i64 {
+fn execute(program: &Vec<String>, part: i64) -> i64 {
     let mut and = 0;
     let mut or = 0;
-    let mut mem = HashMap::<usize, i64>::new();
+    let mut fulland = 0;
+    let mut xlist = Vec::<i64>::new();
+    let mut orvec = Vec::<i64>::new();
+    let mut mem = HashMap::<i64, i64>::new();
     let reg_mem = Regex::new(r"^mem\[(\d+)\] = (\d+)").unwrap();
 
     for instr in program {
         if instr.starts_with("mask") {
             and = (1 << 36) - 1;
             or = 0;
+            xlist = Vec::<i64>::new();
             let mut pos = 1 << 35;
             for ch in instr[7..].chars() {
                 match ch {
-                    'X' => (),
+                    'X' => xlist.push(pos),
                     '1' => or |= pos,
                     '0' => and &= !pos,
                     _ => {
@@ -31,14 +37,39 @@ fn execute(program: &Vec<String>) -> i64 {
                 }
                 pos >>= 1;
             }
+
+            if xlist.len() > 0 && xlist.len() < 12 {
+                fulland = (1 << 36) - 1;
+                orvec = Vec::<i64>::new();
+                for _ in 0..(1 << xlist.len()) {
+                    orvec.push(0);
+                }
+
+                for i in 0..xlist.len() {
+                    fulland &= !xlist[i];
+                    for j in 0..(1 << xlist.len()) {
+                        if (1 << i) & j != 0 {
+                            orvec[j] |= xlist[i];
+                        }
+                    }
+                }
+            }
         } else {
             let cap = reg_mem
                 .captures_iter(instr)
                 .next()
                 .expect("invalid instruction");
-            let addr: usize = cap[1].parse().expect("bad memory address");
+            let addr: i64 = cap[1].parse().expect("bad memory address");
             let data: i64 = cap[2].parse().expect("bad data value");
-            mem.insert(addr, data & and | or);
+
+            if part == 1 {
+                mem.insert(addr, data & and | or);
+            } else if part == 2 {
+                for i in 0..(1 << xlist.len()) {
+                    let newaddr = addr & fulland | orvec[i] | or;
+                    mem.insert(newaddr, data);
+                }
+            }
         }
     }
 
@@ -49,7 +80,7 @@ fn execute(program: &Vec<String>) -> i64 {
 mod test {
     use super::*;
 
-    fn test_data() -> Vec<String> {
+    fn test_data1() -> Vec<String> {
         vec![
             "mask = XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X".to_string(),
             "mem[8] = 11".to_string(),
@@ -58,9 +89,24 @@ mod test {
         ]
     }
 
+    fn test_data2() -> Vec<String> {
+        vec![
+            "mask = 000000000000000000000000000000X1001X".to_string(),
+            "mem[42] = 100".to_string(),
+            "mask = 00000000000000000000000000000000X0XX".to_string(),
+            "mem[26] = 1".to_string(),
+        ]
+    }
+
     #[test]
     fn test1() {
-        let v = test_data();
-        assert_eq!(execute(&v), 165);
+        let v = test_data1();
+        assert_eq!(execute(&v, 1), 165);
+    }
+
+    #[test]
+    fn test2() {
+        let v = test_data2();
+        assert_eq!(execute(&v, 2), 208);
     }
 }
