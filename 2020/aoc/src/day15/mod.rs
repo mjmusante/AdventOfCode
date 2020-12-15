@@ -21,14 +21,9 @@ fn iterate(n: &Vec<i64>, max: i64) -> i64 {
     let mut count = n.len() as i64;
     let mut to_insert = 0;
     while count < max - 1 {
-        if hist.contains_key(&to_insert) {
-            let last_time = *hist.get(&to_insert).unwrap();
-            hist.insert(to_insert, count);
-            to_insert = count - last_time;
-        } else {
-            hist.insert(to_insert, count);
-            to_insert = 0;
-        }
+        let last_time = *hist.get(&to_insert).unwrap_or(&count);
+        hist.insert(to_insert, count);
+        to_insert = count - last_time;
         count += 1;
     }
 
