@@ -33,13 +33,26 @@ struct Data {
 
 impl Constraint {
     pub fn new(name: String, rangeinfo: &String) -> Constraint {
-        let mut result = Constraint { name, range: Vec::new() };
+        let mut result = Constraint {
+            name,
+            range: Vec::new(),
+        };
         for range in rangeinfo.split(" or ") {
             // println!("\trange = {}", range);
             let mut minmax = range.split('-');
-            let min = minmax.next().unwrap().trim().parse::<i64>().expect("invalid range");
-            let max = minmax.next().unwrap().trim().parse::<i64>().expect("invalid range");
-            result.range.push(Range{ min, max });
+            let min = minmax
+                .next()
+                .unwrap()
+                .trim()
+                .parse::<i64>()
+                .expect("invalid range");
+            let max = minmax
+                .next()
+                .unwrap()
+                .trim()
+                .parse::<i64>()
+                .expect("invalid range");
+            result.range.push(Range { min, max });
         }
 
         result
@@ -90,11 +103,15 @@ fn get_ticket(numstr: &String) -> Ticket {
         fields.push(n.parse::<i64>().expect("invalid number in ticket"));
     }
 
-    Ticket{ fields }
+    Ticket { fields }
 }
 
 fn parse(lines: &Vec<String>) -> Data {
-    let mut result = Data { constraints: Vec::new(), my_ticket: Ticket { fields: Vec::new() }, nearby_tickets: Vec::new() };
+    let mut result = Data {
+        constraints: Vec::new(),
+        my_ticket: Ticket { fields: Vec::new() },
+        nearby_tickets: Vec::new(),
+    };
     let mut phase = 0;
     for l in lines {
         if l == "" {
@@ -128,7 +145,6 @@ fn parse(lines: &Vec<String>) -> Data {
 
     result
 }
-
 
 #[cfg(test)]
 mod test {
