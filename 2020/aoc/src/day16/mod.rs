@@ -120,7 +120,7 @@ impl Data {
 
         while hs.len() < size {
             for i in 0..size {
-                let mut oklist = Vec::new();
+                let mut valid_constraint = None;
                 for j in &self.constraints {
                     if hs.contains(j) {
                         continue;
@@ -133,14 +133,19 @@ impl Data {
                         }
                     }
                     if ok {
-                        oklist.push(j);
+                        if valid_constraint == None {
+                            valid_constraint = Some(j);
+                        } else {
+                            valid_constraint = None;
+                            break;
+                        }
                     }
                 }
-                if oklist.len() == 1 {
-                    if oklist[0].name.starts_with("departure ") {
+                if let Some(c) = valid_constraint {
+                    if c.name.starts_with("departure ") {
                         answer *= self.my_ticket.fields[i];
                     }
-                    hs.insert(oklist[0]);
+                    hs.insert(c);
                     break;
                 }
             }
@@ -183,7 +188,6 @@ fn parse(lines: &Vec<String>) -> Data {
                 continue;
             }
             result.my_ticket = get_ticket(&l);
-            phase += 1;
         } else {
             // nearby tickets
             if l.starts_with("nearby") {
