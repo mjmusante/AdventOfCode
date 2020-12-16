@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 use aoc::utils::lines;
 
@@ -41,7 +41,6 @@ impl Constraint {
             range: Vec::new(),
         };
         for range in rangeinfo.split(" or ") {
-            // println!("\trange = {}", range);
             let mut minmax = range.split('-');
             let min = minmax
                 .next()
@@ -116,7 +115,6 @@ impl Data {
         }
 
         let size = check[0].fields.len();
-        let mut hm = HashMap::<usize, &Constraint>::new();
         let mut hs = HashSet::<&Constraint>::new();
         let mut answer = 1;
 
@@ -142,7 +140,6 @@ impl Data {
                     if oklist[0].name.starts_with("departure ") {
                         answer *= self.my_ticket.fields[i];
                     }
-                    hm.insert(i, oklist[0]);
                     hs.insert(oklist[0]);
                     break;
                 }
@@ -178,7 +175,6 @@ fn parse(lines: &Vec<String>) -> Data {
             // Constraints
             let mut x = l.split(':');
             let name = x.next().unwrap().to_string();
-            // println!("   name = {}", name);
             let list = x.next().unwrap().to_string();
             result.constraints.push(Constraint::new(name, &list));
         } else if phase == 1 {
@@ -196,8 +192,6 @@ fn parse(lines: &Vec<String>) -> Data {
             result.nearby_tickets.push(get_ticket(&l));
         }
     }
-
-    // println!("{:?}", result);
 
     result
 }
