@@ -1,3 +1,5 @@
+use std::collections::{HashMap, HashSet};
+
 use aoc::utils::lines;
 
 pub fn run() {
@@ -5,15 +7,16 @@ pub fn run() {
     let tickets = parse(&file);
 
     println!("Part 1 = {}", tickets.count_invalid());
+    println!("Part 2 = {}", tickets.departure());
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Hash)]
 struct Range {
     min: i64,
     max: i64,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Hash)]
 struct Constraint {
     name: String,
     range: Vec<Range>,
@@ -57,6 +60,15 @@ impl Constraint {
 
         result
     }
+
+    pub fn valid(&self, num: i64) -> bool {
+        for r in &self.range {
+            if num >= r.min && num <= r.max {
+                return true;
+            }
+        }
+        false
+    }
 }
 
 impl Ticket {
@@ -66,12 +78,7 @@ impl Ticket {
         for f in &self.fields {
             let mut found_valid = false;
             for c in constraints {
-                for r in &c.range {
-                    if *f >= r.min && *f <= r.max {
-                        found_valid = true;
-                        break;
-                    }
-                }
+                found_valid = c.valid(*f);
                 if found_valid {
                     break;
                 }
@@ -94,6 +101,55 @@ impl Data {
         }
 
         sum
+    }
+
+    pub fn departure(&self) -> i64 {
+        let mut check = Vec::new();
+        if self.my_ticket.invalid_by(&self.constraints) != 0 {
+            panic!("this can never work");
+        }
+        check.push(&self.my_ticket);
+        for t in &self.nearby_tickets {
+            if t.invalid_by(&self.constraints) == 0 {
+                check.push(&t);
+            }
+        }
+
+        let size = check[0].fields.len();
+        let mut hm = HashMap::<usize, &Constraint>::new();
+        let mut hs = HashSet::<&Constraint>::new();
+        let mut answer = 1;
+
+        while hs.len() < size {
+            for i in 0..size {
+                let mut oklist = Vec::new();
+                for j in &self.constraints {
+                    if hs.contains(j) {
+                        continue;
+                    }
+                    let mut ok = true;
+                    for c in &check {
+                        if !j.valid(c.fields[i]) {
+                            ok = false;
+                            break;
+                        }
+                    }
+                    if ok {
+                        oklist.push(j);
+                    }
+                }
+                if oklist.len() == 1 {
+                    if oklist[0].name.starts_with("departure ") {
+                        answer *= self.my_ticket.fields[i];
+                    }
+                    hm.insert(i, oklist[0]);
+                    hs.insert(oklist[0]);
+                    break;
+                }
+            }
+        }
+
+        answer
     }
 }
 
@@ -173,5 +229,28 @@ mod test {
         let v = test_data();
         let tickets = parse(&v);
         assert_eq!(tickets.count_invalid(), 71);
+    }
+
+    fn test_data_2() -> Vec<String> {
+        vec![
+            "departure class: 0-1 or 4-19".to_string(),
+            "departure row: 0-5 or 8-19".to_string(),
+            "seat: 0-13 or 16-19".to_string(),
+            "".to_string(),
+            "your ticket:".to_string(),
+            "11,12,13".to_string(),
+            "".to_string(),
+            "nearby tickets:".to_string(),
+            "3,9,18".to_string(),
+            "15,1,5".to_string(),
+            "5,14,9".to_string(),
+        ]
+    }
+
+    #[test]
+    fn test2() {
+        let v = test_data_2();
+        let tickets = parse(&v);
+        assert_eq!(tickets.departure(), 132);
     }
 }
