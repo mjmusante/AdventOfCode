@@ -2,12 +2,18 @@ use aoc::utils::lines;
 
 pub fn run() {
     let lines = lines("data/18.txt");
+
     let mut sum = 0;
     for l in &lines {
-        sum += eval(l);
+        sum += eval(l, false);
     }
-
     println!("Part 1 = {}", sum);
+
+    let mut sum = 0;
+    for l in &lines {
+        sum += eval(l, true);
+    }
+    println!("Part 2 = {}", sum);
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -18,7 +24,7 @@ enum Symbol {
     Paren
 }
 
-fn eval(expr: &String) -> i64 {
+fn eval(expr: &String, prec: bool) -> i64 {
     let mut rpn = Vec::<Symbol>::new();
     let mut stack = Vec::<&Symbol>::new();
     let mut num : i64 = 0;
@@ -41,7 +47,20 @@ fn eval(expr: &String) -> i64 {
         }
         if c == '+' || c == '*' {
             if let Some(sym) = stack.last() {
-                if *sym == &Symbol::Add || *sym == &Symbol::Multiply {
+                if prec {
+                    if *sym == &Symbol::Add || *sym == &Symbol::Multiply {
+                        if *sym == &Symbol::Add && c == '*' {
+                            loop {
+                                if let Some(x) = stack.pop() {
+                                    rpn.push(*x);
+                                }
+                                if stack.is_empty() || *stack.last().unwrap() != &Symbol::Add {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                } else if *sym == &Symbol::Add || *sym == &Symbol::Multiply {
                     rpn.push(*stack.pop().unwrap());
                 }
             }
@@ -104,26 +123,51 @@ mod test {
 
     #[test]
     fn test1() {
-        assert_eq!(eval(&"1 + 2 * 3 + 4 * 5 + 6".to_string()), 71);
+        assert_eq!(eval(&"1 + 2 * 3 + 4 * 5 + 6".to_string(), false), 71);
     }
 
     #[test]
     fn test2() {
-        assert_eq!(eval(&"2 * 3 + (4 * 5)".to_string()), 26);
+        assert_eq!(eval(&"2 * 3 + (4 * 5)".to_string(), false), 26);
     }
 
     #[test]
     fn test3() {
-        assert_eq!(eval(&"5 + (8 * 3 + 9 + 3 * 4 * 3)".to_string()), 437);
+        assert_eq!(eval(&"5 + (8 * 3 + 9 + 3 * 4 * 3)".to_string(), false), 437);
     }
 
     #[test]
     fn test4() {
-        assert_eq!(eval(&"5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))".to_string()), 12240);
+        assert_eq!(eval(&"5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))".to_string(), false), 12240);
     }
 
     #[test]
     fn test5() {
-        assert_eq!(eval(&"((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2".to_string()), 13632);
+        assert_eq!(eval(&"((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2".to_string(), false), 13632);
+    }
+
+    #[test]
+    fn test6() {
+        assert_eq!(eval(&"1 + (2 * 3) + (4 * (5 + 6))".to_string(), true), 51);
+    }
+
+    #[test]
+    fn test7() {
+        assert_eq!(eval(&"2 * 3 + (4 * 5)".to_string(), true), 46);
+    }
+
+    #[test]
+    fn test8() {
+        assert_eq!(eval(&"5 + (8 * 3 + 9 + 3 * 4 * 3)".to_string(), true), 1445);
+    }
+
+    #[test]
+    fn test9() {
+        assert_eq!(eval(&"5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))".to_string(), true), 669060);
+    }
+
+    #[test]
+    fn testa() {
+        assert_eq!(eval(&"((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2".to_string(), true), 23340);
     }
 }
