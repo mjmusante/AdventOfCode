@@ -5,9 +5,13 @@ use aoc::utils::lines;
 pub fn run() {
     let lines = lines("data/20.txt");
     let m = parse(&lines);
-    
-    println!("Part 1 = {}", can_match(&m));
+    let what = can_match(&m);
+
+    println!("Part 1 = {}", what.0);
+    println!("Part 2 = {}", what.1);
 }
+
+type ImgData = [u8; 8];
 
 #[derive(Debug, Eq, PartialEq, Hash, Copy, Clone)]
 struct Tile {
@@ -17,7 +21,8 @@ struct Tile {
     south: i64,
     west: i64,
     rot: i64,
-    flipped: bool
+    flipped: bool,
+    img: ImgData,
 }
 
 impl Tile {
@@ -58,6 +63,65 @@ fn to_num(s: &String) -> i64 {
     num
 }
 
+fn rotate_hashimg_right(
+    old_img: &HashSet<(i64, i64)>,
+    min: &(i64, i64),
+    max: &(i64, i64),
+) -> HashSet<(i64, i64)> {
+    let mut result = HashSet::new();
+    for col in min.0..=max.0 {
+        for row in min.1..=max.1 {
+            let rot = (max.0 - (row - min.1), min.1 + (col - min.0));
+            // println!("{:?} <- {:?}", (col, row), rot);
+            if old_img.contains(&rot) {
+                result.insert((col, row));
+            }
+        }
+    }
+    println!("rotated");
+    result
+}
+
+fn flip_hashimg(
+    old_img: &HashSet<(i64, i64)>,
+    min: &(i64, i64),
+    max: &(i64, i64),
+) -> HashSet<(i64, i64)> {
+    let mut result = HashSet::new();
+    for col in min.0..=max.0 {
+        for row in min.1..=max.1 {
+            if old_img.contains(&(max.0 - col, row)) {
+                result.insert((col, row));
+            }
+        }
+    }
+    result
+}
+
+fn rotate_img_right(old_img: &ImgData) -> ImgData {
+    let mut img = [0; 8];
+
+    for bit in 0..8 {
+        let mut data = 0;
+        for i in (0..8).rev() {
+            data <<= 1;
+            data |= if (old_img[i] & (1 << bit)) != 0 { 1 } else { 0 };
+        }
+        img[7 - bit] = data;
+    }
+
+    img
+}
+
+fn flip_image(old_img: &ImgData) -> ImgData {
+    let mut img = [0; 8];
+
+    for i in 0..8 {
+        img[7 - i] = old_img[i];
+    }
+    img
+}
+
 fn rotate_tile_right(t: &Tile) -> Tile {
     Tile {
         num: t.num,
@@ -67,6 +131,7 @@ fn rotate_tile_right(t: &Tile) -> Tile {
         west: t.south,
         rot: t.rot + 1,
         flipped: t.flipped,
+        img: rotate_img_right(&t.img),
     }
 }
 
@@ -80,6 +145,7 @@ fn parse(lines: &Vec<String>) -> Vec<Tile> {
         west: 0,
         rot: 0,
         flipped: false,
+        img: [0; 8],
     };
     let mut row = 0;
 
@@ -94,6 +160,7 @@ fn parse(lines: &Vec<String>) -> Vec<Tile> {
                 west: 0,
                 rot: 0,
                 flipped: false,
+                img: [0; 8],
             };
             continue;
         }
@@ -112,6 +179,7 @@ fn parse(lines: &Vec<String>) -> Vec<Tile> {
                 tile.east <<= 1;
                 tile.east |= if &l[9..=9] == "#" { 1 } else { 0 };
                 tile.west |= if &l[0..=0] == "#" { 1 << row } else { 0 };
+                tile.img[row - 1] = to_num(&l[1..9].to_string()) as u8;
             }
             9 => {
                 tile.south = reverse(to_num(l));
@@ -130,6 +198,32 @@ fn parse(lines: &Vec<String>) -> Vec<Tile> {
     result
 }
 
+fn image_data(
+    map: &HashMap<(i64, i64), &Tile>,
+    min: &(i64, i64),
+    max: &(i64, i64),
+) -> HashSet<(i64, i64)> {
+    let mut image = HashSet::new();
+
+    for row in min.1..=max.1 {
+        for col in min.0..=max.0 {
+            let tile = map.get(&(col, row)).unwrap();
+            for i in 0..8 {
+                let d = tile.img[i];
+                for bit in (0..8).rev() {
+                    if (d & (1 << bit)) != 0 {
+                        let locx = col * 8 + (7 - bit);
+                        let locy = row * 8 + (7 - i as i64);
+                        image.insert((locx, locy));
+                    }
+                }
+            }
+        }
+    }
+
+    image
+}
+
 fn flip(tile: &Tile) -> Tile {
     Tile {
         num: tile.num,
@@ -139,17 +233,18 @@ fn flip(tile: &Tile) -> Tile {
         west: reverse(tile.west),
         rot: tile.rot,
         flipped: !tile.flipped,
+        img: flip_image(&tile.img),
     }
 }
 
-fn try_fit(map: &HashMap::<(i64, i64), &Tile>, pos: &(i64, i64), t: &Tile) -> Vec<Tile> {
+fn try_fit(map: &HashMap<(i64, i64), &Tile>, pos: &(i64, i64), t: &Tile) -> Vec<Tile> {
     let mut result = Vec::new();
-    let north = &(pos.0, pos.1+1);
-    let south = &(pos.0, pos.1-1);
-    let east = &(pos.0+1, pos.1);
-    let west = &(pos.0-1, pos.1);
+    let north = &(pos.0, pos.1 + 1);
+    let south = &(pos.0, pos.1 - 1);
+    let east = &(pos.0 + 1, pos.1);
+    let west = &(pos.0 - 1, pos.1);
 
-    let mut cur_t : Tile = *t;
+    let mut cur_t: Tile = *t;
 
     for flipped in &[false, true] {
         if *flipped {
@@ -183,7 +278,7 @@ fn try_fit(map: &HashMap::<(i64, i64), &Tile>, pos: &(i64, i64), t: &Tile) -> Ve
     result
 }
 
-fn solve(map: &HashMap::<(i64, i64), &Tile>, hs: &HashSet<&Tile>) -> i64 {
+fn solve(map: &HashMap<(i64, i64), &Tile>, hs: &HashSet<&Tile>) -> (i64, i64) {
     if hs.is_empty() {
         let mut min = (0, 0);
         let mut max = (0, 0);
@@ -201,18 +296,119 @@ fn solve(map: &HashMap::<(i64, i64), &Tile>, hs: &HashSet<&Tile>) -> i64 {
                 max.1 = i.1;
             }
         }
+
+        println!("bounds = [{:?}, {:?}]", min, max);
+        for i in min.0..=max.0 {
+            for j in min.1..=max.1 {
+                print!(" {}", map.get(&(i, j)).unwrap().num);
+            }
+            println!("");
+        }
+        let part1 = map.get(&(min.0, min.1)).unwrap().num
+            * map.get(&(min.0, max.1)).unwrap().num
+            * map.get(&(max.0, min.1)).unwrap().num
+            * map.get(&(max.0, max.1)).unwrap().num;
+
+        let imgdata = image_data(map, &min, &max);
+        min.0 = 0;
+        min.1 = 0;
+        max.0 = 0;
+        max.1 = 0;
+        for i in &imgdata {
+            if i.0 < min.0 {
+                min.0 = i.0;
+            }
+            if i.1 < min.1 {
+                min.1 = i.1;
+            }
+            if i.0 > max.0 {
+                max.0 = i.0;
+            }
+            if i.1 > max.1 {
+                max.1 = i.1;
+            }
+        }
+
         // println!("bounds = [{:?}, {:?}]", min, max);
-        // for i in min.0..=max.0 {
-        //     for j in min.1..=max.1 {
-        //         print!(" {}", map.get(&(i, j)).unwrap().num);
+        // for i in (min.1..=max.1).rev() {
+        //     print!("{:5}: ", i);
+        //     for j in min.0..=max.0 {
+        //         if imgdata.contains(&(j, i)) {
+        //             print!("#");
+        //         } else {
+        //             print!(".");
+        //         }
         //     }
         //     println!("");
         // }
-        return
-            map.get(&(min.0, min.1)).unwrap().num *
-            map.get(&(min.0, max.1)).unwrap().num *
-            map.get(&(max.0, min.1)).unwrap().num *
-            map.get(&(max.0, max.1)).unwrap().num;
+
+        // let rotat = rotate_hashimg_right(&imgdata, &min, &max);
+        // for i in (min.1..=max.1).rev() {
+        //     print!("{:5}: ", i);
+        //     for j in min.0..=max.0 {
+        //         if rotat.contains(&(j, i)) {
+        //             print!("#");
+        //         } else {
+        //             print!(".");
+        //         }
+        //     }
+        //     println!("");
+        // }
+
+        let pattern = [
+            (0, 0),
+            (0, 5),
+            (0, 6),
+            (0, 11),
+            (0, 12),
+            (0, 17),
+            (0, 18),
+            (0, 19),
+            (-1, 18),
+            (1, 1),
+            (1, 4),
+            (1, 7),
+            (1, 10),
+            (1, 13),
+            (1, 16),
+        ];
+
+        let mut maxserpents = 0;
+        let mut cur_img = imgdata.clone();
+        for flipped in &[false, true] {
+            let mut serpents = 0;
+            if *flipped {
+                cur_img = flip_hashimg(&cur_img, &min, &max);
+            }
+            for _ in 0..3 {
+                for row in (min.1 + 1)..=max.1 {
+                    for col in min.0..=max.0 {
+                        let mut count = pattern.len();
+                        for p in &pattern {
+                            if cur_img.contains(&(col + p.0, row + p.1)) {
+                                count -= 1;
+                            } else {
+                                break;
+                            }
+                        }
+                        if count == 0 {
+                            serpents += 1;
+                        }
+                    }
+                }
+                if serpents > 0 {
+                    break;
+                }
+                cur_img = rotate_hashimg_right(&cur_img, &min, &max);
+            }
+            if serpents > maxserpents {
+                maxserpents = serpents;
+            }
+        }
+        println!("{} serpents found", maxserpents);
+
+        let part2 = imgdata.len() - maxserpents * pattern.len();
+        return (part1, part2 as i64);
     }
 
     for tile in hs {
@@ -229,7 +425,7 @@ fn solve(map: &HashMap::<(i64, i64), &Tile>, hs: &HashSet<&Tile>) -> i64 {
                         let mut remainder = hs.clone();
                         remainder.remove(tile);
                         let result = solve(&newmap, &remainder);
-                        if result != 0 {
+                        if result.0 != 0 {
                             return result;
                         }
                     }
@@ -238,25 +434,25 @@ fn solve(map: &HashMap::<(i64, i64), &Tile>, hs: &HashSet<&Tile>) -> i64 {
         }
     }
 
-    0
+    (0, 0)
 }
 
-fn can_match(tiles: &Vec<Tile>) -> i64 {
-    let hs : HashSet<&Tile> = tiles.iter().collect();
+fn can_match(tiles: &Vec<Tile>) -> (i64, i64) {
+    let hs: HashSet<&Tile> = tiles.iter().collect();
 
     for tile in &hs {
-        let mut h2 : HashSet<&Tile> = HashSet::new();
+        let mut h2: HashSet<&Tile> = HashSet::new();
         h2.insert(tile);
-        let remainder : HashSet<&Tile> = hs.difference(&h2).map(|x| *x).collect();
+        let remainder: HashSet<&Tile> = hs.difference(&h2).map(|x| *x).collect();
         let mut map = HashMap::<(i64, i64), &Tile>::new();
         map.insert((0, 0), tile);
         let answer = solve(&map, &remainder);
-        if answer != 0 {
+        if answer.0 != 0 {
             return answer;
         }
     }
 
-    0
+    (0, 0)
 }
 
 #[cfg(test)]
@@ -381,7 +577,17 @@ mod test {
             "..#.###...".to_string(),
         ];
         let m = parse(&v);
+        let first = m.get(0).unwrap();
 
-        assert_eq!(can_match(&m), 20899048083289);
+        assert_eq!(first.num, 2311);
+        assert_eq!(first.img[0], 144);
+
+        assert_eq!(can_match(&m), (20899048083289, 273));
+    }
+
+    #[test]
+    fn test2() {
+        let img: ImgData = [0xff, 0x80, 0x80, 0x80, 0, 0, 0, 0];
+        assert_eq!(rotate_img_right(&img), [15, 1, 1, 1, 1, 1, 1, 1]);
     }
 }
