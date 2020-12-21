@@ -5,8 +5,10 @@ use aoc::utils::lines;
 pub fn run() {
     let lines = lines("data/21.txt");
     let food = parse(&lines);
+    let safe = count_safe(&food);
 
-    println!("Part 1 = {}", count_safe(&food));
+    println!("Part 1 = {}", safe.0);
+    println!("Part 2 = {}", safe.1);
 }
 
 #[derive(Debug)]
@@ -45,7 +47,7 @@ fn parse(lines: &Vec<String>) -> Vec<Food> {
     result
 }
 
-fn count_safe(foods: &Vec<Food>) -> i64 {
+fn count_safe(foods: &Vec<Food>) -> (i64, String) {
     let mut hm = HashMap::<&String, HashSet<&String>>::new();
 
     for f in foods {
@@ -69,6 +71,44 @@ fn count_safe(foods: &Vec<Food>) -> i64 {
         }
     }
 
+    let mut suslist = Vec::<(&String, &String)>::new();
+    loop {
+        let mut allergen = None;
+        for (a, s) in &hm {
+            if s.len() == 1 {
+                allergen = Some(*a);
+                break;
+            }
+        }
+
+        if let Some(a) = allergen {
+            let mut newhm = HashMap::<&String, HashSet<&String>>::new();
+
+            for sus in hm.get(&a).unwrap() {
+                suslist.push((a, sus));
+                for k in hm.keys() {
+                    let mut hs = HashSet::<&String>::new();
+                    for i in hm.get(k).unwrap() {
+                        if i != sus {
+                            hs.insert(i);
+                        }
+                    }
+                    newhm.insert(k, hs);
+                }
+            }
+            hm = newhm;
+        } else {
+            // we assume there's a solution
+            break;
+        }
+    }
+    suslist.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+    let output = suslist
+        .into_iter()
+        .map(|x| x.1.to_string())
+        .collect::<Vec<String>>()
+        .join(",");
+
     let mut count = 0;
     for f in foods {
         for i in &f.ingredients {
@@ -78,7 +118,7 @@ fn count_safe(foods: &Vec<Food>) -> i64 {
         }
     }
 
-    count
+    (count, output)
 }
 
 #[cfg(test)]
@@ -94,6 +134,8 @@ mod test {
             "sqjhc mxmxvkd sbzzf (contains fish)".to_string(),
         ];
         let foods = parse(&v);
-        assert_eq!(count_safe(&foods), 5);
+        let safe = count_safe(&foods);
+        assert_eq!(safe.0, 5);
+        assert_eq!(safe.1, "mxmxvkd,sqjhc,fvjkl".to_string());
     }
 }
