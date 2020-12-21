@@ -72,13 +72,11 @@ fn rotate_hashimg_right(
     for col in min.0..=max.0 {
         for row in min.1..=max.1 {
             let rot = (max.0 - (row - min.1), min.1 + (col - min.0));
-            // println!("{:?} <- {:?}", (col, row), rot);
             if old_img.contains(&rot) {
                 result.insert((col, row));
             }
         }
     }
-    println!("rotated");
     result
 }
 
@@ -297,13 +295,6 @@ fn solve(map: &HashMap<(i64, i64), &Tile>, hs: &HashSet<&Tile>) -> (i64, i64) {
             }
         }
 
-        println!("bounds = [{:?}, {:?}]", min, max);
-        for i in min.0..=max.0 {
-            for j in min.1..=max.1 {
-                print!(" {}", map.get(&(i, j)).unwrap().num);
-            }
-            println!("");
-        }
         let part1 = map.get(&(min.0, min.1)).unwrap().num
             * map.get(&(min.0, max.1)).unwrap().num
             * map.get(&(max.0, min.1)).unwrap().num
@@ -328,32 +319,6 @@ fn solve(map: &HashMap<(i64, i64), &Tile>, hs: &HashSet<&Tile>) -> (i64, i64) {
                 max.1 = i.1;
             }
         }
-
-        // println!("bounds = [{:?}, {:?}]", min, max);
-        // for i in (min.1..=max.1).rev() {
-        //     print!("{:5}: ", i);
-        //     for j in min.0..=max.0 {
-        //         if imgdata.contains(&(j, i)) {
-        //             print!("#");
-        //         } else {
-        //             print!(".");
-        //         }
-        //     }
-        //     println!("");
-        // }
-
-        // let rotat = rotate_hashimg_right(&imgdata, &min, &max);
-        // for i in (min.1..=max.1).rev() {
-        //     print!("{:5}: ", i);
-        //     for j in min.0..=max.0 {
-        //         if rotat.contains(&(j, i)) {
-        //             print!("#");
-        //         } else {
-        //             print!(".");
-        //         }
-        //     }
-        //     println!("");
-        // }
 
         let pattern = [
             (0, 0),
@@ -405,7 +370,6 @@ fn solve(map: &HashMap<(i64, i64), &Tile>, hs: &HashSet<&Tile>) -> (i64, i64) {
                 maxserpents = serpents;
             }
         }
-        println!("{} serpents found", maxserpents);
 
         let part2 = imgdata.len() - maxserpents * pattern.len();
         return (part1, part2 as i64);
