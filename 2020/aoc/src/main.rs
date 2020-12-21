@@ -21,6 +21,7 @@ mod day17;
 mod day18;
 mod day19;
 mod day20;
+mod day21;
 
 type Func = fn();
 
@@ -46,6 +47,7 @@ fn main() {
         day18::run,
         day19::run,
         day20::run,
+        day21::run,
     ];
     let mut total = Duration::new(0, 0);
 
