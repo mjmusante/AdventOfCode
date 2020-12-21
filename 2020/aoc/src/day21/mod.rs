@@ -1,18 +1,33 @@
-pub fn run() {}
+use std::collections::{HashMap, HashSet};
+
+use aoc::utils::lines;
+
+pub fn run() {
+    let lines = lines("data/21.txt");
+    let food = parse(&lines);
+
+    println!("Part 1 = {}", count_safe(&food));
+}
 
 #[derive(Debug)]
 struct Food {
     ingredients: Vec<String>,
-    allergens: Vec<String>
+    allergens: Vec<String>,
 }
 
 fn parse(lines: &Vec<String>) -> Vec<Food> {
     let mut result = Vec::new();
 
     for l in lines {
-        let mut food = Food { ingredients: Vec::new(), allergens: Vec::new() };
+        let mut food = Food {
+            ingredients: Vec::new(),
+            allergens: Vec::new(),
+        };
         let mut ing = true;
-        let trimmed : String = l.chars().filter(|c| *c != ',' && *c != '(' && *c != ')').collect();
+        let trimmed: String = l
+            .chars()
+            .filter(|c| *c != ',' && *c != '(' && *c != ')')
+            .collect();
         for s in trimmed.split_whitespace() {
             if ing {
                 if s == "contains" {
@@ -24,7 +39,6 @@ fn parse(lines: &Vec<String>) -> Vec<Food> {
                 food.allergens.push(s.to_string());
             }
         }
-        println!("{:?}", food);
         result.push(food);
     }
 
@@ -32,7 +46,39 @@ fn parse(lines: &Vec<String>) -> Vec<Food> {
 }
 
 fn count_safe(foods: &Vec<Food>) -> i64 {
-    foods.len() as i64
+    let mut hm = HashMap::<&String, HashSet<&String>>::new();
+
+    for f in foods {
+        for a in &f.allergens {
+            let mut hs = HashSet::<&String>::new();
+            for i in &f.ingredients {
+                hs.insert(i);
+            }
+            if hm.contains_key(a) {
+                let existing = hm.get(a).unwrap();
+                hs = hs.intersection(existing).map(|x| *x).collect();
+            }
+            hm.insert(a, hs);
+        }
+    }
+
+    let mut suspects = HashSet::new();
+    for (_, val) in &hm {
+        for sus in val {
+            suspects.insert(*sus);
+        }
+    }
+
+    let mut count = 0;
+    for f in foods {
+        for i in &f.ingredients {
+            if !suspects.contains(i) {
+                count += 1;
+            }
+        }
+    }
+
+    count
 }
 
 #[cfg(test)]
