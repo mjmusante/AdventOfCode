@@ -3,7 +3,7 @@ pub fn run() {}
 #[derive(Debug)]
 enum Match {
     Str(char),
-    Index(i64)
+    Index(i64),
 }
 
 #[derive(Debug)]
@@ -15,17 +15,50 @@ struct Rule {
 #[derive(Debug)]
 struct Messages {
     rules: Vec<Rule>,
-    messages: Vec<String>
+    messages: Vec<String>,
 }
 
 impl Messages {
+    fn match_alternatives(&self, _idx: i64, _msg: &String) -> bool {
+        false
+    }
+
+    pub fn matches(&self, msg: &String) -> bool {
+        let rule = &self.rules[0].alt[0];
+
+        for r in rule {
+            match r {
+                Match::Str(ch) => {
+                    let (left, right) = msg.split_at(1);
+                    if left.chars().next() == Some(*ch) {
+                        return self.matches(&right.to_string());
+                    }
+                }
+                Match::Index(i) => {
+                    return self.match_alternatives(*i, msg);
+                }
+            }
+        }
+
+        false
+    }
+
     pub fn count_match(&self) -> i64 {
-        self.messages.len() as i64
+        let mut count = 0;
+
+        for m in &self.messages {
+            count += if self.matches(&m) { 1 } else { 0 };
+        }
+
+        count
     }
 }
 
 fn parse(lines: &Vec<String>) -> Messages {
-    let mut ans = Messages { rules: Vec::new(), messages: Vec::new() };
+    let mut ans = Messages {
+        rules: Vec::new(),
+        messages: Vec::new(),
+    };
     let mut rules = true;
 
     for l in lines {
@@ -36,8 +69,11 @@ fn parse(lines: &Vec<String>) -> Messages {
 
         if rules {
             let mut p = l.split(":");
-            let num : i64 = p.next().unwrap().parse().unwrap();
-            let mut rule = Rule { num, alt: Vec::new() };
+            let num: i64 = p.next().unwrap().parse().unwrap();
+            let mut rule = Rule {
+                num,
+                alt: Vec::new(),
+            };
 
             let mut nr = Vec::new();
 
@@ -64,7 +100,7 @@ fn parse(lines: &Vec<String>) -> Messages {
 
     ans.rules.sort_by(|a, b| a.num.cmp(&b.num));
 
-    println!("{:?}", ans);
+    // println!("{:?}", ans);
 
     ans
 }
