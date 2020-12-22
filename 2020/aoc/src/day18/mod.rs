@@ -21,13 +21,13 @@ enum Symbol {
     Num(i64),
     Add,
     Multiply,
-    Paren
+    Paren,
 }
 
 fn eval(expr: &String, prec: bool) -> i64 {
     let mut rpn = Vec::<Symbol>::new();
     let mut stack = Vec::<&Symbol>::new();
-    let mut num : i64 = 0;
+    let mut num: i64 = 0;
     let mut num_started = false;
 
     for c in expr.chars() {
@@ -64,15 +64,23 @@ fn eval(expr: &String, prec: bool) -> i64 {
                     rpn.push(*stack.pop().unwrap());
                 }
             }
-            stack.push(match c { '+' => &Symbol::Add, '*' => &Symbol::Multiply, _ => panic!("yikes") });
+            stack.push(match c {
+                '+' => &Symbol::Add,
+                '*' => &Symbol::Multiply,
+                _ => panic!("yikes"),
+            });
         } else if c == '(' {
             stack.push(&Symbol::Paren);
         } else if c == ')' {
             loop {
                 if let Some(sym) = stack.pop() {
                     match sym {
-                        Symbol::Add | Symbol::Multiply => { rpn.push(*sym); },
-                        Symbol::Paren => { break; },
+                        Symbol::Add | Symbol::Multiply => {
+                            rpn.push(*sym);
+                        }
+                        Symbol::Paren => {
+                            break;
+                        }
                         _ => panic!("number on stack"),
                     }
                 }
@@ -94,13 +102,15 @@ fn eval(expr: &String, prec: bool) -> i64 {
     let mut mem = Vec::<i64>::new();
     for op in &rpn {
         match op {
-            Symbol::Num(n) => { mem.push(*n); },
+            Symbol::Num(n) => {
+                mem.push(*n);
+            }
             Symbol::Add => {
                 let i = mem.pop().unwrap();
                 let j = mem.pop().unwrap();
                 // println!("Adding {} and {}", i, j);
                 mem.push(i + j);
-            },
+            }
             Symbol::Multiply => {
                 let i = mem.pop().unwrap();
                 let j = mem.pop().unwrap();
@@ -138,12 +148,24 @@ mod test {
 
     #[test]
     fn test4() {
-        assert_eq!(eval(&"5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))".to_string(), false), 12240);
+        assert_eq!(
+            eval(
+                &"5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))".to_string(),
+                false
+            ),
+            12240
+        );
     }
 
     #[test]
     fn test5() {
-        assert_eq!(eval(&"((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2".to_string(), false), 13632);
+        assert_eq!(
+            eval(
+                &"((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2".to_string(),
+                false
+            ),
+            13632
+        );
     }
 
     #[test]
@@ -163,11 +185,23 @@ mod test {
 
     #[test]
     fn test9() {
-        assert_eq!(eval(&"5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))".to_string(), true), 669060);
+        assert_eq!(
+            eval(
+                &"5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))".to_string(),
+                true
+            ),
+            669060
+        );
     }
 
     #[test]
     fn testa() {
-        assert_eq!(eval(&"((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2".to_string(), true), 23340);
+        assert_eq!(
+            eval(
+                &"((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2".to_string(),
+                true
+            ),
+            23340
+        );
     }
 }
