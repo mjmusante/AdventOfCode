@@ -60,7 +60,6 @@ fn score(h1: &Vec<i64>, h2: &Vec<i64>) -> i64 {
     result
 }
 
-
 #[cfg(test)]
 mod test {
     use super::*;

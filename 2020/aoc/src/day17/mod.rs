@@ -257,7 +257,8 @@ mod test {
         assert_eq!(u.count_active(), 112);
     }
 
-    #[test] #[ignore]
+    #[test]
+    #[ignore]
     fn test2() {
         let v = vec![".#.".to_string(), "..#".to_string(), "###".to_string()];
         let mut u = parse4(&v);
