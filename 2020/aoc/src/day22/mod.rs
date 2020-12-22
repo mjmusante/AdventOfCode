@@ -101,17 +101,17 @@ fn recursive(h1: &Vec<i64>, h2: &Vec<i64>, top: bool) -> (bool, i64) {
             // let (slice_h2, _) = player2.as_slices();
             // let new_h1 = Vec::from(&slice_h1[0..c1 as usize]);
             // let new_h2 = Vec::from(&slice_h2[0..c2 as usize]);
-            let new_h1 = player1.iter().take(c1 as usize).copied().collect();
-            let new_h2 = player2.iter().take(c2 as usize).copied().collect();
+            let new_h1: Vec<i64> = player1.iter().take(c1 as usize).copied().collect();
+            let new_h2: Vec<i64> = player2.iter().take(c2 as usize).copied().collect();
 
-            // let max_h1 = new_h1.iter().max();
-            // let max_h2 = new_h2.iter().max();
+            let max_h1 = new_h1.iter().max();
+            let max_h2 = new_h2.iter().max();
             // println!("== checking subgame ===");
-            // p1win = max_h1 > max_h2;
-            // if !p1win {
-            let (real_win, _) = recursive(&new_h1, &new_h2, false);
-            p1win = real_win;
-            // }
+            p1win = max_h1 > max_h2;
+            if !p1win {
+                let (real_win, _) = recursive(&new_h1, &new_h2, false);
+                p1win = real_win;
+            }
         }
 
         if p1win {
