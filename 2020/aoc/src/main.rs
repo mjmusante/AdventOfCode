@@ -55,7 +55,7 @@ fn main() {
         day22::run,
         day23::run,
         day24::run,
-        day25::run
+        day25::run,
     ];
     let mut total = Duration::new(0, 0);
 

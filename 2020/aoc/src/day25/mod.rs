@@ -4,9 +4,7 @@ pub fn run() {
     let vals = nums("data/25.txt");
 
     println!("Part 1 = {}", solve(vals[0], vals[1]));
-
 }
-
 
 fn find_loop_of(key: i64) -> i64 {
     let mut ans = 7;
@@ -39,7 +37,6 @@ mod test {
     fn test1() {
         assert_eq!(find_loop_of(17807724), 11);
         assert_eq!(find_loop_of(5764801), 8);
-
     }
 
     #[test]
