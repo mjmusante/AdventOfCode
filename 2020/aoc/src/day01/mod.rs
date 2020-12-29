@@ -12,13 +12,13 @@ pub fn run() {
 }
 
 fn prod_sum(v: &Vec<i64>, n: usize) -> i64 {
-    let hs : HashSet::<i64> = HashSet::from_iter(v.iter().cloned());
+    let hs: HashSet<i64> = HashSet::from_iter(v.iter().cloned());
     let iv = hs.iter().cloned().combinations(n - 1);
 
     for inverse in iv {
-        let tot : i64 = inverse.iter().sum();
+        let tot: i64 = inverse.iter().sum();
         if hs.contains(&(2020 - tot)) {
-            return inverse.iter().fold(2020 - tot, |prod, &mul| prod *  mul);
+            return inverse.iter().fold(2020 - tot, |prod, &mul| prod * mul);
         }
     }
 
