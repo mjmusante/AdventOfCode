@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::fs::{read_to_string, File};
 use std::io::prelude::*;
 use std::io::BufReader;
@@ -32,6 +33,22 @@ pub fn nums(filename: impl AsRef<Path>) -> Vec<i64> {
     }
 
     v
+}
+
+pub fn set_of_nums(filename: impl AsRef<Path>) -> HashSet<i64> {
+    let file = File::open(filename).expect("cannot find file");
+    let buf = BufReader::new(file);
+    let mut hs = HashSet::new();
+
+    for i in buf
+        .lines()
+        .map(|line| line.unwrap())
+        .map(|num| num.parse().ok().unwrap())
+    {
+        hs.insert(i);
+    }
+
+    hs
 }
 
 pub fn mod_inv(num: i128, modulus: i128) -> Option<i128> {
