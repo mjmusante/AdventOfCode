@@ -1,5 +1,5 @@
 use aoc::utils::lines;
-use aoc::utils::mod_inv;
+use aoc::maths::mod_inv;
 
 pub fn run() {
     let data = parse(&lines("data/13.txt"));
