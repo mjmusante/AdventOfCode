@@ -1,4 +1,5 @@
-use std::collections::HashSet;
+use regex::Regex;
+use std::collections::{HashMap, HashSet};
 use std::fs::{read_to_string, File};
 use std::io::prelude::*;
 use std::io::BufReader;
@@ -49,6 +50,25 @@ pub fn set_of_nums(filename: impl AsRef<Path>) -> HashSet<i64> {
     }
 
     hs
+}
+
+pub fn parse_file(filename: impl AsRef<Path>, pattern: &str) -> Vec<HashMap<String, String>> {
+    parse_vector(&lines(filename), pattern)
+}
+
+pub fn parse_vector(lines: &Vec<String>, pattern: &str) -> Vec<HashMap<String, String>> {
+    let re = Regex::new(pattern).unwrap();
+    let mut result = Vec::new();
+
+    for l in lines {
+        let caps = re.captures(&l).unwrap();
+        let dict : HashMap<String, String> = re.capture_names().flatten()
+            .filter_map(|grp| Some((grp.to_string(), caps.name(grp).unwrap().as_str().to_string())))
+            .collect();
+        result.push(dict);
+    }
+
+    result
 }
 
 pub fn mod_inv(num: i128, modulus: i128) -> Option<i128> {

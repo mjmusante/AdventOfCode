@@ -1,14 +1,15 @@
-use aoc::utils::lines;
+use aoc::utils::parse_file;
+use std::collections::HashMap;
 
-use regex::Regex;
+const REXP : &str = r"(?P<min>\d+)-(?P<max>\d+) (?P<ch>.): (?P<passwd>.*)";
 
 pub fn run() {
-    let c = Checker::new();
+    let hm = parse_file("data/02.txt", REXP);
     let mut p1valid = 0;
     let mut p2valid = 0;
-    let data = lines("data/02.txt");
-    for d in data {
-        let (part1, part2) = c.check(&d);
+
+    for h in hm {
+        let (part1, part2) = valid_pwd(&h);
         if part1 {
             p1valid += 1;
         }
@@ -16,64 +17,50 @@ pub fn run() {
             p2valid += 1
         }
     }
+
     println!("Part 1 = {}", p1valid);
     println!("Part 2 = {}", p2valid);
 }
 
-struct Checker {
-    reg: Regex,
-}
+pub fn valid_pwd(hm: &HashMap<String, String>) -> (bool, bool) {
+    let min = hm["min"].parse::<usize>().unwrap();
+    let max = hm["max"].parse::<usize>().unwrap();
+    let letter = hm["ch"].chars().next().unwrap();
+    let mut count = 0;
+    let mut pvalid = false;
 
-impl Checker {
-    pub fn new() -> Checker {
-        Checker {
-            reg: Regex::new(r"(\d+)-(\d+) (.): (.*)").unwrap(),
-        }
-    }
-
-    pub fn check(&self, line: &str) -> (bool, bool) {
-        let foo = self.reg.captures_iter(line).next().unwrap();
-        let low = foo[1].parse::<i64>().unwrap();
-        let high = foo[2].parse::<i64>().unwrap();
-        let letter = foo[3].to_string().chars().next().unwrap();
-        let passwd = foo[4].to_string();
-
-        let mut count = 0;
-        let mut pvalid = false;
-        let mut loc = 1;
-        for n in passwd.chars() {
-            if n == letter {
-                count += 1;
-                if loc == low || loc == high {
-                    pvalid = !pvalid;
-                }
+    for (i, ch) in hm["passwd"].chars().enumerate() {
+        if ch == letter {
+            count += 1;
+            if i + 1 == min || i + 1 == max {
+                pvalid = !pvalid;
             }
-            loc += 1;
         }
-
-        (count >= low && count <= high, pvalid)
     }
+
+    (count >= min && count  <= max, pvalid)
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
+    use aoc::utils::parse_vector;
 
     #[test]
     fn test1() {
-        let c = Checker::new();
-        assert_eq!(c.check("1-3 a: abcde"), (true, true));
+        let v = vec!["1-3 a: abcde".to_string()];
+        assert_eq!(valid_pwd(&parse_vector(&v, REXP)[0]), (true, true));
     }
 
     #[test]
     fn test2() {
-        let c = Checker::new();
-        assert_eq!(c.check("1-3 b: cdefg"), (false, false));
+        let v = vec!["1-3 b: cdefg".to_string()];
+        assert_eq!(valid_pwd(&parse_vector(&v, REXP)[0]), (false, false));
     }
 
     #[test]
     fn test3() {
-        let c = Checker::new();
-        assert_eq!(c.check("2-9 c: ccccccccc"), (true, false));
+        let v = vec!["2-9 c: ccccccccc".to_string()];
+        assert_eq!(valid_pwd(&parse_vector(&v, REXP)[0]), (true, false));
     }
 }
