@@ -1,32 +1,33 @@
 use aoc::utils::lines;
 
-pub fn run() {
-    let lines = lines("data/03.txt");
+use aoc::grid::Grid2D;
 
-    let part1 = count(&lines, 3, 1);
+pub fn run() {
+    let grid = Grid2D::new_from_file("data/03.txt");
+
+    let part1 = count_2d(&grid, 3, 1);
     println!("Part 1 = {}", part1);
 
     let slopes = vec![(1, 1), (5, 1), (7, 1), (1, 2)];
     let part2 = slopes
         .iter()
-        .map(|(right, down)| count(&lines, *right, *down))
+        .map(|(right, down)| count_2d(&grid, *right, *down))
         .fold(part1, |prod, x| prod * x);
     println!("Part 2 = {}", part2);
 }
 
-fn count(grid: &Vec<String>, right: usize, down: usize) -> usize {
-    let width = grid.get(0).unwrap().len();
+fn count_2d(grid: &Grid2D, right: i64, down: usize) -> usize {
+    let mut count = 0;
     let mut col = 0;
-    let mut trees = 0;
 
-    for line in grid.iter().step_by(down) {
-        if line.chars().nth(col).unwrap() == '#' {
-            trees += 1;
+    for row in grid.rows().step_by(down) {
+        if grid.contains(row, col) {
+            count += 1;
         }
-        col = (col + right) % width;
+        col = (col + right) % grid.col_count();
     }
 
-    trees
+    count
 }
 
 #[cfg(test)]
@@ -49,6 +50,9 @@ mod test {
             ".#..#...#.#".to_string(),
         ];
         assert_eq!(count(&v, 3, 1), 7);
+
+        let g2d = Grid2D::new_from_vec(&v);
+        assert_eq!(count_2d(&g2d, 3, 1), 7);
     }
 
     #[test]
@@ -67,10 +71,12 @@ mod test {
             "#...##....#".to_string(),
             ".#..#...#.#".to_string(),
         ];
+
+        let g2d = Grid2D::new_from_vec(&v);
         assert_eq!(
             slopes
                 .iter()
-                .map(|(right, down)| count(&v, *right, *down))
+                .map(|(right, down)| count_2d(&g2d, *right, *down))
                 .fold(1, |prod, x| prod * x),
             336
         );
